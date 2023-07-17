@@ -1,0 +1,28 @@
+:root {
+  --body-bg-color: #fbfbfb;
+  --theme-bg-color: #fff;
+  --body-color: #1b1f31;
+  --main-color: #7a7e9d;
+  --main-light-color: #a1a4b9;
+  --title-color: #979dc3;
+  --button-bg-color: #eaeefc;
+  --main-container-bg: #f0f0f7;
+  --danger-color: rgb(207, 25, 25);
+
+  --border-white: #e5e4e9;
+  --primary-color: #05287f;
+  --secondary-color: #eaeefc;
+  --light-blue: #0066ffa3;
+  --border-color: #0737b180;
+  /* --border-color: #0737b1; */
+  --white: #fff;
+  --gray: #616161;
+}
+
+#root {
+  height: 100vh;
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* align-items: center; */
+  font-family: 'NunitoSans', sans-serif;
+}
