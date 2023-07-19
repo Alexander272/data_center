@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 // import { api, unauthenticatedMiddleware } from './api/base'
 // import userReducer from './user'
+import criterionsReducer from './criterions'
 
 export const store = configureStore({
 	reducer: {
+		criterions: criterionsReducer,
 		// user: userReducer,
 		// [api.reducerPath]: api.reducer,
 	},

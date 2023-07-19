@@ -1,9 +1,11 @@
 import styled from '@emotion/styled'
 
 export const Base = styled.div`
-	height: 100vh;
+	min-height: 100vh;
+	/* height: 100%; */
 	display: flex;
 	flex-direction: column;
+	background: var(--main-bg);
 `
 
 export const Wrapper = styled.div`
