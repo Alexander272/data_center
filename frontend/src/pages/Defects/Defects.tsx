@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Button, Divider, Stack, TextField, Typography } from '@mui/material'
-import { Column, DataSheetGrid, keyColumn, textColumn } from 'react-datasheet-grid'
+import { Button, Divider, Stack, Typography } from '@mui/material'
+import { Column, DataSheetGrid, intColumn, keyColumn, textColumn } from 'react-datasheet-grid'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setActive, setComplete } from '@/store/criterions'
 import type { IDefect } from '@/types/sheet'
@@ -15,34 +15,21 @@ export default function Defects() {
 	const [ready, setReady] = useState(false)
 
 	const [data, setData] = useState<IDefect[]>([
-		{ order: '', position: '', defect: '', place: '' },
-		{ order: '', position: '', defect: '', place: '' },
-		{ order: '', position: '', defect: '', place: '' },
-		{ order: '', position: '', defect: '', place: '' },
-		{ order: '', position: '', defect: '', place: '' },
+		{ order: '', name: '', defect: '', count: null, executor: '' },
+		{ order: '', name: '', defect: '', count: null, executor: '' },
+		{ order: '', name: '', defect: '', count: null, executor: '' },
+		{ order: '', name: '', defect: '', count: null, executor: '' },
+		{ order: '', name: '', defect: '', count: null, executor: '' },
 	])
 
 	const dispatch = useAppDispatch()
 
 	const columns: Column<IDefect>[] = [
-		{
-			...keyColumn<IDefect, 'order'>('order', textColumn),
-			title: '№ Заказа',
-			grow: 0.5,
-		},
-		{
-			...keyColumn<IDefect, 'position'>('position', textColumn),
-			title: '№ Позиции',
-			grow: 0.5,
-		},
-		{
-			...keyColumn<IDefect, 'defect'>('defect', textColumn),
-			title: 'Тип дефекта',
-		},
-		{
-			...keyColumn<IDefect, 'place'>('place', textColumn),
-			title: 'Участок',
-		},
+		{ ...keyColumn<IDefect, 'order'>('order', textColumn), title: '№ Заказа', grow: 0.3 },
+		{ ...keyColumn<IDefect, 'name'>('name', textColumn), title: 'Наименование' },
+		{ ...keyColumn<IDefect, 'defect'>('defect', textColumn), title: 'Тип дефекта' },
+		{ ...keyColumn<IDefect, 'count'>('count', intColumn), title: 'Количество', grow: 0.6 },
+		{ ...keyColumn<IDefect, 'executor'>('executor', textColumn), title: 'Исполнитель' },
 	]
 
 	const haveDefectsHandler = () => {
@@ -65,6 +52,7 @@ export default function Defects() {
 	}
 
 	const nextHandler = () => {
+		//TODO по идее это можно закольцевать до тех пор пока остаются не заполненные критерии
 		const idx = skipped.findIndex(s => s == active)
 		if (idx == -1) return
 
@@ -79,7 +67,7 @@ export default function Defects() {
 	return (
 		<Container>
 			<Typography variant='h5' textAlign='center'>
-				Сегодня были исправленные дефекты?
+				Сегодня были дефекты?
 			</Typography>
 
 			<Stack spacing={1} direction={'row'} width={300} margin={'0 auto'}>
@@ -99,11 +87,6 @@ export default function Defects() {
 
 			{hasDefects && (
 				<>
-					<Stack spacing={2} direction={'row'} alignItems={'center'}>
-						<Typography>Количество принятых изделий</Typography>
-						<TextField size='small' />
-					</Stack>
-
 					<DataSheetGrid
 						value={data}
 						columns={columns}

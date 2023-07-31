@@ -15,7 +15,7 @@ type Props = {
 export const Step: FC<Props> = ({ id, label, active, complete }) => {
 	return (
 		<StepContainer active={active} complete={complete} data-id={id}>
-			<Typography sx={{ pointerEvents: 'none' }}>{label}</Typography>
+			<Typography sx={{ pointerEvents: 'none', marginRight: 3 }}>{label}</Typography>
 
 			{complete && (
 				<Icon>

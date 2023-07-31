@@ -11,19 +11,12 @@ export default function Injuries() {
 	const [hasInjuries, setHasInjuries] = useState(false)
 	const [ready, setReady] = useState(false)
 
-	// const [data, setData] = useState<Matrix<ICell>>([
-	// 	[{ value: '' }, { value: '' }],
-	// 	[{ value: '' }, { value: '' }],
-	// 	[{ value: '' }, { value: '' }],
-	// 	[{ value: '' }, { value: '' }],
-	// 	[{ value: '' }, { value: '' }],
-	// ])
 	const [data, setData] = useState<IInjuries[]>([
-		{ name: '', injury: '' },
-		{ name: '', injury: '' },
-		{ name: '', injury: '' },
-		{ name: '', injury: '' },
-		{ name: '', injury: '' },
+		{ name: '', injury: '', brigade: '' },
+		{ name: '', injury: '', brigade: '' },
+		{ name: '', injury: '', brigade: '' },
+		{ name: '', injury: '', brigade: '' },
+		{ name: '', injury: '', brigade: '' },
 	])
 
 	const active = useAppSelector(state => state.criterions.active)
@@ -32,14 +25,9 @@ export default function Injuries() {
 	const dispatch = useAppDispatch()
 
 	const columns: Column<IInjuries>[] = [
-		{
-			...keyColumn<IInjuries, 'name'>('name', textColumn),
-			title: 'ФИО пострадавшего',
-		},
-		{
-			...keyColumn<IInjuries, 'injury'>('injury', textColumn),
-			title: 'Травма',
-		},
+		{ ...keyColumn<IInjuries, 'name'>('name', textColumn), title: 'ФИО пострадавшего' },
+		{ ...keyColumn<IInjuries, 'injury'>('injury', textColumn), title: 'Травма' },
+		{ ...keyColumn<IInjuries, 'brigade'>('brigade', textColumn), title: 'Смена' },
 	]
 
 	const haveInjuriesHandler = () => {
@@ -51,15 +39,6 @@ export default function Injuries() {
 		setHasInjuries(false)
 		setReady(true)
 	}
-
-	// const dataHandler = (data: Matrix<ICell>) => {
-	// 	console.log('change', data)
-
-	// 	// if (data[data.length - 1][0]?.value) data.push([{ value: '' }, { value: '' }])
-	// 	// setData(data)
-
-	// 	// if (data[0][0]?.value && data[0][1]) setReady(true)
-	// }
 
 	const dataHandler = (data: IInjuries[]) => {
 		setData(data)
@@ -103,7 +82,6 @@ export default function Injuries() {
 				</Button>
 			</Stack>
 
-			{/* <Table> */}
 			{hasInjuries && (
 				<>
 					<DataSheetGrid
@@ -123,7 +101,6 @@ export default function Injuries() {
 					</Button>
 				</>
 			)}
-			{/* </Table> */}
 
 			<Divider sx={{ marginTop: 'auto' }} />
 

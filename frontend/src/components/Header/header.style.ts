@@ -7,4 +7,7 @@ export const Container = styled.header`
 	margin-bottom: 20px;
 	user-select: none;
 	min-height: 60px;
+	display: flex;
+	align-items: center;
+	padding: 0 10px;
 `

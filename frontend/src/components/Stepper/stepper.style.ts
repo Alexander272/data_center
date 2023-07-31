@@ -26,6 +26,8 @@ export const StepContainer = styled.div<StepProps>`
 	cursor: pointer;
 	background-color: #fff;
 
+	position: relative;
+
 	// border
 	border: 2px solid var(--gray-border);
 	border-color: ${props => props.complete && 'var(--success-border)'};
@@ -46,4 +48,7 @@ export const Icon = styled.div`
 	width: 24px;
 	height: 24px;
 	margin-left: auto;
+
+	position: absolute;
+	right: 16px;
 `
