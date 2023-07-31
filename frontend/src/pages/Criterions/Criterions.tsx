@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setActive, setCriterions } from '@/store/criterions'
 import type { IStep } from '@/components/Stepper/step.type'
 import Stepper from '@/components/Stepper/Stepper'
+import { Week } from '@/components/Week/Week'
 import { Container } from './criterions.style'
 import 'react-datasheet-grid/dist/style.css'
 
@@ -45,6 +46,7 @@ export default function Home() {
 	return (
 		<Container>
 			{/* //TODO вывод последних 7 дней с обозначением заполнены ли были критерии */}
+			<Week />
 
 			<Stack spacing={2} direction={'row'} width={'100%'} height={'100%'}>
 				<Stepper active={active} data={criterions} onSelect={stepHandler} width='350px' />
