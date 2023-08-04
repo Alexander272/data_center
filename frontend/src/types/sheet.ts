@@ -41,6 +41,13 @@ export interface IDefectTime {
 	// place: string | null
 }
 
+export interface IAwaitingDecision {
+	order: string | null
+	name: string | null
+	defect: string | null
+	decision: string | null
+}
+
 export interface IShipmentPlan {
 	count: number | null
 	comment: string | null

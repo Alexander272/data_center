@@ -27,7 +27,7 @@ export default function Defects() {
 	const columns: Column<IDefect>[] = [
 		{ ...keyColumn<IDefect, 'order'>('order', textColumn), title: '№ Заказа', grow: 0.3 },
 		{ ...keyColumn<IDefect, 'name'>('name', textColumn), title: 'Наименование' },
-		{ ...keyColumn<IDefect, 'defect'>('defect', textColumn), title: 'Тип дефекта' },
+		{ ...keyColumn<IDefect, 'defect'>('defect', textColumn), title: 'Вид брака' },
 		{ ...keyColumn<IDefect, 'count'>('count', intColumn), title: 'Количество', grow: 0.6 },
 		{ ...keyColumn<IDefect, 'executor'>('executor', textColumn), title: 'Исполнитель' },
 	]

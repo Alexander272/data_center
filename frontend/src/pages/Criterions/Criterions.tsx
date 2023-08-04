@@ -12,7 +12,7 @@ import 'react-datasheet-grid/dist/style.css'
 const steps: IStep[] = [
 	{ id: 'injuries', label: 'Травматизм' },
 	{ id: 'defects', label: 'Объем исправимого брака' },
-	// { id: '', label: 'Объем продукции ожидающей решения от ТО' },
+	{ id: 'awaiting-decision', label: 'Объем продукции ожидающей решения от ТО' },
 	{ id: 'defect-time', label: 'Время исправления брака' },
 	{ id: 'number-in-brigade', label: 'Численность ' },
 	{ id: 'output-volume', label: 'Ежедневный объем выпуска продукции' },
@@ -33,7 +33,7 @@ export default function Home() {
 	}, [dispatch])
 
 	useEffect(() => {
-		navigate(active)
+		navigate(active, { replace: true })
 	}, [navigate, active])
 
 	const stepHandler = (id: string) => {
