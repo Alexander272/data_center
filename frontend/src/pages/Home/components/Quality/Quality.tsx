@@ -1,5 +1,5 @@
 import { Box, Button, ButtonGroup, Stack, Typography } from '@mui/material'
-import { Cell, LabelList, Pie, PieChart, PieLabelRenderProps } from 'recharts'
+import { Cell, Pie, PieChart, PieLabelRenderProps } from 'recharts'
 
 const data = [
 	{ name: 'СНП', value: 0.07 },
@@ -33,18 +33,18 @@ export default function Quality() {
 							cy='50%'
 							fill='#8884d8'
 							outerRadius={90}
-							// label={({ x, y, index }: PieLabelRenderProps) => (
-							// 	<text x={x} y={y} textAnchor={'middle'} dominantBaseline='central'>
-							// 		{data[index as number].name} - {data[index as number].value}
-							// 	</text>
-							// )}
-							label
+							label={({ x, y, index }: PieLabelRenderProps) => (
+								<text x={x} y={y} textAnchor={'middle'} dominantBaseline='central'>
+									{data[index as number].name} - {data[index as number].value}
+								</text>
+							)}
+							// label
 						>
 							{data.map((_entry, index) => (
 								<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
 							))}
 
-							<LabelList dataKey='name' position='top' />
+							{/* <LabelList dataKey='name' position='top' /> */}
 						</Pie>
 					</PieChart>
 				</Box>
