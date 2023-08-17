@@ -13,6 +13,18 @@ export const Products = () => {
 					{ day: '1', status: ['good'] },
 					{ day: '2', status: ['good'] },
 					{ day: '3', status: ['bad'] },
+					{ day: '4', status: ['good'] },
+					{ day: '5', status: ['good'] },
+					{ day: '6', status: ['good'] },
+					{ day: '7', status: ['bad'] },
+					{ day: '8', status: ['good'] },
+					{ day: '9', status: ['bad'] },
+					{ day: '10', status: ['good'] },
+					{ day: '11', status: ['good'] },
+					{ day: '12', status: ['good'] },
+					{ day: '13', status: ['good'] },
+					{ day: '14', status: ['bad'] },
+					{ day: '15', status: ['good'] },
 				]}
 			/>
 		</Box>
