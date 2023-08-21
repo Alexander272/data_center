@@ -9,10 +9,11 @@ import (
 
 type (
 	Config struct {
-		Environment string
+		Environment string `yaml:"environment" env-default:"dev"`
 		Redis       RedisConfig
 		Postgres    PostgresConfig
 		Auth        AuthConfig
+		Keycloak    KeycloakConfig
 		Http        HttpConfig
 		Limiter     LimiterConfig
 	}
@@ -49,6 +50,13 @@ type (
 		Secure          bool          `yaml:"secure"`
 		Domain          string        `yaml:"domain"`
 		Key             string        `env:"JWT"`
+	}
+
+	KeycloakConfig struct {
+		Url          string `yaml:"keycloak_url" env:"KEYCLOAK_URL"`
+		ClientId     string `env:"KEYCLOAK_CLIENT_ID"`
+		ClientSecret string `env:"KEYCLOAK_CLIENT_SECRET"`
+		Realm        string `yaml:"keycloak_realm" env:"KEYCLOAK_REALM"`
 	}
 
 	LimiterConfig struct {

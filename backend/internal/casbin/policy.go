@@ -23,6 +23,10 @@ func NewPolicyAdapter(role services.Role, user services.User) *PolicyAdapter {
 
 type Adapter interface {
 	LoadPolicy(model model.Model) error
+	SavePolicy(model model.Model) error
+	AddPolicy(sec string, ptype string, rule []string) error
+	RemovePolicy(sec string, ptype string, rule []string) error
+	RemoveFilteredPolicy(sec string, ptype string, fieldIndex int, fieldValues ...string) error
 }
 
 func (s *PolicyAdapter) LoadPolicy(model model.Model) error {
@@ -70,5 +74,28 @@ func (s *PolicyAdapter) loadUserPolicy(model model.Model) error {
 			return fmt.Errorf("failed to load user policy. error: %w", err)
 		}
 	}
+	return nil
+}
+
+// SavePolicy saves all policy rules to the storage.
+func (a *PolicyAdapter) SavePolicy(model model.Model) error {
+	return nil
+}
+
+// AddPolicy adds a policy rule to the storage.
+// This is part of the Auto-Save feature.
+func (a *PolicyAdapter) AddPolicy(sec string, ptype string, rule []string) error {
+	return nil
+}
+
+// RemovePolicy removes a policy rule from the storage.
+// This is part of the Auto-Save feature.
+func (a *PolicyAdapter) RemovePolicy(sec string, ptype string, rule []string) error {
+	return nil
+}
+
+// RemoveFilteredPolicy removes policy rules that match the filter from the storage.
+// This is part of the Auto-Save feature.
+func (a *PolicyAdapter) RemoveFilteredPolicy(sec string, ptype string, fieldIndex int, fieldValues ...string) error {
 	return nil
 }

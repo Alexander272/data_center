@@ -92,7 +92,9 @@ func main() {
 
 	casbin := casbin.NewCasbinService(services.Role, services.User, "configs/privacy.conf")
 
-	handlers := transport.NewHandler(services, casbin)
+	keycloak := auth.NewKeycloakClient(conf.Keycloak.Url, conf.Keycloak.ClientId, conf.Keycloak.ClientSecret, conf.Keycloak.Realm)
+
+	handlers := transport.NewHandler(services, casbin, keycloak)
 
 	//* HTTP Server
 
