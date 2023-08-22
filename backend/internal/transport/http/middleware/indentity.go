@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/Alexander272/data_center/backend/internal/models/response"
-	"github.com/Alexander272/data_center/backend/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,10 +29,10 @@ func (m *Middleware) VerifyToken(c *gin.Context) {
 		return
 	}
 
-	logger.Debug("result ", result)
+	// logger.Debug("result ", result)
 
 	if !*result.Active {
-		// TODO если он протух надо пробовать его обновлять
+		// если он протух надо пробовать его обновлять
 
 		_, token, err = m.services.Session.Refresh(c, token)
 		if err != nil {

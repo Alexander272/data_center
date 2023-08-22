@@ -44,7 +44,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 
 	auth.Register(v1, h.services.Session, h.auth, h.cookieName)
 
-	criterions := v1.Group("/criterions", h.middleware.VerifyToken)
+	criterions := v1.Group("/criterions", h.middleware.VerifyToken, h.middleware.CheckPermissions)
 	output.Register(criterions)
 }
 
