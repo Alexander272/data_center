@@ -39,7 +39,7 @@ func (r *RoleRepo) GetAll(ctx context.Context) (roles []models.Role, err error) 
 	)
 	var data []RoleWithMenu
 
-	if err := r.db.Select(&data, query, "api"); err != nil {
+	if err := r.db.Select(&data, query, "API"); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
 

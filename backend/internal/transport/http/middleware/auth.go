@@ -29,11 +29,11 @@ func (m *Middleware) UserIdentity(c *gin.Context) {
 	}
 
 	if isRefresh {
-		_, token, err := m.services.Session.Refresh(c, user)
-		if err != nil {
-			response.NewErrorResponse(c, http.StatusUnauthorized, err.Error(), "failed to refresh session")
-			return
-		}
+		// _, token, err := m.services.Session.Refresh(c, user)
+		// if err != nil {
+		// 	response.NewErrorResponse(c, http.StatusUnauthorized, err.Error(), "failed to refresh session")
+		// 	return
+		// }
 
 		c.SetCookie(m.CookieName, token, int(m.auth.RefreshTokenTTL.Seconds()), "/", m.auth.Domain, m.auth.Secure, true)
 	}

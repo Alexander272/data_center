@@ -80,19 +80,20 @@ func main() {
 	// e,err := casbin.NewSyncedEnforcer("configs/privacy.conf", adapter.NewAdapterFromOptions(opts))
 	// e.StartAutoLoadPolicy()
 
+	keycloak := auth.NewKeycloakClient(conf.Keycloak.Url, conf.Keycloak.ClientId, conf.Keycloak.ClientSecret, conf.Keycloak.Realm)
+
 	//* Services, Repos & API Handlers
 	repos := repo.NewRepo(db, redis)
 	services := services.NewServices(services.Deps{
 		Repos:           repos,
 		TokenManager:    tokenManager,
+		Keycloak:        keycloak,
 		Hasher:          hasher,
 		AccessTokenTTL:  conf.Auth.AccessTokenTTL,
 		RefreshTokenTTL: conf.Auth.RefreshTokenTTL,
 	})
 
 	casbin := casbin.NewCasbinService(services.Role, services.User, "configs/privacy.conf")
-
-	keycloak := auth.NewKeycloakClient(conf.Keycloak.Url, conf.Keycloak.ClientId, conf.Keycloak.ClientSecret, conf.Keycloak.Realm)
 
 	handlers := transport.NewHandler(services, casbin, keycloak)
 

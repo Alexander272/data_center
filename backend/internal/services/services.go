@@ -17,16 +17,18 @@ type Services struct {
 type Deps struct {
 	Repos           *repo.Repo
 	TokenManager    auth.TokenManager
+	Keycloak        *auth.KeycloakClient
 	Hasher          hasher.PasswordHasher
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
 }
 
 func NewServices(deps Deps) *Services {
+	menu := NewMenuService(deps.Repos.Menu)
 	role := NewRoleService(deps.Repos.Role)
 	user := NewUserService(deps.Repos.User)
 
-	session := NewSessionService(deps.Repos.Session, user, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
+	session := NewSessionService(deps.Repos.Session, menu, deps.Keycloak, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
 
 	return &Services{
 		Session: session,

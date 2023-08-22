@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
@@ -13,16 +14,19 @@ import (
 
 type SessionService struct {
 	repo            repo.Session
-	user            User
+	menu            Menu
+	keycloak        *auth.KeycloakClient
 	tokenManager    auth.TokenManager
 	accessTokenTTL  time.Duration
 	refreshTokenTTL time.Duration
 }
 
-func NewSessionService(repo repo.Session, user User, manager auth.TokenManager, accessTTL, refreshTTL time.Duration) *SessionService {
+func NewSessionService(repo repo.Session, menu Menu, keycloak *auth.KeycloakClient, manager auth.TokenManager, accessTTL, refreshTTL time.Duration,
+) *SessionService {
 	return &SessionService{
 		repo:            repo,
-		user:            user,
+		menu:            menu,
+		keycloak:        keycloak,
 		tokenManager:    manager,
 		accessTokenTTL:  accessTTL,
 		refreshTokenTTL: refreshTTL,
@@ -31,68 +35,102 @@ func NewSessionService(repo repo.Session, user User, manager auth.TokenManager, 
 
 type Session interface {
 	SignIn(ctx context.Context, u models.SignIn) (models.User, string, error)
-	Refresh(ctx context.Context, user models.User) (models.User, string, error)
+	// Refresh(ctx context.Context, user models.User) (models.User, string, error)
 	SingOut(ctx context.Context, token string) error
+	Refresh(ctx context.Context, token string) (models.User, string, error)
 	CheckSession(ctx context.Context, token string) (bool, error)
+	DecodeToken(ctx context.Context, token string) (models.User, error)
 	TokenParse(token string) (user models.User, err error)
 }
 
 func (s *SessionService) SignIn(ctx context.Context, u models.SignIn) (models.User, string, error) {
-	user, err := s.user.GetByName(ctx, u)
+	// user, err := s.user.GetByName(ctx, u)
+	// if err != nil {
+	// 	return models.User{}, "", err
+	// }
+
+	token, err := s.keycloak.Client.Login(ctx, s.keycloak.ClientId, s.keycloak.ClientSecret, s.keycloak.Realm, u.UserName, u.Password)
 	if err != nil {
-		return models.User{}, "", err
+		return models.User{}, "", fmt.Errorf("failed to login to keycloak. error: %w", err)
 	}
 
-	return s.Refresh(ctx, user)
-}
-
-func (s *SessionService) Refresh(ctx context.Context, user models.User) (models.User, string, error) {
-	_, accessToken, err := s.tokenManager.NewJWT(user.Id, user.Role, s.accessTokenTTL)
+	user, err := s.DecodeToken(ctx, token.AccessToken)
 	if err != nil {
 		return models.User{}, "", err
-	}
-	refreshToken, err := s.tokenManager.NewRefreshToken()
-	if err != nil {
-		return models.User{}, "", err
-	}
-
-	accessData := models.SessionData{
-		UserId:      user.Id,
-		UserName:    user.UserName,
-		Sector:      user.Sector,
-		Role:        user.Role,
-		AccessToken: accessToken,
-		Exp:         s.accessTokenTTL,
-	}
-	if err := s.repo.Create(ctx, refreshToken, accessData); err != nil {
-		return models.User{}, "", fmt.Errorf("failed to create session. error: %w", err)
 	}
 
 	refreshData := models.SessionData{
 		UserId:       user.Id,
 		UserName:     user.UserName,
-		Sector:       user.Sector,
 		Role:         user.Role,
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		RefreshToken: token.RefreshToken,
 		Exp:          s.refreshTokenTTL,
 	}
-	if err := s.repo.Create(ctx, fmt.Sprintf("%s_refresh", accessToken), refreshData); err != nil {
+	if err := s.repo.Create(ctx, fmt.Sprintf("%s_refresh", token.AccessToken), refreshData); err != nil {
 		return models.User{}, "", fmt.Errorf("failed to create session (refresh). error: %w", err)
 	}
 
-	retUser := models.User{
-		Id:   user.Id,
-		Role: user.Role,
+	menus, err := s.menu.GetByRole(ctx, user.Role)
+	if err != nil {
+		return models.User{}, "", err
 	}
+	user.Menu = menus
 
-	return retUser, accessToken, nil
+	return user, token.AccessToken, nil
 }
 
+// func (s *SessionService) Refresh(ctx context.Context, user models.User) (models.User, string, error) {
+// 	_, accessToken, err := s.tokenManager.NewJWT(user.Id, user.Role, s.accessTokenTTL)
+// 	if err != nil {
+// 		return models.User{}, "", err
+// 	}
+// 	refreshToken, err := s.tokenManager.NewRefreshToken()
+// 	if err != nil {
+// 		return models.User{}, "", err
+// 	}
+
+// 	accessData := models.SessionData{
+// 		UserId:      user.Id,
+// 		UserName:    user.UserName,
+// 		Sector:      user.Sector,
+// 		Role:        user.Role,
+// 		AccessToken: accessToken,
+// 		Exp:         s.accessTokenTTL,
+// 	}
+// 	if err := s.repo.Create(ctx, refreshToken, accessData); err != nil {
+// 		return models.User{}, "", fmt.Errorf("failed to create session. error: %w", err)
+// 	}
+
+// 	refreshData := models.SessionData{
+// 		UserId:       user.Id,
+// 		UserName:     user.UserName,
+// 		Sector:       user.Sector,
+// 		Role:         user.Role,
+// 		AccessToken:  accessToken,
+// 		RefreshToken: refreshToken,
+// 		Exp:          s.refreshTokenTTL,
+// 	}
+// 	if err := s.repo.Create(ctx, fmt.Sprintf("%s_refresh", accessToken), refreshData); err != nil {
+// 		return models.User{}, "", fmt.Errorf("failed to create session (refresh). error: %w", err)
+// 	}
+
+// 	retUser := models.User{
+// 		Id:   user.Id,
+// 		Role: user.Role,
+// 	}
+
+// 	return retUser, accessToken, nil
+// }
+
 func (s *SessionService) SingOut(ctx context.Context, token string) error {
-	err := s.repo.Remove(ctx, token)
+	// err := s.repo.Remove(ctx, token)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to delete session. error: %w", err)
+	// }
+
+	refresh, err := s.repo.Get(ctx, fmt.Sprintf("%s_refresh", token))
 	if err != nil {
-		return fmt.Errorf("failed to delete session. error: %w", err)
+		return fmt.Errorf("failed to get session (refresh). error: %w", err)
 	}
 
 	err = s.repo.Remove(ctx, fmt.Sprintf("%s_refresh", token))
@@ -100,7 +138,54 @@ func (s *SessionService) SingOut(ctx context.Context, token string) error {
 		return fmt.Errorf("failed to delete session (refresh). error: %w", err)
 	}
 
+	// s.keycloak.Client.LogoutUserSession()
+
+	if err := s.keycloak.Client.Logout(ctx, s.keycloak.ClientId, s.keycloak.ClientSecret, s.keycloak.Realm, refresh.RefreshToken); err != nil {
+		return fmt.Errorf("failed to logout to keycloak. error: %w", err)
+	}
+
 	return nil
+}
+
+func (s *SessionService) Refresh(ctx context.Context, token string) (models.User, string, error) {
+	refresh, err := s.repo.Get(ctx, fmt.Sprintf("%s_refresh", token))
+	if err != nil {
+		return models.User{}, "", fmt.Errorf("failed to get session (refresh). error: %w", err)
+	}
+
+	err = s.repo.Remove(ctx, fmt.Sprintf("%s_refresh", token))
+	if err != nil {
+		return models.User{}, "", fmt.Errorf("failed to delete session (refresh). error: %w", err)
+	}
+
+	newToken, err := s.keycloak.Client.RefreshToken(ctx, refresh.RefreshToken, s.keycloak.ClientId, s.keycloak.ClientSecret, s.keycloak.Realm)
+	if err != nil {
+		return models.User{}, "", fmt.Errorf("failed to refresh token to keycloak. error: %w", err)
+	}
+
+	user, err := s.DecodeToken(ctx, newToken.AccessToken)
+	if err != nil {
+		return models.User{}, "", err
+	}
+
+	refreshData := models.SessionData{
+		UserId:       user.Id,
+		UserName:     user.UserName,
+		Role:         user.Role,
+		RefreshToken: newToken.RefreshToken,
+		Exp:          s.refreshTokenTTL,
+	}
+	if err := s.repo.Create(ctx, fmt.Sprintf("%s_refresh", newToken.AccessToken), refreshData); err != nil {
+		return models.User{}, "", fmt.Errorf("failed to create session (refresh). error: %w", err)
+	}
+
+	menus, err := s.menu.GetByRole(ctx, user.Role)
+	if err != nil {
+		return models.User{}, "", err
+	}
+	user.Menu = menus
+
+	return user, newToken.AccessToken, nil
 }
 
 func (s *SessionService) CheckSession(ctx context.Context, token string) (bool, error) {
@@ -122,6 +207,46 @@ func (s *SessionService) CheckSession(ctx context.Context, token string) (bool, 
 		return true, nil
 	}
 	return false, nil
+}
+
+func (s *SessionService) DecodeToken(ctx context.Context, token string) (user models.User, err error) {
+	_, claims, err := s.keycloak.Client.DecodeAccessToken(ctx, token, s.keycloak.Realm)
+	if err != nil {
+		return models.User{}, fmt.Errorf("failed to decode access token. error: %w", err)
+	}
+
+	var role, username, userId string
+
+	c := *claims
+	access, ok := c["realm_access"]
+	if ok {
+		a := access.(map[string]interface{})["roles"]
+		roles := a.([]interface{})
+		for _, v := range roles {
+			if strings.Contains(v.(string), "dashboard") {
+				role = strings.Replace(v.(string), "dashboard_", "", 1)
+				break
+			}
+		}
+	}
+
+	un, ok := c["preferred_username"]
+	if ok {
+		username = un.(string)
+	}
+
+	uId, ok := c["sub"]
+	if ok {
+		userId = uId.(string)
+	}
+
+	u := models.User{
+		Id:       userId,
+		UserName: username,
+		Role:     role,
+	}
+
+	return u, nil
 }
 
 func (s *SessionService) TokenParse(token string) (user models.User, err error) {
