@@ -8,4 +8,5 @@ export const Container = styled.div`
 	max-width: 1580px;
 	/* align-self: center; */
 	margin: 40px auto;
+	height: 100%;
 `

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn } from 'react-datasheet-grid'
+import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn, textColumn } from 'react-datasheet-grid'
 import { Button, Divider, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setActive, setComplete } from '@/store/criterions'
@@ -13,11 +13,41 @@ export default function OutputVolume() {
 
 	const [ready, setReady] = useState(false)
 
-	const [data, setData] = useState<IOutputVolume[]>([{ count: null, money: null }])
+	/*
+	
+	Дописать названия типов продукции
+
+	приход. просто несколько полей
+
+	загрузка (срок выполнения по видам продукции). тип продукции + кол-во дней
+
+	план отдельный критерий. сумма на день (или на месяц)
+	*/
+
+	const [stockData, setStockData] = useState<IOutputVolume[]>([
+		{ product: null, count: null, money: null },
+		{ product: null, count: null, money: null },
+		{ product: null, count: null, money: null },
+		{ product: null, count: null, money: null },
+		{ product: null, count: null, money: null },
+		{ product: null, count: null, money: null },
+	])
+	const [orderData, setOrderData] = useState<IOutputVolume[]>([
+		{ product: null, count: null, money: null },
+		{ product: null, count: null, money: null },
+		{ product: null, count: null, money: null },
+		{ product: null, count: null, money: null },
+		{ product: null, count: null, money: null },
+		{ product: null, count: null, money: null },
+	])
 
 	const dispatch = useAppDispatch()
 
 	const columns: Column<IOutputVolume>[] = [
+		{
+			...keyColumn<IOutputVolume, 'product'>('product', textColumn),
+			title: 'Тип продукции',
+		},
 		{
 			...keyColumn<IOutputVolume, 'count'>('count', intColumn),
 			title: 'Объем выпуска продукции в штуках',
@@ -28,8 +58,11 @@ export default function OutputVolume() {
 		},
 	]
 
-	const dataHandler = (data: IOutputVolume[]) => {
-		setData(data)
+	const stockDataHandler = (data: IOutputVolume[]) => {
+		setStockData(data)
+	}
+	const orderDataHandler = (data: IOutputVolume[]) => {
+		setOrderData(data)
 	}
 
 	const saveHandler = () => {
@@ -38,7 +71,8 @@ export default function OutputVolume() {
 	}
 
 	const nextHandler = () => {
-		//TODO по идее это можно закольцевать до тех пор пока остаются не заполненные критерии
+		// TODO стоит это все перенести в компонент
+		// TODO по идее это можно закольцевать до тех пор пока остаются не заполненные критерии
 		const idx = skipped.findIndex(s => s == active)
 		if (idx == -1) return
 
@@ -53,16 +87,26 @@ export default function OutputVolume() {
 	return (
 		<Container>
 			<Typography variant='h5' textAlign='center'>
-				Ежедневный объем выпуска продукции
+				Ежедневный объем выпуска продукции (на склад)
 			</Typography>
 
-			<DataSheetGrid value={data} columns={columns} onChange={dataHandler} lockRows />
+			<DataSheetGrid value={stockData} columns={columns} onChange={stockDataHandler} />
+
+			<Divider />
+
+			<Typography variant='h5' textAlign='center'>
+				Ежедневный объем выпуска продукции (в заказ)
+			</Typography>
+
+			<DataSheetGrid value={orderData} columns={columns} onChange={orderDataHandler} />
+
+			<Divider />
 
 			<Button variant='outlined' onClick={saveHandler} sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}>
 				Сохранить
 			</Button>
 
-			<Divider sx={{ marginTop: 'auto' }} />
+			<Divider />
 
 			<StepButtons finish={!(skipped.length - 1)} next={nextHandler} prev={prevHandler} />
 		</Container>

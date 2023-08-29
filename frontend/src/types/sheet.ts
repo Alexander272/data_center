@@ -23,13 +23,16 @@ export interface INumberInBrigade {
 }
 
 export interface IOutputVolume {
+	product: string | null
 	count: number | null
 	money: number | null
 }
 
 export interface IOrdersVolume {
-	count: number | null
-	money: number | null
+	id: string | null
+	numberOfOrders: number | null
+	sumMoney: number | null
+	quantity: number | null
 }
 
 export interface IDefectTime {
@@ -49,6 +52,8 @@ export interface IAwaitingDecision {
 }
 
 export interface IShipmentPlan {
+	id: string | null
+	product: string | null
 	count: number | null
-	comment: string | null
+	money: number | null
 }

@@ -7,7 +7,7 @@ type Props = {
 	active: string
 	data: IStep[]
 	width?: string
-	onSelect: (id: string) => void
+	onSelect: (key: string) => void
 }
 
 export default function Stepper({ active, data, width, onSelect }: Props) {
@@ -25,7 +25,7 @@ export default function Stepper({ active, data, width, onSelect }: Props) {
 	return (
 		<Container width={width} onClick={selectHandler}>
 			{data.map(d => (
-				<Step key={d.id} id={d.id} label={d.label} complete={d.complete} active={active == d.id} />
+				<Step key={d.id} id={d.key} label={d.label} complete={d.complete} active={active == d.key} />
 			))}
 		</Container>
 	)

@@ -13,19 +13,21 @@ export default function OrdersVolume() {
 
 	const [ready, setReady] = useState(false)
 
-	const [data, setData] = useState<IOrdersVolume[]>([{ count: null, money: null }])
+	const [data, setData] = useState<IOrdersVolume[]>([
+		{ id: '1', numberOfOrders: null, sumMoney: null, quantity: null },
+	])
 
 	const dispatch = useAppDispatch()
 
 	const columns: Column<IOrdersVolume>[] = [
-		{
-			...keyColumn<IOrdersVolume, 'count'>('count', intColumn),
-			title: 'Объем заказов переданных в производство в штуках',
-		},
-		{
-			...keyColumn<IOrdersVolume, 'money'>('money', floatColumn),
-			title: 'Объем заказов переданных в производство в деньгах',
-		},
+		// {
+		// 	...keyColumn<IOrdersVolume, 'count'>('count', intColumn),
+		// 	title: 'Объем заказов переданных в производство в штуках',
+		// },
+		// {
+		// 	...keyColumn<IOrdersVolume, 'money'>('money', floatColumn),
+		// 	title: 'Объем заказов переданных в производство в деньгах',
+		// },
 	]
 
 	const dataHandler = (data: IOrdersVolume[]) => {
@@ -53,10 +55,10 @@ export default function OrdersVolume() {
 	return (
 		<Container>
 			<Typography variant='h5' textAlign='center'>
-				Ежедневный объем заказов на день переданных в производство
+				Ежедневный объем заказов переданных в производство
 			</Typography>
 
-			<DataSheetGrid value={data} columns={columns} onChange={dataHandler} lockRows />
+			<DataSheetGrid value={data} columns={columns} onChange={dataHandler} />
 
 			<Button variant='outlined' onClick={saveHandler} sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}>
 				Сохранить

@@ -15,7 +15,7 @@ export const Week = () => {
 
 		for (let i = 6; i >= 0; i--) {
 			days.push(
-				<Day active={i == 0} complete={i > 1}>
+				<Day key={i} active={i == 0} complete={i > 1}>
 					{day - i > 0 ? day - i : lastDay + day - i}
 				</Day>
 			)

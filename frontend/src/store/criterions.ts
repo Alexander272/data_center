@@ -21,7 +21,7 @@ export const cardSlice = createSlice({
 		setCriterions: (state, action: PayloadAction<ICriterion[]>) => {
 			state.criterions = action.payload
 			//TODO надо смотреть есть ли выполненные критерии
-			state.skipped = action.payload.map(c => c.id)
+			state.skipped = action.payload.map(c => c.key)
 			state.active = state.skipped[0]
 		},
 

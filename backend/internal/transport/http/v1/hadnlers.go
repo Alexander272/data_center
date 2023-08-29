@@ -45,6 +45,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 
 	criterionsGroup := v1.Group("/criterions", h.middleware.VerifyToken, h.middleware.CheckPermissions)
 	criterions.Register(criterionsGroup, h.services.Criterions)
+
 	output.Register(criterionsGroup)
 	shipment_plan.Register(criterionsGroup, h.services.ShipmentPlan)
 	orders_volume.Register(criterionsGroup, h.services.OrdersVolume)

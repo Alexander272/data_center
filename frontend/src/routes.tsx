@@ -5,6 +5,8 @@ import { CircularProgress } from '@mui/material'
 
 import Main from '@/layout/Main/Main'
 
+const Auth = lazy(() => import('@/pages/Auth/Auth'))
+
 const Home = lazy(() => import('@/pages/Home/Home'))
 
 const Criterions = lazy(() => import('@/pages/Criterions/Criterions'))
@@ -17,7 +19,7 @@ const OutputVolume = lazy(() => import('@/pages/OutputVolume/OutputVolume'))
 const OrdersVolume = lazy(() => import('@/pages/OrdersVolume/OrdersVolume'))
 const ShipmentPlan = lazy(() => import('@/pages/ShipmentPlan/ShipmentPlan'))
 
-// const NotFound = lazy(() => import('@/pages/NotFound/NotFound'))
+const NotFound = lazy(() => import('@/pages/NotFound/NotFound'))
 
 export const AppRoutes = () => {
 	// const { ready } = useRefresh()
@@ -28,6 +30,8 @@ export const AppRoutes = () => {
 		<BrowserRouter basename={'/'}>
 			<Suspense fallback={<CircularProgress />}>
 				<Routes>
+					<Route path='/auth' element={<Auth />} />
+
 					<Route
 						path='/'
 						element={
@@ -49,7 +53,7 @@ export const AppRoutes = () => {
 						</Route>
 					</Route>
 
-					{/* <Route path='*' element={<NotFound />} /> */}
+					<Route path='*' element={<NotFound />} />
 				</Routes>
 			</Suspense>
 		</BrowserRouter>

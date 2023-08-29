@@ -10,14 +10,14 @@ import { Container } from './criterions.style'
 import 'react-datasheet-grid/dist/style.css'
 
 const steps: IStep[] = [
-	{ id: 'injuries', label: 'Травматизм' },
-	{ id: 'defects', label: 'Объем исправимого брака' },
-	{ id: 'awaiting-decision', label: 'Объем продукции ожидающей решения от ТО' },
-	{ id: 'defect-time', label: 'Время исправления брака' },
-	{ id: 'number-in-brigade', label: 'Численность ' },
-	{ id: 'output-volume', label: 'Ежедневный объем выпуска продукции' },
-	{ id: 'orders-volume', label: 'Ежедневный объем заказов на день переданных в производство' },
-	{ id: 'shipment-plan', label: 'Выполнение плана отгрузок в деньгах' },
+	{ id: '', key: 'injuries', label: 'Травматизм' },
+	{ id: '', key: 'defects', label: 'Объем исправимого брака' },
+	{ id: '', key: 'awaiting-decision', label: 'Объем продукции ожидающей решения от ТО' },
+	{ id: '', key: 'defect-time', label: 'Время исправления брака' },
+	{ id: '', key: 'number-in-brigade', label: 'Численность ' },
+	{ id: '', key: 'output-volume', label: 'Ежедневный объем выпуска продукции' },
+	{ id: '', key: 'orders-volume', label: 'Ежедневный объем заказов на день переданных в производство' },
+	{ id: '', key: 'shipment-plan', label: 'Выполнение плана отгрузок в деньгах' },
 ]
 
 export default function Home() {
@@ -36,9 +36,9 @@ export default function Home() {
 		navigate(active, { replace: true })
 	}, [navigate, active])
 
-	const stepHandler = (id: string) => {
+	const stepHandler = (key: string) => {
 		// setActive(id)
-		dispatch(setActive(id))
+		dispatch(setActive(key))
 
 		// navigate(`${id}`)
 	}

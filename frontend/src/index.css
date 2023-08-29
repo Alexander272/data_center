@@ -9,6 +9,10 @@
 
   --success: #046c4e;
   --blue: #1a56db;
+
+  --light-blue: #0066ffa3;
+  --border-color: #0737b180;
+  --border-white: #e5e4e9;
 }
 
 #root {

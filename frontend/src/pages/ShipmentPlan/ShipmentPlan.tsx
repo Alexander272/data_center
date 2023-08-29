@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Column, DataSheetGrid, intColumn, keyColumn, textColumn } from 'react-datasheet-grid'
+import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn, textColumn } from 'react-datasheet-grid'
 import { Button, Divider, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setActive, setComplete } from '@/store/criterions'
@@ -13,13 +13,21 @@ export default function ShipmentPlan() {
 
 	const [ready, setReady] = useState(false)
 
-	const [data, setData] = useState<IShipmentPlan[]>([{ count: null, comment: null }])
+	const [data, setData] = useState<IShipmentPlan[]>([
+		{ id: '1', product: 'СНП', count: null, money: null },
+		{ id: '2', product: 'ПУТГ', count: null, money: null },
+		{ id: '3', product: 'ПУТГм', count: null, money: null },
+		{ id: '4', product: 'Кольца', count: null, money: null },
+		{ id: '5', product: 'Набивка', count: null, money: null },
+		{ id: '6', product: 'Спец. арматура', count: null, money: null },
+	])
 
 	const dispatch = useAppDispatch()
 
 	const columns: Column<IShipmentPlan>[] = [
-		{ ...keyColumn<IShipmentPlan, 'count'>('count', intColumn), title: 'Отгружено сегодня' },
-		{ ...keyColumn<IShipmentPlan, 'comment'>('comment', textColumn), title: 'Комментарий' },
+		{ ...keyColumn<IShipmentPlan, 'product'>('product', textColumn), title: 'Тип продукции', disabled: true },
+		{ ...keyColumn<IShipmentPlan, 'count'>('count', intColumn), title: 'Отгрузка в штуках' },
+		{ ...keyColumn<IShipmentPlan, 'money'>('money', floatColumn), title: 'Отгрузка в деньгах' },
 	]
 
 	const dataHandler = (data: IShipmentPlan[]) => {
@@ -47,7 +55,7 @@ export default function ShipmentPlan() {
 	return (
 		<Container>
 			<Typography variant='h5' textAlign='center'>
-				Выполнение плана отгрузок в деньгах
+				Выполнение плана отгрузок
 			</Typography>
 
 			<DataSheetGrid value={data} columns={columns} onChange={dataHandler} lockRows />

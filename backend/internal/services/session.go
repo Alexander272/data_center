@@ -48,7 +48,7 @@ func (s *SessionService) SignIn(ctx context.Context, u models.SignIn) (models.Us
 	// 	return models.User{}, "", err
 	// }
 
-	token, err := s.keycloak.Client.Login(ctx, s.keycloak.ClientId, s.keycloak.ClientSecret, s.keycloak.Realm, u.UserName, u.Password)
+	token, err := s.keycloak.Client.Login(ctx, s.keycloak.ClientId, s.keycloak.ClientSecret, s.keycloak.Realm, u.Username, u.Password)
 	if err != nil {
 		return models.User{}, "", fmt.Errorf("failed to login to keycloak. error: %w", err)
 	}

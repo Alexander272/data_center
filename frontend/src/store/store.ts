@@ -1,16 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit'
-// import { api, unauthenticatedMiddleware } from './api/base'
-// import userReducer from './user'
+import { api, unauthenticatedMiddleware } from './api/base'
+import userReducer from './user'
 import criterionsReducer from './criterions'
 
 export const store = configureStore({
 	reducer: {
+		user: userReducer,
 		criterions: criterionsReducer,
-		// user: userReducer,
-		// [api.reducerPath]: api.reducer,
+		[api.reducerPath]: api.reducer,
 	},
-	// middleware: getDefaultMiddleware => getDefaultMiddleware().concat(api.middleware).concat(unauthenticatedMiddleware),
-	middleware: getDefaultMiddleware => getDefaultMiddleware(),
+	middleware: getDefaultMiddleware => getDefaultMiddleware().concat(api.middleware).concat(unauthenticatedMiddleware),
 })
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
