@@ -7,23 +7,34 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+type Criterions interface {
+	postgres.Criterions
+}
+type OrdersVolume interface {
+	postgres.OrdersVolume
+}
+type ShipmentPlan interface {
+	postgres.ShipmentPlan
+}
+
 type Menu interface {
 	postgres.Menu
 }
-
 type Role interface {
 	postgres.Role
 }
-
 type User interface {
 	postgres.User
 }
-
 type Session interface {
 	redis_db.Session
 }
 
 type Repo struct {
+	Criterions
+	OrdersVolume
+	ShipmentPlan
+
 	Session
 	Menu
 	Role
@@ -32,6 +43,10 @@ type Repo struct {
 
 func NewRepo(db *sqlx.DB, redis redis.Cmdable) *Repo {
 	return &Repo{
+		Criterions:   postgres.NewCriterionsRepo(db),
+		OrdersVolume: postgres.NewOrdersVolumeRepo(db),
+		ShipmentPlan: postgres.NewShipmentPlanRepo(db),
+
 		Session: redis_db.NewSessionRepo(redis),
 		Menu:    postgres.NewMenuRepo(db),
 		Role:    postgres.NewRoleRepo(db),

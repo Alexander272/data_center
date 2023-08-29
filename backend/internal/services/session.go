@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -38,9 +37,9 @@ type Session interface {
 	// Refresh(ctx context.Context, user models.User) (models.User, string, error)
 	SingOut(ctx context.Context, token string) error
 	Refresh(ctx context.Context, token string) (models.User, string, error)
-	CheckSession(ctx context.Context, token string) (bool, error)
+	// CheckSession(ctx context.Context, token string) (bool, error)
 	DecodeToken(ctx context.Context, token string) (models.User, error)
-	TokenParse(token string) (user models.User, err error)
+	// TokenParse(token string) (user models.User, err error)
 }
 
 func (s *SessionService) SignIn(ctx context.Context, u models.SignIn) (models.User, string, error) {
@@ -188,26 +187,26 @@ func (s *SessionService) Refresh(ctx context.Context, token string) (models.User
 	return user, newToken.AccessToken, nil
 }
 
-func (s *SessionService) CheckSession(ctx context.Context, token string) (bool, error) {
-	refreshUser, err := s.repo.Get(ctx, fmt.Sprintf("%s_refresh", token))
-	if err != nil {
-		return false, fmt.Errorf("failed to get session (refresh). error: %w", err)
-	}
+// func (s *SessionService) CheckSession(ctx context.Context, token string) (bool, error) {
+// 	refreshUser, err := s.repo.Get(ctx, fmt.Sprintf("%s_refresh", token))
+// 	if err != nil {
+// 		return false, fmt.Errorf("failed to get session (refresh). error: %w", err)
+// 	}
 
-	user, err := s.repo.Get(ctx, refreshUser.RefreshToken)
-	if err != nil && !errors.Is(err, models.ErrSessionEmpty) {
-		return false, fmt.Errorf("failed to get session. error: %w", err)
-	}
+// 	user, err := s.repo.Get(ctx, refreshUser.RefreshToken)
+// 	if err != nil && !errors.Is(err, models.ErrSessionEmpty) {
+// 		return false, fmt.Errorf("failed to get session. error: %w", err)
+// 	}
 
-	if user.AccessToken != token && refreshUser.AccessToken != token {
-		return false, models.ErrToken
-	}
+// 	if user.AccessToken != token && refreshUser.AccessToken != token {
+// 		return false, models.ErrToken
+// 	}
 
-	if user.UserId == "" {
-		return true, nil
-	}
-	return false, nil
-}
+// 	if user.UserId == "" {
+// 		return true, nil
+// 	}
+// 	return false, nil
+// }
 
 func (s *SessionService) DecodeToken(ctx context.Context, token string) (user models.User, err error) {
 	_, claims, err := s.keycloak.Client.DecodeAccessToken(ctx, token, s.keycloak.Realm)
@@ -249,18 +248,18 @@ func (s *SessionService) DecodeToken(ctx context.Context, token string) (user mo
 	return u, nil
 }
 
-func (s *SessionService) TokenParse(token string) (user models.User, err error) {
-	claims, err := s.tokenManager.Parse(token)
-	if err != nil {
-		return user, err
-	}
+// func (s *SessionService) TokenParse(token string) (user models.User, err error) {
+// 	claims, err := s.tokenManager.Parse(token)
+// 	if err != nil {
+// 		return user, err
+// 	}
 
-	user = models.User{
-		Id:       claims["userId"].(string),
-		UserName: claims["userName"].(string),
-		Sector:   claims["sector"].(string),
-		Role:     claims["role"].(string),
-	}
+// 	user = models.User{
+// 		Id:       claims["userId"].(string),
+// 		UserName: claims["userName"].(string),
+// 		Sector:   claims["sector"].(string),
+// 		Role:     claims["role"].(string),
+// 	}
 
-	return user, nil
-}
+// 	return user, nil
+// }

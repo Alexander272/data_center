@@ -57,6 +57,8 @@ type (
 		ClientId     string `env:"KEYCLOAK_CLIENT_ID"`
 		ClientSecret string `env:"KEYCLOAK_CLIENT_SECRET"`
 		Realm        string `yaml:"keycloak_realm" env:"KEYCLOAK_REALM"`
+		// Username     string `env:"KEYCLOAK_USERNAME"`
+		// Password     string `env:"KEYCLOAK_PASSWORD"`
 	}
 
 	LimiterConfig struct {

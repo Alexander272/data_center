@@ -9,6 +9,10 @@ import (
 )
 
 type Services struct {
+	Criterions
+	OrdersVolume
+	ShipmentPlan
+
 	Session
 	Role
 	User
@@ -30,7 +34,21 @@ func NewServices(deps Deps) *Services {
 
 	session := NewSessionService(deps.Repos.Session, menu, deps.Keycloak, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
 
+	ordersVolume := NewOrdersVolumeService(deps.Repos.OrdersVolume)
+	shipmentPlan := NewShipmentPlanService(deps.Repos.ShipmentPlan)
+
+	criterionDeps := CriterionDeps{
+		shipment: shipmentPlan,
+		orders:   ordersVolume,
+	}
+
+	criterions := NewCriterionsService(deps.Repos.Criterions, criterionDeps)
+
 	return &Services{
+		ShipmentPlan: shipmentPlan,
+		OrdersVolume: ordersVolume,
+		Criterions:   criterions,
+
 		Session: session,
 		Role:    role,
 		User:    user,
