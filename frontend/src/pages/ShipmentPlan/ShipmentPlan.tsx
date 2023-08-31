@@ -1,26 +1,30 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn, textColumn } from 'react-datasheet-grid'
 import { Button, Divider, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setActive, setComplete } from '@/store/criterions'
-import type { IShipmentPlan } from '@/types/sheet'
+import { useGetShipmentPlanByDayQuery, useSaveShipmentPlanMutation } from '@/store/api/shipmentPlan'
+import type { IShipmentPlan, IShipmentPlanDTO } from '@/types/shipment'
 import { StepButtons } from '@/components/Stepper/StepButtons'
 import { Container } from '../Injuries/injuries.style'
+
+const emptyData = [
+	{ id: '1', product: 'СНП', count: 0, money: 0 },
+	{ id: '2', product: 'ПУТГ', count: 0, money: 0 },
+	{ id: '3', product: 'ПУТГм', count: 0, money: 0 },
+	{ id: '4', product: 'Кольца', count: 0, money: 0 },
+	{ id: '5', product: 'Набивка', count: 0, money: 0 },
+	{ id: '6', product: 'Спец. арматура', count: 0, money: 0 },
+]
 
 export default function ShipmentPlan() {
 	const active = useAppSelector(state => state.criterions.active)
 	const skipped = useAppSelector(state => state.criterions.skipped)
+	const date = useAppSelector(state => state.criterions.date)
 
 	const [ready, setReady] = useState(false)
 
-	const [data, setData] = useState<IShipmentPlan[]>([
-		{ id: '1', product: 'СНП', count: null, money: null },
-		{ id: '2', product: 'ПУТГ', count: null, money: null },
-		{ id: '3', product: 'ПУТГм', count: null, money: null },
-		{ id: '4', product: 'Кольца', count: null, money: null },
-		{ id: '5', product: 'Набивка', count: null, money: null },
-		{ id: '6', product: 'Спец. арматура', count: null, money: null },
-	])
+	const [table, setTable] = useState<IShipmentPlan[]>(emptyData)
 
 	const dispatch = useAppDispatch()
 
@@ -30,13 +34,52 @@ export default function ShipmentPlan() {
 		{ ...keyColumn<IShipmentPlan, 'money'>('money', floatColumn), title: 'Отгрузка в деньгах' },
 	]
 
-	const dataHandler = (data: IShipmentPlan[]) => {
-		setData(data)
+	const { data: shipment } = useGetShipmentPlanByDayQuery(date, { skip: !date })
+	const [saveShipment] = useSaveShipmentPlanMutation()
+
+	useEffect(() => {
+		if (shipment && shipment.data) {
+			setTable(prev => {
+				const temp = [...prev]
+				for (let i = 0; i < temp.length; i++) {
+					const d = shipment.data.find(s => s.product == temp[i].product)
+					if (!d) return temp
+					temp[i] = { ...temp[i], id: d.id, count: +(d.count || '0'), money: +(d.money || '0') }
+				}
+				return temp
+			})
+		} else {
+			setTable(emptyData)
+		}
+	}, [shipment])
+
+	const tableHandler = (data: IShipmentPlan[]) => {
+		setTable(data)
 	}
 
-	const saveHandler = () => {
-		console.log('save')
-		setReady(true)
+	const submitHandler = () => {
+		void saveHandler()
+	}
+
+	const saveHandler = async () => {
+		const shipment: IShipmentPlanDTO[] = []
+		for (let i = 0; i < table.length; i++) {
+			const e = table[i]
+			shipment.push({
+				id: '',
+				day: date,
+				product: e.product || '',
+				count: e.count?.toString() || '',
+				money: e.money?.toString() || '',
+			})
+		}
+
+		try {
+			await saveShipment(shipment).unwrap()
+			setReady(true)
+		} catch (error) {
+			console.error('rejected', error)
+		}
 	}
 
 	const nextHandler = () => {
@@ -58,9 +101,9 @@ export default function ShipmentPlan() {
 				Выполнение плана отгрузок
 			</Typography>
 
-			<DataSheetGrid value={data} columns={columns} onChange={dataHandler} lockRows />
+			<DataSheetGrid value={table} columns={columns} onChange={tableHandler} lockRows />
 
-			<Button variant='outlined' onClick={saveHandler} sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}>
+			<Button variant='outlined' onClick={submitHandler} sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}>
 				Сохранить
 			</Button>
 

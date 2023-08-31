@@ -1,25 +1,30 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn } from 'react-datasheet-grid'
 import { Button, Divider, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setActive, setComplete } from '@/store/criterions'
-import type { IOrdersVolume } from '@/types/sheet'
+import type { IOrdersVolume, IOrdersVolumeDTO } from '@/types/orderVolume'
 import { StepButtons } from '@/components/Stepper/StepButtons'
 import { Container } from '../Injuries/injuries.style'
+import { useGetOrdersVolumeByDayQuery, useSaveOrdersVolumeMutation } from '@/store/api/ordersVolume'
+
+const emptyData = [{ id: '1', numberOfOrders: null, sumMoney: null, quantity: null }]
 
 export default function OrdersVolume() {
 	const active = useAppSelector(state => state.criterions.active)
 	const skipped = useAppSelector(state => state.criterions.skipped)
+	const date = useAppSelector(state => state.criterions.date)
 
 	const [ready, setReady] = useState(false)
 
-	const [data, setData] = useState<IOrdersVolume[]>([
-		{ id: '1', numberOfOrders: null, sumMoney: null, quantity: null },
-	])
+	const [table, setTable] = useState<IOrdersVolume[]>(emptyData)
 
 	const dispatch = useAppDispatch()
 
 	const columns: Column<IOrdersVolume>[] = [
+		{ ...keyColumn<IOrdersVolume, 'numberOfOrders'>('numberOfOrders', intColumn), title: 'Количество заказов' },
+		{ ...keyColumn<IOrdersVolume, 'sumMoney'>('sumMoney', floatColumn), title: 'Сумма заказов' },
+		{ ...keyColumn<IOrdersVolume, 'quantity'>('quantity', intColumn), title: 'Количество единиц продукции' },
 		// {
 		// 	...keyColumn<IOrdersVolume, 'count'>('count', intColumn),
 		// 	title: 'Объем заказов переданных в производство в штуках',
@@ -30,13 +35,47 @@ export default function OrdersVolume() {
 		// },
 	]
 
-	const dataHandler = (data: IOrdersVolume[]) => {
-		setData(data)
+	const { data: orders } = useGetOrdersVolumeByDayQuery(date, { skip: !date })
+	const [saveOrders] = useSaveOrdersVolumeMutation()
+
+	useEffect(() => {
+		if (orders && orders.data) {
+			setTable([
+				{
+					id: orders.data[0].id,
+					numberOfOrders: orders.data[0].numberOfOrders,
+					sumMoney: +(orders.data[0].sumMoney || '0'),
+					quantity: orders.data[0].quantity,
+				},
+			])
+		} else {
+			setTable(emptyData)
+		}
+	}, [orders])
+
+	const tableHandler = (data: IOrdersVolume[]) => {
+		setTable(data)
 	}
 
-	const saveHandler = () => {
-		console.log('save')
-		setReady(true)
+	const submitHandler = () => {
+		void saveHandler()
+	}
+
+	const saveHandler = async () => {
+		const order: IOrdersVolumeDTO = {
+			id: '',
+			day: date,
+			numberOfOrders: table[0].numberOfOrders || 0,
+			sumMoney: table[0].sumMoney?.toString() || '0',
+			quantity: table[0].quantity || 0,
+		}
+
+		try {
+			await saveOrders(order).unwrap()
+			setReady(true)
+		} catch (error) {
+			console.error('rejected', error)
+		}
 	}
 
 	const nextHandler = () => {
@@ -58,9 +97,9 @@ export default function OrdersVolume() {
 				Ежедневный объем заказов переданных в производство
 			</Typography>
 
-			<DataSheetGrid value={data} columns={columns} onChange={dataHandler} />
+			<DataSheetGrid value={table} columns={columns} onChange={tableHandler} lockRows />
 
-			<Button variant='outlined' onClick={saveHandler} sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}>
+			<Button variant='outlined' onClick={submitHandler} sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}>
 				Сохранить
 			</Button>
 

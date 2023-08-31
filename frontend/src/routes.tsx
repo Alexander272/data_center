@@ -1,9 +1,10 @@
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { CircularProgress } from '@mui/material'
-// import { useRefresh } from '@/hooks/refresh'
+import { useRefresh } from '@/hooks/refresh'
 
 import Main from '@/layout/Main/Main'
+import RequireAuth from './pages/Auth/RequireAuth'
 
 const Auth = lazy(() => import('@/pages/Auth/Auth'))
 
@@ -22,9 +23,9 @@ const ShipmentPlan = lazy(() => import('@/pages/ShipmentPlan/ShipmentPlan'))
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'))
 
 export const AppRoutes = () => {
-	// const { ready } = useRefresh()
+	const { ready } = useRefresh()
 
-	// if (!ready) return <></>
+	if (!ready) return <></>
 
 	return (
 		<BrowserRouter basename={'/'}>
@@ -35,9 +36,9 @@ export const AppRoutes = () => {
 					<Route
 						path='/'
 						element={
-							// <RequireAuth>
-							<Main />
-							// </RequireAuth>
+							<RequireAuth>
+								<Main />
+							</RequireAuth>
 						}
 					>
 						<Route index element={<Home />} />

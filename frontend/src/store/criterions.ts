@@ -6,12 +6,14 @@ export interface ICriterionState {
 	active: string
 	criterions: ICriterion[]
 	skipped: string[]
+	date: string
 }
 
 const initialState: ICriterionState = {
 	active: '',
 	criterions: [],
 	skipped: [],
+	date: '',
 }
 
 export const cardSlice = createSlice({
@@ -23,6 +25,10 @@ export const cardSlice = createSlice({
 			//TODO надо смотреть есть ли выполненные критерии
 			state.skipped = action.payload.map(c => c.key)
 			state.active = state.skipped[0]
+		},
+
+		setDate: (state, action: PayloadAction<string>) => {
+			state.date = action.payload
 		},
 
 		setActive: (state, action: PayloadAction<string>) => {
@@ -40,6 +46,6 @@ export const cardSlice = createSlice({
 	},
 })
 
-export const { setCriterions, setActive, setComplete } = cardSlice.actions
+export const { setCriterions, setDate, setActive, setComplete } = cardSlice.actions
 
 export default cardSlice.reducer

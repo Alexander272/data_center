@@ -25,20 +25,20 @@ export default function OutputVolume() {
 	*/
 
 	const [stockData, setStockData] = useState<IOutputVolume[]>([
-		{ product: null, count: null, money: null },
-		{ product: null, count: null, money: null },
-		{ product: null, count: null, money: null },
-		{ product: null, count: null, money: null },
-		{ product: null, count: null, money: null },
-		{ product: null, count: null, money: null },
+		{ id: '1', product: 'СНП', count: null, money: null },
+		{ id: '2', product: 'ПУТГ', count: null, money: null },
+		{ id: '3', product: 'ПУТГм', count: null, money: null },
+		{ id: '4', product: 'Кольца', count: null, money: null },
+		{ id: '5', product: 'Набивка', count: null, money: null },
+		{ id: '6', product: 'Спец. арматура', count: null, money: null },
 	])
 	const [orderData, setOrderData] = useState<IOutputVolume[]>([
-		{ product: null, count: null, money: null },
-		{ product: null, count: null, money: null },
-		{ product: null, count: null, money: null },
-		{ product: null, count: null, money: null },
-		{ product: null, count: null, money: null },
-		{ product: null, count: null, money: null },
+		{ id: '1', product: 'СНП', count: null, money: null },
+		{ id: '2', product: 'ПУТГ', count: null, money: null },
+		{ id: '3', product: 'ПУТГм', count: null, money: null },
+		{ id: '4', product: 'Кольца', count: null, money: null },
+		{ id: '5', product: 'Набивка', count: null, money: null },
+		{ id: '6', product: 'Спец. арматура', count: null, money: null },
 	])
 
 	const dispatch = useAppDispatch()
@@ -47,6 +47,7 @@ export default function OutputVolume() {
 		{
 			...keyColumn<IOutputVolume, 'product'>('product', textColumn),
 			title: 'Тип продукции',
+			disabled: true,
 		},
 		{
 			...keyColumn<IOutputVolume, 'count'>('count', intColumn),
@@ -90,7 +91,7 @@ export default function OutputVolume() {
 				Ежедневный объем выпуска продукции (на склад)
 			</Typography>
 
-			<DataSheetGrid value={stockData} columns={columns} onChange={stockDataHandler} />
+			<DataSheetGrid value={stockData} columns={columns} onChange={stockDataHandler} lockRows />
 
 			<Divider />
 
@@ -98,7 +99,7 @@ export default function OutputVolume() {
 				Ежедневный объем выпуска продукции (в заказ)
 			</Typography>
 
-			<DataSheetGrid value={orderData} columns={columns} onChange={orderDataHandler} />
+			<DataSheetGrid value={orderData} columns={columns} onChange={orderDataHandler} lockRows />
 
 			<Divider />
 

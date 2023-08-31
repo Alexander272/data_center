@@ -28,6 +28,7 @@ export const userSlice = createSlice({
 			state.userId = action.payload.id
 			state.role = action.payload.role
 			state.isAuth = true
+			state.user = action.payload
 		},
 		// установка данных о пользователе и авторизации
 		setUser: (state, action: PayloadAction<IUser>) => {
