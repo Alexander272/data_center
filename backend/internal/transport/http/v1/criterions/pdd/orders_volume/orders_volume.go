@@ -27,7 +27,8 @@ func Register(api *gin.RouterGroup, service services.OrdersVolume) {
 	{
 		orders.GET("/:day", handlers.getByDay)
 		orders.POST("/", handlers.create)
-		// orders.PUT("/:id", handlers.update)
+		orders.PUT("/:day", handlers.update)
+		orders.DELETE("/:day", handlers.delete)
 	}
 }
 
@@ -57,5 +58,33 @@ func (h *OrdersVolumeHandlers) create(c *gin.Context) {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		return
 	}
-	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные об приходе заказов успешно добавлены"})
+	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные о приходе заказов успешно добавлены"})
+}
+
+func (h *OrdersVolumeHandlers) update(c *gin.Context) {
+	var dto models.OrdersVolume
+	if err := c.BindJSON(&dto); err != nil {
+		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
+		return
+	}
+
+	if err := h.service.UpdateByDay(c, dto); err != nil {
+		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, response.IdResponse{Message: "Данные о прихоже заказов успешно обновлены"})
+}
+
+func (h *OrdersVolumeHandlers) delete(c *gin.Context) {
+	day := c.Param("day")
+	if day == "" {
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "день не задан")
+		return
+	}
+
+	if err := h.service.DeleteByDay(c, day); err != nil {
+		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, response.IdResponse{})
 }

@@ -107,6 +107,10 @@ func (h *AuthHandlers) refresh(c *gin.Context) {
 
 	user, token, err := h.service.Refresh(c, token)
 	if err != nil {
+		if strings.Contains(err.Error(), models.ErrSessionEmpty.Error()) {
+			response.NewErrorResponse(c, http.StatusUnauthorized, "token is expired", "сессия не найдена")
+			return
+		}
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		return
 	}

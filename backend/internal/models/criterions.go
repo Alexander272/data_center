@@ -12,6 +12,6 @@ type CriterionsWithData struct {
 	Key      string `json:"key" db:"key"`
 	Label    string `json:"label" db:"label"`
 	Type     string `json:"type" db:"type"`
-	Day      string `json:"day"`
-	Complete bool   `json:"complete"`
+	Day      string `json:"day" db:"day"`
+	Complete bool   `json:"complete" db:"complete"`
 }

@@ -16,6 +16,9 @@ type OrdersVolume interface {
 type ShipmentPlan interface {
 	postgres.ShipmentPlan
 }
+type OutputVolume interface {
+	postgres.OutputVolume
+}
 
 type Menu interface {
 	postgres.Menu
@@ -34,6 +37,7 @@ type Repo struct {
 	Criterions
 	OrdersVolume
 	ShipmentPlan
+	OutputVolume
 
 	Session
 	Menu
@@ -46,6 +50,7 @@ func NewRepo(db *sqlx.DB, redis redis.Cmdable) *Repo {
 		Criterions:   postgres.NewCriterionsRepo(db),
 		OrdersVolume: postgres.NewOrdersVolumeRepo(db),
 		ShipmentPlan: postgres.NewShipmentPlanRepo(db),
+		OutputVolume: postgres.NewOutputVolumeRepo(db),
 
 		Session: redis_db.NewSessionRepo(redis),
 		Menu:    postgres.NewMenuRepo(db),

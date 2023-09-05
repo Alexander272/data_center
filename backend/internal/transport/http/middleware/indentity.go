@@ -56,6 +56,7 @@ func (m *Middleware) VerifyToken(c *gin.Context) {
 		return
 	}
 
+	// logger.Debug(user)
 	c.Set(m.CtxUser, user)
 
 	// logger.Debug(" ")

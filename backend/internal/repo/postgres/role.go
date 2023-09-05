@@ -47,7 +47,7 @@ func (r *RoleRepo) GetAll(ctx context.Context) (roles []models.Role, err error) 
 		menu := models.Menu{
 			Type:   rwm.Name,
 			Path:   rwm.Path,
-			Method: rwm.Path,
+			Method: rwm.Method,
 		}
 
 		if i == 0 || roles[len(roles)-1].Id != rwm.Id {

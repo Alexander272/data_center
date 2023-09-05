@@ -28,7 +28,8 @@ func Register(api *gin.RouterGroup, service services.ShipmentPlan) {
 		shipment.GET("/:day", handlers.getByDay)
 		shipment.POST("/", handlers.create)
 		shipment.POST("/several", handlers.createSeveral)
-		// output.PUT("/:id", handlers.update)
+		shipment.PUT("/several", handlers.update)
+		shipment.DELETE("/:day", handlers.delete)
 	}
 }
 
@@ -73,4 +74,32 @@ func (h *ShipmentPlanHandlers) createSeveral(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные об отгрузке успешно добавлены"})
+}
+
+func (h *ShipmentPlanHandlers) update(c *gin.Context) {
+	var dto []models.ShipmentPlan
+	if err := c.BindJSON(&dto); err != nil {
+		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
+		return
+	}
+
+	if err := h.service.UpdateSeveral(c, dto); err != nil {
+		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, response.IdResponse{Message: "Данные об отгрузке успешно обновлены"})
+}
+
+func (h *ShipmentPlanHandlers) delete(c *gin.Context) {
+	day := c.Param("day")
+	if day == "" {
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "день не задан")
+		return
+	}
+
+	if err := h.service.DeleteByDay(c, day); err != nil {
+		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, response.IdResponse{})
 }

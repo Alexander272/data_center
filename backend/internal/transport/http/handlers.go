@@ -10,6 +10,7 @@ import (
 	httpV1 "github.com/Alexander272/data_center/backend/internal/transport/http/v1"
 	"github.com/Alexander272/data_center/backend/pkg/auth"
 	"github.com/Alexander272/data_center/backend/pkg/limiter"
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,6 +33,11 @@ func (h *Handler) Init(conf *config.Config) *gin.Engine {
 	router := gin.Default()
 
 	router.Use(
+		limiter.Limit(conf.Limiter.RPS, conf.Limiter.Burst, conf.Limiter.TTL),
+	)
+
+	router.Use(
+		static.Serve("/", static.LocalFile("../frontend/dist/", true)),
 		limiter.Limit(conf.Limiter.RPS, conf.Limiter.Burst, conf.Limiter.TTL),
 	)
 

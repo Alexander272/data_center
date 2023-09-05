@@ -46,7 +46,7 @@ func (h *CriterionsHandlers) getByDay(c *gin.Context) {
 	//TODO убрать hardcode
 	user, exists := c.Get("user_context")
 	if !exists {
-		response.NewErrorResponse(c, http.StatusBadRequest, "empty user", "пользователь не найден")
+		response.NewErrorResponse(c, http.StatusUnauthorized, "empty user", "пользователь не найден")
 		return
 	}
 
