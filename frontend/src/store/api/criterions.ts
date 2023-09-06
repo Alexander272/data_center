@@ -1,4 +1,4 @@
-import type { ICompleteCriterion, ICriterion } from '@/types/criterion'
+import type { ICompleteCriterion, ICompleteReport, ICriterion, IReportFilter } from '@/types/criterion'
 import { api } from './base'
 
 export const criterionsApi = api.injectEndpoints({
@@ -9,6 +9,19 @@ export const criterionsApi = api.injectEndpoints({
 			// providesTags: (_res, _err, day) => [{ type: 'Api', id: `criterions/${day}` }],
 		}),
 
+		// получение списка выполненных дней (месяцев)
+		getCompletedPeriod: builder.query<{ data: ICompleteReport[] }, IReportFilter>({
+			query: data => ({
+				url: `criterions/complete`,
+				method: 'GET',
+				params: new URLSearchParams([
+					['type', data.type],
+					['date', data.date],
+				]),
+			}),
+			providesTags: [{ type: 'Api', id: 'criterions/complete' }],
+		}),
+
 		// отметка о заполнении критерия
 		completeCriterion: builder.mutation<string, ICompleteCriterion>({
 			query: data => ({
@@ -17,9 +30,10 @@ export const criterionsApi = api.injectEndpoints({
 				body: data,
 			}),
 			// invalidatesTags: (_res, _err, data) => [{ type: 'Api', id: `criterions/${data.date}` }],
+			invalidatesTags: [{ type: 'Api', id: 'criterions/complete' }],
 		}),
 	}),
 	overrideExisting: false,
 })
 
-export const { useGetCriterionsQuery, useCompleteCriterionMutation } = criterionsApi
+export const { useGetCriterionsQuery, useGetCompletedPeriodQuery, useCompleteCriterionMutation } = criterionsApi

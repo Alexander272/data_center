@@ -16,6 +16,7 @@ export const Day = styled.div<DayProps>`
 	cursor: pointer;
 	background-color: #fff;
 	font-size: 1.2rem;
+	position: relative;
 
 	// border
 	border: 2px solid var(--gray-border);

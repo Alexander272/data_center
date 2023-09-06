@@ -1,6 +1,9 @@
 import { MouseEvent } from 'react'
-import { Stack } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
+import CheckIcon from '@mui/icons-material/CheckOutlined'
+import HourglassIcon from '@mui/icons-material/HourglassEmptyOutlined'
 import { setDate } from '@/store/criterions'
+import { useGetCompletedPeriodQuery } from '@/store/api/criterions'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { FormatDate } from '@/utils/date'
 import { Day } from './week.style'
@@ -17,6 +20,8 @@ export const Week = () => {
 
 	const date = useAppSelector(state => state.criterions.date)
 	const dispatch = useAppDispatch()
+
+	const { data: completedDays } = useGetCompletedPeriodQuery({ type: 'day', date: FormatDate(lastDate) })
 
 	const changeDateHandler = (event: MouseEvent<HTMLDivElement>) => {
 		const { date } = (event.target as HTMLDivElement).dataset
@@ -36,15 +41,26 @@ export const Week = () => {
 			}
 			const formatDate = FormatDate(dayDate)
 
+			let complete = false
+			const cDay = completedDays?.data.find(d => d.date == formatDate)
+			if (cDay && cDay.complete) complete = true
+
 			days.push(
 				<Day
 					key={i}
 					active={formatDate == date}
-					complete={i > 1}
+					complete={complete}
 					data-date={formatDate}
 					onClick={changeDateHandler}
 				>
-					{day - i > 0 ? day - i : lastDay + day - i}
+					<Typography fontSize={'inherit'} sx={{ pointerEvents: 'none' }}>
+						{day - i > 0 ? day - i : lastDay + day - i}
+					</Typography>
+
+					<Box position={'absolute'} right={2} bottom={2} height={'18px'} sx={{ pointerEvents: 'none' }}>
+						{complete && <CheckIcon sx={{ fontSize: '18px' }} />}
+						{!complete && <HourglassIcon sx={{ fontSize: '18px', color: '#adadad' }} />}
+					</Box>
 				</Day>
 			)
 

@@ -1,15 +1,17 @@
 import { FC } from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { IPieData } from '@/types/sheet'
+import type { LegendComponentOption } from 'echarts'
 
 type FormatterType = { percent: number } & IPieData
 
 type Props = {
 	data: IPieData[]
+	legend?: LegendComponentOption
 	formatter?: (param: FormatterType) => string
 }
 
-export const Pie: FC<Props> = ({ data, formatter }) => {
+export const Pie: FC<Props> = ({ data, formatter, legend }) => {
 	let formatterFunc
 	if (formatter) formatterFunc = formatter
 	else {
@@ -20,15 +22,22 @@ export const Pie: FC<Props> = ({ data, formatter }) => {
 		}
 	}
 
+	const defLegend: LegendComponentOption = {
+		top: '5%',
+		left: 'center',
+		// selectedMode: true,
+		// type: 'scroll',
+		// orient: 'vertical',
+		// right: 10,
+		// top: 20,
+		// bottom: 20,
+	}
+
 	const options = {
 		tooltip: {
 			trigger: 'item',
 		},
-		legend: {
-			top: '5%',
-			left: 'center',
-			selectedMode: true,
-		},
+		legend: legend || defLegend,
 		series: [
 			{
 				name: 'Отгружено',

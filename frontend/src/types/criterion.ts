@@ -11,3 +11,13 @@ export interface ICompleteCriterion {
 	type: string
 	date: string
 }
+
+export interface ICompleteReport {
+	date: string
+	complete: boolean
+}
+
+export interface IReportFilter {
+	type: 'day'
+	date: string
+}
