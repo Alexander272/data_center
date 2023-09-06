@@ -10,6 +10,9 @@ import (
 type Criterions interface {
 	postgres.Criterions
 }
+type CompleteCriterion interface {
+	postgres.CompleteCriterion
+}
 type OrdersVolume interface {
 	postgres.OrdersVolume
 }
@@ -35,6 +38,7 @@ type Session interface {
 
 type Repo struct {
 	Criterions
+	CompleteCriterion
 	OrdersVolume
 	ShipmentPlan
 	OutputVolume
@@ -47,10 +51,11 @@ type Repo struct {
 
 func NewRepo(db *sqlx.DB, redis redis.Cmdable) *Repo {
 	return &Repo{
-		Criterions:   postgres.NewCriterionsRepo(db),
-		OrdersVolume: postgres.NewOrdersVolumeRepo(db),
-		ShipmentPlan: postgres.NewShipmentPlanRepo(db),
-		OutputVolume: postgres.NewOutputVolumeRepo(db),
+		Criterions:        postgres.NewCriterionsRepo(db),
+		CompleteCriterion: postgres.NewCompleteCriterionRepo(db),
+		OrdersVolume:      postgres.NewOrdersVolumeRepo(db),
+		ShipmentPlan:      postgres.NewShipmentPlanRepo(db),
+		OutputVolume:      postgres.NewOutputVolumeRepo(db),
 
 		Session: redis_db.NewSessionRepo(redis),
 		Menu:    postgres.NewMenuRepo(db),

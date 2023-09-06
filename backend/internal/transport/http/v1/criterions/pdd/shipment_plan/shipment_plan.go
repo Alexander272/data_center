@@ -25,7 +25,7 @@ func Register(api *gin.RouterGroup, service services.ShipmentPlan) {
 
 	shipment := api.Group("/shipment-plan")
 	{
-		shipment.GET("/:day", handlers.getByDay)
+		shipment.GET("/:period", handlers.getByDay)
 		shipment.POST("/", handlers.create)
 		shipment.POST("/several", handlers.createSeveral)
 		shipment.PUT("/several", handlers.update)
@@ -34,11 +34,16 @@ func Register(api *gin.RouterGroup, service services.ShipmentPlan) {
 }
 
 func (h *ShipmentPlanHandlers) getByDay(c *gin.Context) {
-	day := c.Param("day")
-	if day == "" {
-		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "день не задан")
+	period := c.Param("period")
+	if period == "" {
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "период не задан")
 		return
 	}
+
+	day := period
+	// if strings.Contains(period, "-") {
+	// TODO если это период, то его нужно разбивать на составные части и делать запрос на получение данных за период
+	// }
 
 	plan, err := h.service.GetByDay(c, day)
 	if err != nil {

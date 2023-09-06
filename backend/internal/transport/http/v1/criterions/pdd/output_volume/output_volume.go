@@ -23,7 +23,7 @@ func NewOutputVolumeHandlers(service services.OutputVolume) *OutputVolumeHandler
 func Register(api *gin.RouterGroup, service services.OutputVolume) {
 	handlers := NewOutputVolumeHandlers(service)
 
-	output := api.Group("/output")
+	output := api.Group("/output-volume")
 	{
 		output.GET("/:period", handlers.get)
 		output.POST("/several", handlers.create)

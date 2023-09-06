@@ -15,3 +15,21 @@ type CriterionsWithData struct {
 	Day      string `json:"day" db:"day"`
 	Complete bool   `json:"complete" db:"complete"`
 }
+
+type CompleteCriterion struct {
+	Role        string
+	Type        string `json:"type"`
+	Date        string `json:"date"`
+	CriterionId string
+}
+
+type ReportFilter struct {
+	Type     string `json:"type"`
+	Role     string
+	LastDate string `json:"date"`
+}
+
+type ReportComplete struct {
+	Date     string `json:"date" db:"date"`
+	Complete bool   `json:"complete" db:"complete"`
+}

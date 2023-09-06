@@ -9,6 +9,7 @@ import (
 	"github.com/Alexander272/data_center/backend/internal/transport/http/middleware"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/auth"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/complete"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/orders_volume"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/output_volume"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/shipment_plan"
@@ -45,6 +46,7 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 
 	criterionsGroup := v1.Group("/criterions", h.middleware.VerifyToken, h.middleware.CheckPermissions)
 	criterions.Register(criterionsGroup, h.services.Criterions)
+	complete.Register(criterionsGroup, h.services.CompleteCriterion)
 
 	output_volume.Register(criterionsGroup, h.services.OutputVolume)
 	shipment_plan.Register(criterionsGroup, h.services.ShipmentPlan)

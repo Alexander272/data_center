@@ -10,6 +10,7 @@ import (
 
 type Services struct {
 	Criterions
+	CompleteCriterion
 	OrdersVolume
 	ShipmentPlan
 	OutputVolume
@@ -46,12 +47,14 @@ func NewServices(deps Deps) *Services {
 	}
 
 	criterions := NewCriterionsService(deps.Repos.Criterions, criterionDeps)
+	completeCriterion := NewCompleteCriterionService(deps.Repos.CompleteCriterion)
 
 	return &Services{
-		ShipmentPlan: shipmentPlan,
-		OrdersVolume: ordersVolume,
-		OutputVolume: outputVolume,
-		Criterions:   criterions,
+		ShipmentPlan:      shipmentPlan,
+		OrdersVolume:      ordersVolume,
+		OutputVolume:      outputVolume,
+		Criterions:        criterions,
+		CompleteCriterion: completeCriterion,
 
 		Session: session,
 		Role:    role,
