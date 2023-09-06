@@ -44,3 +44,8 @@ export interface IAwaitingDecision {
 	defect: string | null
 	decision: string | null
 }
+
+export interface IPieData {
+	name: string
+	value: number
+}

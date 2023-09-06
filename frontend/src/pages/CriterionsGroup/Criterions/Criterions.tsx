@@ -1,10 +1,11 @@
-import { Suspense, useEffect } from 'react'
+import { Suspense, useCallback, useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { CircularProgress, Stack } from '@mui/material'
+import { Box, CircularProgress, Divider, Stack, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setActive, setCriterions } from '@/store/criterions'
-import { useGetCriterionsQuery } from '@/store/api/criterions'
+import { useCompleteCriterionMutation, useGetCriterionsQuery } from '@/store/api/criterions'
 import Stepper from '@/components/Stepper/Stepper'
+import { StepButtons } from '@/components/Stepper/StepButtons'
 import { Week } from '@/components/Week/Week'
 import { Container } from './criterions.style'
 import 'react-datasheet-grid/dist/style.css'
@@ -23,12 +24,16 @@ import 'react-datasheet-grid/dist/style.css'
 export default function Home() {
 	const active = useAppSelector(state => state.criterions.active)
 	const criterions = useAppSelector(state => state.criterions.criterions)
+	const skipped = useAppSelector(state => state.criterions.skipped)
+	const complete = useAppSelector(state => state.criterions.complete)
 	const date = useAppSelector(state => state.criterions.date)
 
 	const dispatch = useAppDispatch()
 	const navigate = useNavigate()
 
 	const { data } = useGetCriterionsQuery(date, { skip: !date })
+
+	const [completeCriterion] = useCompleteCriterionMutation()
 
 	useEffect(() => {
 		if (data) dispatch(setCriterions(data.data))
@@ -38,11 +43,42 @@ export default function Home() {
 		navigate(active, { replace: true })
 	}, [navigate, active])
 
+	const competeHandler = useCallback(async () => {
+		const c = criterions.find(c => c.key == active)
+		if (!c) return
+
+		try {
+			await completeCriterion({ id: c.id, type: c.type, date: date }).unwrap()
+		} catch (error) {
+			//TODO выводить ошибку
+			console.error('rejected', error)
+		}
+	}, [active, completeCriterion, criterions, date])
+
+	useEffect(() => {
+		if (complete) void competeHandler()
+	}, [complete, competeHandler])
+
 	const stepHandler = (key: string) => {
 		// setActive(id)
 		dispatch(setActive(key))
 
 		// navigate(`${id}`)
+	}
+
+	const nextHandler = () => {
+		let idx = skipped.findIndex(s => s == active)
+		if (idx == -1) idx = 0
+
+		// if (ready) dispatch(setComplete(active))
+		dispatch(setActive(skipped[(idx + 1) % skipped.length]))
+	}
+
+	const prevHandler = () => {
+		let idx = skipped.findIndex(s => s == active)
+		if (idx == -1) idx = 0
+
+		dispatch(setActive(skipped[(idx + skipped.length - 1) % skipped.length]))
 	}
 
 	return (
@@ -53,9 +89,34 @@ export default function Home() {
 			<Stack spacing={2} direction={'row'} width={'100%'} height={'100%'}>
 				<Stepper active={active} data={criterions} onSelect={stepHandler} width='350px' />
 
-				<Suspense fallback={<CircularProgress />}>
-					<Outlet />
-				</Suspense>
+				<Box
+					width={'100%'}
+					padding={'20px 30px'}
+					borderRadius={'12px'}
+					display={'flex'}
+					flexDirection={'column'}
+					gap={'20px'}
+					sx={{ backgroundColor: '#fff' }}
+				>
+					<Suspense fallback={<CircularProgress />}>
+						<Outlet />
+					</Suspense>
+
+					{/* {active == '' && <Typography textAlign={'center'}>Критерий не выбран</Typography>} */}
+					{!skipped.length && (
+						<Typography textAlign={'center'} fontSize={'1.2rem'}>
+							Все критерии заполнены
+						</Typography>
+					)}
+
+					<Divider sx={{ marginTop: 'auto' }} />
+
+					<StepButtons
+						finish={(!(skipped.length - 1) && skipped.includes(active)) || !skipped.length}
+						next={nextHandler}
+						prev={prevHandler}
+					/>
+				</Box>
 			</Stack>
 		</Container>
 	)

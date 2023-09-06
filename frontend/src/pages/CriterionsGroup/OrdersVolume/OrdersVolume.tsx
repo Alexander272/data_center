@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react'
 import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn } from 'react-datasheet-grid'
-import { Button, Divider, Typography } from '@mui/material'
+import { Button, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
-import { setActive, setComplete } from '@/store/criterions'
+import { setComplete } from '@/store/criterions'
+import {
+	useGetOrdersVolumeByDayQuery,
+	useSaveOrdersVolumeMutation,
+	useUpdateOrdersVolumeMutation,
+} from '@/store/api/ordersVolume'
 import type { IOrdersVolume, IOrdersVolumeDTO } from '@/types/orderVolume'
-import { StepButtons } from '@/components/Stepper/StepButtons'
-import { Container } from '../Injuries/injuries.style'
-import { useGetOrdersVolumeByDayQuery, useSaveOrdersVolumeMutation } from '@/store/api/ordersVolume'
 
 const emptyData = [{ id: '1', numberOfOrders: null, sumMoney: null, quantity: null }]
 
 export default function OrdersVolume() {
 	const active = useAppSelector(state => state.criterions.active)
-	const skipped = useAppSelector(state => state.criterions.skipped)
 	const date = useAppSelector(state => state.criterions.date)
-
-	const [ready, setReady] = useState(false)
 
 	const [table, setTable] = useState<IOrdersVolume[]>(emptyData)
 
@@ -25,18 +24,11 @@ export default function OrdersVolume() {
 		{ ...keyColumn<IOrdersVolume, 'numberOfOrders'>('numberOfOrders', intColumn), title: 'Количество заказов' },
 		{ ...keyColumn<IOrdersVolume, 'sumMoney'>('sumMoney', floatColumn), title: 'Сумма заказов' },
 		{ ...keyColumn<IOrdersVolume, 'quantity'>('quantity', intColumn), title: 'Количество единиц продукции' },
-		// {
-		// 	...keyColumn<IOrdersVolume, 'count'>('count', intColumn),
-		// 	title: 'Объем заказов переданных в производство в штуках',
-		// },
-		// {
-		// 	...keyColumn<IOrdersVolume, 'money'>('money', floatColumn),
-		// 	title: 'Объем заказов переданных в производство в деньгах',
-		// },
 	]
 
 	const { data: orders } = useGetOrdersVolumeByDayQuery(date, { skip: !date })
 	const [saveOrders] = useSaveOrdersVolumeMutation()
+	const [updateOrders] = useUpdateOrdersVolumeMutation()
 
 	useEffect(() => {
 		if (orders && orders.data) {
@@ -70,29 +62,26 @@ export default function OrdersVolume() {
 			quantity: table[0].quantity || 0,
 		}
 
+		if (!table[0].numberOfOrders || !table[0].sumMoney || !table[0].quantity) {
+			// TODO выводить ошибку
+			return
+		}
+
 		try {
-			await saveOrders(order).unwrap()
-			setReady(true)
+			if (!orders?.data) {
+				await saveOrders(order).unwrap()
+				dispatch(setComplete(active))
+			} else {
+				await updateOrders(order).unwrap()
+			}
 		} catch (error) {
+			// TODO выводить ошибку
 			console.error('rejected', error)
 		}
 	}
 
-	const nextHandler = () => {
-		//TODO по идее это можно закольцевать до тех пор пока остаются не заполненные критерии
-		const idx = skipped.findIndex(s => s == active)
-		if (idx == -1) return
-
-		if (ready) dispatch(setComplete(active))
-		if (idx <= skipped.length - 1) dispatch(setActive(skipped[idx + 1]))
-	}
-
-	const prevHandler = () => {
-		console.log('prev')
-	}
-
 	return (
-		<Container>
+		<>
 			<Typography variant='h5' textAlign='center'>
 				Ежедневный объем заказов переданных в производство
 			</Typography>
@@ -102,10 +91,6 @@ export default function OrdersVolume() {
 			<Button variant='outlined' onClick={submitHandler} sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}>
 				Сохранить
 			</Button>
-
-			<Divider sx={{ marginTop: 'auto' }} />
-
-			<StepButtons finish={!(skipped.length - 1)} next={nextHandler} prev={prevHandler} />
-		</Container>
+		</>
 	)
 }

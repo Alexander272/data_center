@@ -7,6 +7,7 @@ export const Header = () => {
 	return (
 		<Container>
 			<Box mr={'auto'}></Box>
+			<Link to={'/'}>Главная</Link>
 			{CheckPermission({ section: 'criterions', method: 'GET' }) && <Link to={'criterions'}>Критерии</Link>}
 		</Container>
 	)

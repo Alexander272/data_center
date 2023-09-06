@@ -2,11 +2,13 @@ import { configureStore } from '@reduxjs/toolkit'
 import { api, unauthenticatedMiddleware } from './api/base'
 import userReducer from './user'
 import criterionsReducer from './criterions'
+import dashboardReducer from './dashboard'
 
 export const store = configureStore({
 	reducer: {
 		user: userReducer,
 		criterions: criterionsReducer,
+		dashboard: dashboardReducer,
 		[api.reducerPath]: api.reducer,
 	},
 	middleware: getDefaultMiddleware => getDefaultMiddleware().concat(api.middleware).concat(unauthenticatedMiddleware),

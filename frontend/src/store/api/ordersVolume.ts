@@ -18,8 +18,18 @@ export const ordersApi = api.injectEndpoints({
 			}),
 			invalidatesTags: (_res, _err, data) => [{ type: 'Api', id: `orders-volume/${data.day}` }],
 		}),
+
+		// обновление данных о заказах переданных в производство
+		updateOrdersVolume: builder.mutation<string, IOrdersVolumeDTO>({
+			query: data => ({
+				url: `criterions/orders-volume/${data.day}`,
+				method: 'PUT',
+				body: data,
+			}),
+			invalidatesTags: (_res, _err, data) => [{ type: 'Api', id: `orders-volume/${data.day}` }],
+		}),
 	}),
 	overrideExisting: false,
 })
 
-export const { useGetOrdersVolumeByDayQuery, useSaveOrdersVolumeMutation } = ordersApi
+export const { useGetOrdersVolumeByDayQuery, useSaveOrdersVolumeMutation, useUpdateOrdersVolumeMutation } = ordersApi
