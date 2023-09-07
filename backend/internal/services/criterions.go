@@ -9,9 +9,10 @@ import (
 )
 
 type CriterionDeps struct {
-	shipment ShipmentPlan
-	orders   OrdersVolume
-	output   OutputVolume
+	// shipment ShipmentPlan
+	// orders   OrdersVolume
+	// output   OutputVolume
+	// load     ProductionLoad
 }
 
 type CriterionsService struct {
@@ -44,18 +45,6 @@ func (s *CriterionsService) GetByDay(ctx context.Context, user models.User, day 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get criterions by role. error: %w", err)
 	}
-
-	// for _, c := range data {
-	// 	//TODO дописать получение статуса о заполнении критерия
-
-	// 	criterions = append(criterions, models.CriterionsWithData{
-	// 		Id:    c.Id,
-	// 		Key:   c.Key,
-	// 		Label: c.Label,
-	// 		Type:  c.Type,
-	// 		Day:   day,
-	// 	})
-	// }
 
 	return criterions, nil
 }

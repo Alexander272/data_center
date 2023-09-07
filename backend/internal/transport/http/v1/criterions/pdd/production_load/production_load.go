@@ -1,4 +1,4 @@
-package output_volume
+package production_load
 
 import (
 	"net/http"
@@ -10,30 +10,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type OutputVolumeHandlers struct {
-	service services.OutputVolume
+type ProductionLoadHandlers struct {
+	service services.ProductionLoad
 	// TODO добавить бота для отправки ошибок
 }
 
-func NewOutputVolumeHandlers(service services.OutputVolume) *OutputVolumeHandlers {
-	return &OutputVolumeHandlers{
+func NewProductionLoadHandlers(service services.ProductionLoad) *ProductionLoadHandlers {
+	return &ProductionLoadHandlers{
 		service: service,
 	}
 }
 
-func Register(api *gin.RouterGroup, service services.OutputVolume) {
-	handlers := NewOutputVolumeHandlers(service)
+func Register(api *gin.RouterGroup, service services.ProductionLoad) {
+	handlers := NewProductionLoadHandlers(service)
 
-	output := api.Group("/output-volume")
+	load := api.Group("/production-load")
 	{
-		output.GET("/:period", handlers.get)
-		output.POST("/several", handlers.create)
-		output.PUT("/several", handlers.update)
-		output.DELETE("/:day", handlers.delete)
+		load.GET("/:period", handlers.get)
+		load.POST("/several", handlers.create)
+		load.PUT("/several", handlers.update)
+		load.DELETE("/:date", handlers.delete)
 	}
 }
 
-func (h *OutputVolumeHandlers) get(c *gin.Context) {
+func (h *ProductionLoadHandlers) get(c *gin.Context) {
 	p := c.Param("period")
 	if p == "" {
 		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "период не задан")
@@ -47,16 +47,16 @@ func (h *OutputVolumeHandlers) get(c *gin.Context) {
 		period.To = parts[1]
 	}
 
-	output, err := h.service.GetByPeriod(c, period)
+	load, err := h.service.GetByPeriod(c, period)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, response.DataResponse{Data: output})
+	c.JSON(http.StatusOK, response.DataResponse{Data: load})
 }
 
-func (h *OutputVolumeHandlers) create(c *gin.Context) {
-	var dto []models.OutputVolume
+func (h *ProductionLoadHandlers) create(c *gin.Context) {
+	var dto []models.ProductionLoad
 	if err := c.BindJSON(&dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
@@ -66,11 +66,11 @@ func (h *OutputVolumeHandlers) create(c *gin.Context) {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		return
 	}
-	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные о выпуске успешно добавлены"})
+	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные о загруженности успешно добавлены"})
 }
 
-func (h *OutputVolumeHandlers) update(c *gin.Context) {
-	var dto []models.OutputVolume
+func (h *ProductionLoadHandlers) update(c *gin.Context) {
+	var dto []models.ProductionLoad
 	if err := c.BindJSON(&dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
@@ -80,17 +80,17 @@ func (h *OutputVolumeHandlers) update(c *gin.Context) {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, response.IdResponse{Message: "Данные о выпуске успешно обновлены"})
+	c.JSON(http.StatusOK, response.IdResponse{Message: "Данные о загруженности успешно обновлены"})
 }
 
-func (h *OutputVolumeHandlers) delete(c *gin.Context) {
-	day := c.Param("day")
-	if day == "" {
+func (h *ProductionLoadHandlers) delete(c *gin.Context) {
+	date := c.Param("date")
+	if date == "" {
 		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "день не задан")
 		return
 	}
 
-	if err := h.service.DeleteByDay(c, day); err != nil {
+	if err := h.service.DeleteByDate(c, date); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		return
 	}

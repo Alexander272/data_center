@@ -3,11 +3,11 @@ package models
 type Menu struct {
 	Id          string `json:"id" db:"id"`
 	Name        string `json:"name" db:"name"`
-	Type        string `json:"type" db:"type"`
+	Type        string `json:"-" db:"type"`
 	Path        string `json:"path" db:"path"`
-	Method      string `json:"method" db:"method"`
-	IsShow      bool   `json:"isShow" db:"is_show"`
-	Description string `json:"description" db:"description"`
+	Method      string `json:"-" db:"method"`
+	IsShow      bool   `json:"-" db:"is_show"`
+	Description string `json:"-" db:"description"`
 }
 
 type MenuDTO struct {

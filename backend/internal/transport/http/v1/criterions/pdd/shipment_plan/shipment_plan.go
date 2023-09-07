@@ -2,6 +2,7 @@ package shipment_plan
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
@@ -34,18 +35,20 @@ func Register(api *gin.RouterGroup, service services.ShipmentPlan) {
 }
 
 func (h *ShipmentPlanHandlers) getByDay(c *gin.Context) {
-	period := c.Param("period")
-	if period == "" {
+	p := c.Param("period")
+	if p == "" {
 		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "период не задан")
 		return
 	}
 
-	day := period
-	// if strings.Contains(period, "-") {
-	// TODO если это период, то его нужно разбивать на составные части и делать запрос на получение данных за период
-	// }
+	period := models.Period{From: p}
+	if strings.Contains(p, "-") {
+		parts := strings.Split(p, "-")
+		period.From = parts[0]
+		period.To = parts[1]
+	}
 
-	plan, err := h.service.GetByDay(c, day)
+	plan, err := h.service.GetByPeriod(c, period)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		return

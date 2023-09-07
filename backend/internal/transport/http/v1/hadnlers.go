@@ -12,6 +12,8 @@ import (
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/complete"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/orders_volume"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/output_volume"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/production_load"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/production_plan"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/shipment_plan"
 	"github.com/gin-gonic/gin"
 )
@@ -51,6 +53,8 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 	output_volume.Register(criterionsGroup, h.services.OutputVolume)
 	shipment_plan.Register(criterionsGroup, h.services.ShipmentPlan)
 	orders_volume.Register(criterionsGroup, h.services.OrdersVolume)
+	production_load.Register(criterionsGroup, h.services.ProductionLoad)
+	production_plan.Register(criterionsGroup, h.services.ProductionPlan)
 }
 
 func (h *Handler) notImplemented(c *gin.Context) {

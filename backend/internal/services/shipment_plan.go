@@ -19,19 +19,27 @@ func NewShipmentPlanService(repo repo.ShipmentPlan) *ShipmentPlanService {
 }
 
 type ShipmentPlan interface {
-	GetByDay(context.Context, string) ([]models.ShipmentPlan, error)
+	// GetByDay(context.Context, string) ([]models.ShipmentPlan, error)
+	GetByPeriod(context.Context, models.Period) ([]models.ShipmentPlan, error)
 	Create(context.Context, models.ShipmentPlan) error
 	CreateSeveral(context.Context, []models.ShipmentPlan) error
 	UpdateSeveral(context.Context, []models.ShipmentPlan) error
 	DeleteByDay(context.Context, string) error
 }
 
-func (s *ShipmentPlanService) GetByDay(ctx context.Context, day string) ([]models.ShipmentPlan, error) {
-	//? надо ли как-то преобразовывать день?
-	plan, err := s.repo.GetByDay(ctx, day)
-	if err != nil {
-		return nil, fmt.Errorf(`failed to get shipment plan by day. error: %w`, err)
+func (s *ShipmentPlanService) GetByPeriod(ctx context.Context, period models.Period) (plan []models.ShipmentPlan, err error) {
+	if period.To == "" {
+		plan, err = s.repo.GetByDay(ctx, period.From)
+		if err != nil {
+			return nil, fmt.Errorf(`failed to get shipment plan by day. error: %w`, err)
+		}
+	} else {
+		plan, err = s.repo.GetByPeriod(ctx, period)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get shipment plan by period. error: %w", err)
+		}
 	}
+
 	return plan, nil
 }
 

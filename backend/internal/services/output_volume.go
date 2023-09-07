@@ -19,17 +19,26 @@ func NewOutputVolumeService(repo repo.OutputVolume) *OutputVolumeService {
 }
 
 type OutputVolume interface {
-	GetByDay(context.Context, string) ([]models.OutputVolume, error)
+	// GetByDay(context.Context, string) ([]models.OutputVolume, error)
+	GetByPeriod(context.Context, models.Period) ([]models.OutputVolume, error)
 	CreateSeveral(context.Context, []models.OutputVolume) error
 	UpdateSeveral(context.Context, []models.OutputVolume) error
 	DeleteByDay(context.Context, string) error
 }
 
-func (s *OutputVolumeService) GetByDay(ctx context.Context, day string) ([]models.OutputVolume, error) {
-	output, err := s.repo.GetByDay(ctx, day)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get output volume by day. error: %w", err)
+func (s *OutputVolumeService) GetByPeriod(ctx context.Context, period models.Period) (output []models.OutputVolume, err error) {
+	if period.To == "" {
+		output, err = s.repo.GetByDay(ctx, period.From)
+		if err != nil {
+			return nil, fmt.Errorf(`failed to get output volume by day. error: %w`, err)
+		}
+	} else {
+		output, err = s.repo.GetByPeriod(ctx, period)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get output volume by period. error: %w", err)
+		}
 	}
+
 	return output, nil
 }
 

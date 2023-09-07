@@ -14,6 +14,8 @@ type Services struct {
 	OrdersVolume
 	ShipmentPlan
 	OutputVolume
+	ProductionLoad
+	ProductionPlan
 
 	Session
 	Role
@@ -39,11 +41,14 @@ func NewServices(deps Deps) *Services {
 	ordersVolume := NewOrdersVolumeService(deps.Repos.OrdersVolume)
 	shipmentPlan := NewShipmentPlanService(deps.Repos.ShipmentPlan)
 	outputVolume := NewOutputVolumeService(deps.Repos.OutputVolume)
+	productionLoad := NewProductionLoadService(deps.Repos.ProductionLoad)
+	productionPlan := NewProductionPlanService(deps.Repos.ProductionPlan)
 
 	criterionDeps := CriterionDeps{
-		shipment: shipmentPlan,
-		orders:   ordersVolume,
-		output:   outputVolume,
+		// shipment: shipmentPlan,
+		// orders:   ordersVolume,
+		// output:   outputVolume,
+		// load:     productionLoad,
 	}
 
 	criterions := NewCriterionsService(deps.Repos.Criterions, criterionDeps)
@@ -53,6 +58,8 @@ func NewServices(deps Deps) *Services {
 		ShipmentPlan:      shipmentPlan,
 		OrdersVolume:      ordersVolume,
 		OutputVolume:      outputVolume,
+		ProductionLoad:    productionLoad,
+		ProductionPlan:    productionPlan,
 		Criterions:        criterions,
 		CompleteCriterion: completeCriterion,
 
