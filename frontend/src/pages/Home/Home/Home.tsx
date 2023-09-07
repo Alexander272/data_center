@@ -1,8 +1,10 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import { Container } from './home.style'
-import { Button, ButtonGroup, CircularProgress, Stack } from '@mui/material'
+import { Box, Button, ButtonGroup, CircularProgress, Stack } from '@mui/material'
+import Stepper from '@/components/Stepper/Stepper'
 
-const Shipment = lazy(() => import('@/pages/Home/components/Shipment/Shipment'))
+const Shipment = lazy(() => import('@/pages/Home/Shipment/Shipment'))
+const Output = lazy(() => import('@/pages/Home/Output/Output'))
 
 // const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
 // const Quality = lazy(() => import('@/pages/Home/components/Quality/Quality'))
@@ -11,12 +13,24 @@ const Shipment = lazy(() => import('@/pages/Home/components/Shipment/Shipment'))
 
 // type Selected = 'sqdc' | 'quality' | 'expenses' | 'order'
 
+const steps = [
+	{ id: '1', key: 'shipment', label: 'Отгрузка' },
+	{ id: '2', key: 'output', label: 'Выпуск' },
+	{ id: '3', key: 'orders', label: 'Приход заказов' },
+	{ id: '4', key: '', label: 'Загруженность пр-ва' },
+]
+
 export default function Home() {
-	// const [selected, setSelected] = useState<Selected>('sqdc')
+	const [selected, setSelected] = useState('shipment')
 
 	// const selectHandler = (group: Selected) => () => {
 	// 	setSelected(group)
 	// }
+
+	const stepHandler = (key: string) => {
+		// dispatch(setActive(key))
+		setSelected(key)
+	}
 
 	return (
 		<Container>
@@ -55,9 +69,26 @@ export default function Home() {
 				</ButtonGroup>
 			</Stack>
 
-			<Suspense fallback={<CircularProgress />}>
-				<Shipment />
-			</Suspense>
+			<Stack direction={'row'} spacing={1} width={'100%'}>
+				<Stepper active={selected} data={steps} onSelect={stepHandler} width='300px' />
+
+				<Suspense
+					fallback={
+						<Box
+							width={'100%'}
+							display={'flex'}
+							height={'100%'}
+							justifyContent={'center'}
+							alignItems={'center'}
+						>
+							<CircularProgress />
+						</Box>
+					}
+				>
+					{selected == 'shipment' && <Shipment />}
+					{selected == 'output' && <Output />}
+				</Suspense>
+			</Stack>
 		</Container>
 	)
 }

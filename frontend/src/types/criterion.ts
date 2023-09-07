@@ -16,8 +16,3 @@ export interface ICompleteReport {
 	date: string
 	complete: boolean
 }
-
-export interface IReportFilter {
-	type: 'day'
-	date: string
-}

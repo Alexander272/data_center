@@ -1,48 +1,57 @@
 import { useEffect, useState } from 'react'
-import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn } from 'react-datasheet-grid'
-import { Button, Divider, Typography } from '@mui/material'
+import { Column, DataSheetGrid, floatColumn, keyColumn, textColumn } from 'react-datasheet-grid'
+import { Button, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
-import { setActive, setComplete } from '@/store/criterions'
-import type { IProductionPlan } from '@/types/productionPlan'
-import { StepButtons } from '@/components/Stepper/StepButtons'
-import { Container } from '../Injuries/injuries.style'
+import { setComplete } from '@/store/criterions'
+import {
+	useGetProductionPlanByPeriodQuery,
+	useSaveProductionPlanMutation,
+	useUpdateProductionPlanMutation,
+} from '@/store/api/productionPlan'
+import type { IProductionPlan, IProductionPlanDTO } from '@/types/productionPlan'
 
-const emptyData: IProductionPlan[] = []
+const emptyData: IProductionPlan[] = [
+	{ id: '1', product: 'СНП', money: null },
+	{ id: '2', product: 'ПУТГ', money: null },
+	{ id: '3', product: 'ПУТГм', money: null },
+	{ id: '4', product: 'Кольца', money: null },
+	{ id: '5', product: 'Набивка', money: null },
+	{ id: '6', product: 'Спец. арматура', money: null },
+	{ id: '7', product: 'Прочее', money: null },
+]
 
 export default function ProductionPlan() {
 	const active = useAppSelector(state => state.criterions.active)
-	const skipped = useAppSelector(state => state.criterions.skipped)
 	const date = useAppSelector(state => state.criterions.date)
-
-	const [ready, setReady] = useState(false)
 
 	const [table, setTable] = useState<IProductionPlan[]>(emptyData)
 
 	const dispatch = useAppDispatch()
 
 	const columns: Column<IProductionPlan>[] = [
-		// { ...keyColumn<IOrdersVolume, 'numberOfOrders'>('numberOfOrders', intColumn), title: 'Количество заказов' },
-		// { ...keyColumn<IOrdersVolume, 'sumMoney'>('sumMoney', floatColumn), title: 'Сумма заказов' },
-		// { ...keyColumn<IOrdersVolume, 'quantity'>('quantity', intColumn), title: 'Количество единиц продукции' },
+		{ ...keyColumn<IProductionPlan, 'product'>('product', textColumn), title: 'Тип продукции', disabled: true },
+		{ ...keyColumn<IProductionPlan, 'money'>('money', floatColumn), title: 'Отгрузка в деньгах' },
 	]
 
-	// const { data: orders } = useGetOrdersVolumeByDayQuery(date, { skip: !date })
-	// const [saveOrders] = useSaveOrdersVolumeMutation()
+	const { data: plan } = useGetProductionPlanByPeriodQuery({ from: date }, { skip: !date })
+	const [savePlan] = useSaveProductionPlanMutation()
+	const [updatePlan] = useUpdateProductionPlanMutation()
 
-	// useEffect(() => {
-	// 	if (orders && orders.data) {
-	// 		setTable([
-	// 			{
-	// 				id: orders.data[0].id,
-	// 				numberOfOrders: orders.data[0].numberOfOrders,
-	// 				sumMoney: +(orders.data[0].sumMoney || '0'),
-	// 				quantity: orders.data[0].quantity,
-	// 			},
-	// 		])
-	// 	} else {
-	// 		setTable(emptyData)
-	// 	}
-	// }, [orders])
+	useEffect(() => {
+		if (plan && plan.data) {
+			setTable(prev => {
+				const temp = [...prev]
+				for (let i = 0; i < temp.length; i++) {
+					const d = plan.data.find(s => s.product == temp[i].product)
+					if (!d) return temp
+					temp[i] = { ...temp[i], id: d.id, product: d.product, money: +(d.money || '0') }
+				}
+				return temp
+			})
+		} else {
+			setTable(emptyData)
+		}
+	}, [plan])
 
 	const tableHandler = (data: IProductionPlan[]) => {
 		setTable(data)
@@ -53,36 +62,38 @@ export default function ProductionPlan() {
 	}
 
 	const saveHandler = async () => {
-		// const order: IOrdersVolumeDTO = {
-		// 	id: '',
-		// 	day: date,
-		// 	numberOfOrders: table[0].numberOfOrders || 0,
-		// 	sumMoney: table[0].sumMoney?.toString() || '0',
-		// 	quantity: table[0].quantity || 0,
-		// }
-		// try {
-		// 	await saveOrders(order).unwrap()
-		// 	setReady(true)
-		// } catch (error) {
-		// 	console.error('rejected', error)
-		// }
-	}
+		if (table.some(t => !t.money)) {
+			console.log('empty')
+			// TODO выводить ошибку
+			return
+		}
 
-	const nextHandler = () => {
-		//TODO по идее это можно закольцевать до тех пор пока остаются не заполненные критерии
-		const idx = skipped.findIndex(s => s == active)
-		if (idx == -1) return
+		const newPlan: IProductionPlanDTO[] = []
+		for (let i = 0; i < table.length; i++) {
+			const e = table[i]
+			newPlan.push({
+				id: '',
+				date: date,
+				product: e.product || '',
+				money: e.money?.toString() || '',
+			})
+		}
 
-		if (ready) dispatch(setComplete(active))
-		if (idx <= skipped.length - 1) dispatch(setActive(skipped[idx + 1]))
-	}
-
-	const prevHandler = () => {
-		console.log('prev')
+		try {
+			if (!plan?.data) {
+				await savePlan(newPlan).unwrap()
+				dispatch(setComplete(active))
+			} else {
+				await updatePlan(newPlan).unwrap()
+			}
+		} catch (error) {
+			//TODO выводить ошибку
+			console.error('rejected', error)
+		}
 	}
 
 	return (
-		<Container>
+		<>
 			<Typography variant='h5' textAlign='center'>
 				Ежедневный объем заказов переданных в производство
 			</Typography>
@@ -92,10 +103,6 @@ export default function ProductionPlan() {
 			<Button variant='outlined' onClick={submitHandler} sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}>
 				Сохранить
 			</Button>
-
-			<Divider sx={{ marginTop: 'auto' }} />
-
-			<StepButtons finish={!(skipped.length - 1)} next={nextHandler} prev={prevHandler} />
-		</Container>
+		</>
 	)
 }

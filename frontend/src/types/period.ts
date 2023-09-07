@@ -1,4 +1,4 @@
-export type PeriodEnum = 'day' | 'week' | 'month' | 'year' | 'period'
+export type PeriodEnum = 'day' | 'week' | 'month' | 'quarter' | 'year' | 'period'
 
 export interface IPeriod {
 	from: string

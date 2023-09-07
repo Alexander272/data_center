@@ -8,7 +8,7 @@ import RequireAuth from './pages/Auth/RequireAuth'
 
 const Auth = lazy(() => import('@/pages/Auth/Auth'))
 
-const Home = lazy(() => import('@/pages/Home/Home'))
+const Home = lazy(() => import('@/pages/Home/Home/Home'))
 
 const Criterions = lazy(() => import('@/pages/CriterionsGroup/Criterions/Criterions'))
 const Injuries = lazy(() => import('@/pages/CriterionsGroup/Injuries/Injuries'))
@@ -19,6 +19,8 @@ const NumberInBrigade = lazy(() => import('@/pages/CriterionsGroup/NumberInBriga
 const OutputVolume = lazy(() => import('@/pages/CriterionsGroup/OutputVolume/OutputVolume'))
 const OrdersVolume = lazy(() => import('@/pages/CriterionsGroup/OrdersVolume/OrdersVolume'))
 const ShipmentPlan = lazy(() => import('@/pages/CriterionsGroup/ShipmentPlan/ShipmentPlan'))
+const ProductionLoad = lazy(() => import('@/pages/CriterionsGroup/ProductionLoad/ProductionLoad'))
+const ProductionPlan = lazy(() => import('@/pages/CriterionsGroup/ProductionPlan/ProductionPlan'))
 
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'))
 
@@ -51,6 +53,8 @@ export const AppRoutes = () => {
 							<Route path='output-volume' element={<OutputVolume />} />
 							<Route path='orders-volume' element={<OrdersVolume />} />
 							<Route path='shipment-plan' element={<ShipmentPlan />} />
+							<Route path='production-load' element={<ProductionLoad />} />
+							<Route path='production-plan' element={<ProductionPlan />} />
 						</Route>
 					</Route>
 

@@ -4,7 +4,7 @@ import { api } from './base'
 
 export const outputApi = api.injectEndpoints({
 	endpoints: builder => ({
-		// получение данных об отгрузках за день
+		// получение данных о выпуске за период
 		getOutputVolumeByPeriod: builder.query<{ data: IOutputVolume[] }, IPeriod>({
 			query: period => `criterions/output-volume/${period.from}${period.to ? '-' + period.to : ''}`,
 			providesTags: (_res, _err, period) => [
@@ -12,7 +12,7 @@ export const outputApi = api.injectEndpoints({
 			],
 		}),
 
-		// сохранение данных об отгрузках
+		// сохранение данных о выпуске
 		saveOutputVolume: builder.mutation<string, IOutputVolumeDTO[]>({
 			query: data => ({
 				url: 'criterions/output-volume/several',
@@ -22,7 +22,7 @@ export const outputApi = api.injectEndpoints({
 			invalidatesTags: (_res, _err, data) => [{ type: 'Api', id: `output-volume/${data[0].day}` }],
 		}),
 
-		// обновление данных об отгрузках
+		// обновление данных о выпуске
 		updateOutputVolume: builder.mutation<string, IOutputVolumeDTO[]>({
 			query: data => ({
 				url: 'criterions/output-volume/several',

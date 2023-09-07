@@ -103,11 +103,11 @@ export default function Home() {
 					</Suspense>
 
 					{/* {active == '' && <Typography textAlign={'center'}>Критерий не выбран</Typography>} */}
-					{!skipped.length && (
+					{!skipped.length && active == '' ? (
 						<Typography textAlign={'center'} fontSize={'1.2rem'}>
 							Все критерии заполнены
 						</Typography>
-					)}
+					) : null}
 
 					<Divider sx={{ marginTop: 'auto' }} />
 

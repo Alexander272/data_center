@@ -14,5 +14,6 @@ export interface IUser {
 export interface IMenu {
 	id: string
 	name: string
-	type: string
+	// type: string
+	path: string
 }

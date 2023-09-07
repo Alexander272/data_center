@@ -84,12 +84,12 @@ export default function OutputVolume() {
 	}
 
 	const saveHandler = async () => {
-		if (stockTable.some(t => !t.money || !t.money)) {
+		if (stockTable.some(t => !t.count || !t.money)) {
 			console.log('empty')
 			// TODO выводить ошибку
 			return
 		}
-		if (orderTable.some(t => !t.money || !t.money)) {
+		if (orderTable.some(t => !t.count || !t.money)) {
 			console.log('empty')
 			// TODO выводить ошибку
 			return

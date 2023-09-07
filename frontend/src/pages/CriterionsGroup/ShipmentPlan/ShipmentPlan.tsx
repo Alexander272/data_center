@@ -63,7 +63,7 @@ export default function ShipmentPlan() {
 	}
 
 	const saveHandler = async () => {
-		if (table.some(t => !t.money || !t.money)) {
+		if (table.some(t => !t.count || !t.money)) {
 			console.log('empty')
 			// TODO выводить ошибку
 			return

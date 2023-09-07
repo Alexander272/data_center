@@ -53,11 +53,13 @@ export const Week = () => {
 					data-date={formatDate}
 					onClick={changeDateHandler}
 				>
-					<Typography fontSize={'inherit'} sx={{ pointerEvents: 'none' }}>
-						{day - i > 0 ? day - i : lastDay + day - i}
+					<Typography fontSize={'inherit'} pl={1} sx={{ pointerEvents: 'none' }}>
+						{/* {day - i > 0 ? day - i : lastDay + day - i} */}
+						{/* {formatDate.replace('.2023', '')} */}
+						{formatDate.split('.')[0]}
 					</Typography>
 
-					<Box position={'absolute'} right={2} bottom={2} height={'18px'} sx={{ pointerEvents: 'none' }}>
+					<Box position={'absolute'} right={2} bottom={6} height={'18px'} sx={{ pointerEvents: 'none' }}>
 						{complete && <CheckIcon sx={{ fontSize: '18px' }} />}
 						{!complete && <HourglassIcon sx={{ fontSize: '18px', color: '#adadad' }} />}
 					</Box>

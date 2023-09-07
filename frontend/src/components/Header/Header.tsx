@@ -1,14 +1,20 @@
-import { Link } from 'react-router-dom'
-import { Box } from '@mui/material'
-import { Container } from './header.style'
+import { Box, Stack } from '@mui/material'
 import { CheckPermission } from '@/utils/auth'
+import { Container, NavLink } from './header.style'
 
 export const Header = () => {
 	return (
 		<Container>
-			<Box mr={'auto'}></Box>
-			<Link to={'/'}>Главная</Link>
-			{CheckPermission({ section: 'criterions', method: 'GET' }) && <Link to={'criterions'}>Критерии</Link>}
+			<Box maxWidth={1580} width={'100%'} padding={'0px 10px'} display={'flex'}>
+				<Box mr={'auto'}></Box>
+				<Stack direction={'row'} spacing={3} height={'100%'}>
+					<NavLink to='/'>Главная</NavLink>
+
+					{CheckPermission({ section: 'criterions', method: 'GET' }) && (
+						<NavLink to={'criterions'}>Критерии</NavLink>
+					)}
+				</Stack>
+			</Box>
 		</Container>
 	)
 }

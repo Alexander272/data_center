@@ -1,4 +1,5 @@
-import type { ICompleteCriterion, ICompleteReport, ICriterion, IReportFilter } from '@/types/criterion'
+import type { ICompleteCriterion, ICompleteReport, ICriterion } from '@/types/criterion'
+import type { IReportFilter } from '@/types/report'
 import { api } from './base'
 
 export const criterionsApi = api.injectEndpoints({

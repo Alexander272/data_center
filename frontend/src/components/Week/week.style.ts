@@ -5,17 +5,19 @@ type DayProps = {
 	active?: boolean
 }
 export const Day = styled.div<DayProps>`
-	width: 48px;
+	/* width: 48px; */
+	/* width: 80px; */
+	width: 52px;
 	height: 48px;
 	/* padding: 12px; */
 	border-radius: 8px;
 	display: flex;
-	align-items: center;
-	justify-content: center;
+	/* align-items: center; */
+	/* justify-content: center; */
 	transition: all 0.3s ease-in-out;
 	cursor: pointer;
 	background-color: #fff;
-	font-size: 1.2rem;
+	font-size: 1.3rem;
 	position: relative;
 
 	// border

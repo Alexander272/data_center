@@ -1,3 +1,5 @@
+import { PeriodEnum } from './period'
+
 export interface IDay {
 	id: string
 	complete?: boolean
@@ -7,6 +9,11 @@ export interface IDay {
 export interface IReport {
 	id: string
 	completed: []
+}
+
+export interface IReportFilter {
+	type: PeriodEnum
+	date: string
 }
 
 // export type Criterion = {

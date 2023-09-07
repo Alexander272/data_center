@@ -1,17 +1,25 @@
 import { FC } from 'react'
-import ReactECharts from 'echarts-for-react'
-import type { IPieData } from '@/types/sheet'
+// import ReactECharts from 'echarts-for-react'
+import ReactECharts from 'echarts-for-react/lib/core'
+import * as echarts from 'echarts/core'
+import { PieChart } from 'echarts/charts'
+import { TooltipComponent, LegendComponent } from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
 import type { LegendComponentOption } from 'echarts'
+import type { IPieData } from '@/types/sheet'
 
 type FormatterType = { percent: number } & IPieData
 
 type Props = {
 	data: IPieData[]
+	name: string
 	legend?: LegendComponentOption
 	formatter?: (param: FormatterType) => string
 }
 
-export const Pie: FC<Props> = ({ data, formatter, legend }) => {
+export const Pie: FC<Props> = ({ data, name, formatter, legend }) => {
+	echarts.use([TooltipComponent, LegendComponent, PieChart, CanvasRenderer])
+
 	let formatterFunc
 	if (formatter) formatterFunc = formatter
 	else {
@@ -25,7 +33,7 @@ export const Pie: FC<Props> = ({ data, formatter, legend }) => {
 	const defLegend: LegendComponentOption = {
 		top: '5%',
 		left: 'center',
-		// selectedMode: true,
+		selectedMode: false,
 		// type: 'scroll',
 		// orient: 'vertical',
 		// right: 10,
@@ -40,7 +48,7 @@ export const Pie: FC<Props> = ({ data, formatter, legend }) => {
 		legend: legend || defLegend,
 		series: [
 			{
-				name: 'Отгружено',
+				name: name,
 				type: 'pie',
 				radius: ['40%', '70%'],
 				center: ['50%', '60%'],
@@ -61,5 +69,5 @@ export const Pie: FC<Props> = ({ data, formatter, legend }) => {
 		],
 	}
 
-	return <ReactECharts option={options} />
+	return <ReactECharts echarts={echarts} option={options} />
 }

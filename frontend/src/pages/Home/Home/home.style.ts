@@ -6,9 +6,9 @@ export const Container = styled.div`
 	flex-direction: column;
 	gap: 16px;
 	/* margin-top: 40px; */
-	max-width: 1580px;
+	max-width: 1880px;
 	/* align-self: center; */
-	margin: 40px auto;
+	margin: 10px auto 40px;
 `
 
 type GroupProps = {
