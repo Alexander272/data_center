@@ -1,5 +1,6 @@
 export interface IOutputVolume {
 	id: string | null
+	day?: string
 	forStock?: boolean
 	product: string | null
 	count: number | null

@@ -49,3 +49,22 @@ export interface IPieData {
 	name: string
 	value: number
 }
+
+export interface ILineData {
+	series: ISeriesData[]
+	axis: string[]
+	visualMaps?: IVisualMap[]
+}
+
+export interface IVisualMap {
+	mark: string
+	color1: string
+	color2: string
+}
+
+export interface ISeriesData {
+	name: string
+	data: number[]
+	mark?: number
+	color?: string
+}

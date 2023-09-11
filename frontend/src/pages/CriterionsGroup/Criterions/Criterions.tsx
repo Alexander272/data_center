@@ -68,7 +68,11 @@ export default function Home() {
 
 	const nextHandler = () => {
 		let idx = skipped.findIndex(s => s == active)
-		if (idx == -1) idx = 0
+		if (idx == -1) {
+			idx = 0
+			dispatch(setActive(skipped[idx]))
+			return
+		}
 
 		// if (ready) dispatch(setComplete(active))
 		dispatch(setActive(skipped[(idx + 1) % skipped.length]))
@@ -76,7 +80,11 @@ export default function Home() {
 
 	const prevHandler = () => {
 		let idx = skipped.findIndex(s => s == active)
-		if (idx == -1) idx = 0
+		if (idx == -1) {
+			idx = 0
+			dispatch(setActive(skipped[idx]))
+			return
+		}
 
 		dispatch(setActive(skipped[(idx + skipped.length - 1) % skipped.length]))
 	}

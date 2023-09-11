@@ -1,12 +1,15 @@
 import type { IOrdersVolume, IOrdersVolumeDTO } from '@/types/orderVolume'
+import type { IPeriod } from '@/types/period'
 import { api } from './base'
 
 export const ordersApi = api.injectEndpoints({
 	endpoints: builder => ({
 		// получение данных о заказах переданных в производство
-		getOrdersVolumeByDay: builder.query<{ data: IOrdersVolume[] }, string>({
-			query: day => `criterions/orders-volume/${day}`,
-			providesTags: (_res, _err, day) => [{ type: 'Api', id: `orders-volume/${day}` }],
+		getOrdersVolumeByPeriod: builder.query<{ data: IOrdersVolume[] }, IPeriod>({
+			query: period => `criterions/orders-volume/${period.from}${period.to ? '-' + period.to : ''}`,
+			providesTags: (_res, _err, period) => [
+				{ type: 'Api', id: `orders-volume/${period.from}${period.to ? '-' + period.to : ''}` },
+			],
 		}),
 
 		// сохранение данных о заказах переданных в производство
@@ -32,4 +35,4 @@ export const ordersApi = api.injectEndpoints({
 	overrideExisting: false,
 })
 
-export const { useGetOrdersVolumeByDayQuery, useSaveOrdersVolumeMutation, useUpdateOrdersVolumeMutation } = ordersApi
+export const { useGetOrdersVolumeByPeriodQuery, useSaveOrdersVolumeMutation, useUpdateOrdersVolumeMutation } = ordersApi

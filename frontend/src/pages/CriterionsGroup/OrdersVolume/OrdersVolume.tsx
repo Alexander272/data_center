@@ -4,7 +4,7 @@ import { Button, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setComplete } from '@/store/criterions'
 import {
-	useGetOrdersVolumeByDayQuery,
+	useGetOrdersVolumeByPeriodQuery,
 	useSaveOrdersVolumeMutation,
 	useUpdateOrdersVolumeMutation,
 } from '@/store/api/ordersVolume'
@@ -26,7 +26,7 @@ export default function OrdersVolume() {
 		{ ...keyColumn<IOrdersVolume, 'quantity'>('quantity', intColumn), title: 'Количество единиц продукции' },
 	]
 
-	const { data: orders } = useGetOrdersVolumeByDayQuery(date, { skip: !date })
+	const { data: orders } = useGetOrdersVolumeByPeriodQuery({ from: date }, { skip: !date })
 	const [saveOrders] = useSaveOrdersVolumeMutation()
 	const [updateOrders] = useUpdateOrdersVolumeMutation()
 

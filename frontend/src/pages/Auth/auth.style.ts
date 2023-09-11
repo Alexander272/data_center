@@ -37,7 +37,7 @@ export const Wrapper = styled.div`
 	align-items: center;
 	overflow: hidden;
 	position: relative;
-	padding-top: 100px;
+	/* padding-top: 100px; */
 
 	&::after,
 	&::before,
