@@ -9,6 +9,8 @@ const (
 	OrdersVolumeTable      = "orders_volume"
 	OutputVolumeTable      = "output_volume"
 
+	ProductsTable = "products"
+
 	MenuTable  = "menu"
 	UsersTable = "users"
 	RoleTable  = "roles"

@@ -19,17 +19,25 @@ func NewOrdersVolumeService(repo repo.OrdersVolume) *OrdersVolumeService {
 }
 
 type OrdersVolume interface {
-	GetByDay(context.Context, string) ([]models.OrdersVolume, error)
+	GetByPeriod(context.Context, models.Period) ([]models.OrdersVolume, error)
 	Create(context.Context, models.OrdersVolume) error
 	UpdateByDay(context.Context, models.OrdersVolume) error
 	DeleteByDay(context.Context, string) error
 }
 
-func (s *OrdersVolumeService) GetByDay(ctx context.Context, day string) ([]models.OrdersVolume, error) {
-	orders, err := s.repo.GetByDay(ctx, day)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get orders volume by day. error: %w", err)
+func (s *OrdersVolumeService) GetByPeriod(ctx context.Context, period models.Period) (orders []models.OrdersVolume, err error) {
+	if period.To == "" {
+		orders, err = s.repo.GetByDay(ctx, period.From)
+		if err != nil {
+			return nil, fmt.Errorf(`failed to get orders volume by day. error: %w`, err)
+		}
+	} else {
+		orders, err = s.repo.GetByPeriod(ctx, period)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get orders volume by period. error: %w", err)
+		}
 	}
+
 	return orders, nil
 }
 

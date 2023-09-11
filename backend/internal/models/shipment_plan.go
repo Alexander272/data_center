@@ -7,3 +7,8 @@ type ShipmentPlan struct {
 	Count   string `json:"count" db:"count" binding:"required"`
 	Money   string `json:"money" db:"money" binding:"required"`
 }
+
+type ShipmentPlanGrouped struct {
+	Day      string         `json:"day"`
+	Shipment []ShipmentPlan `json:"shipment"`
+}

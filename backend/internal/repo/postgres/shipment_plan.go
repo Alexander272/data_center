@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,7 +31,10 @@ type ShipmentPlan interface {
 }
 
 func (r *ShipmentPlanRepo) GetByDay(ctx context.Context, day string) (plan []models.ShipmentPlan, err error) {
-	query := fmt.Sprintf(`SELECT id, day, product, count, money FROM %s WHERE day=$1`, ShipmentPlanTable)
+	query := fmt.Sprintf(`SELECT s.id, day, product, s.count, money FROM %s as s
+		INNER JOIN %s AS p ON product=p.title WHERE day=$1 ORDER BY p.count`,
+		ShipmentPlanTable, ProductsTable,
+	)
 
 	d, err := time.Parse("02.01.2006", day)
 	if err != nil {
@@ -40,6 +44,17 @@ func (r *ShipmentPlanRepo) GetByDay(ctx context.Context, day string) (plan []mod
 	if err := r.db.Select(&plan, query, fmt.Sprintf("%d", d.Unix())); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
+
+	for i, rc := range plan {
+		date, err := strconv.Atoi(rc.Day)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse date. error: %w", err)
+		}
+
+		dateUnix := time.Unix(int64(date), 0)
+		plan[i].Day = dateUnix.Format("02.01.2006")
+	}
+
 	return plan, nil
 }
 
@@ -53,11 +68,25 @@ func (r *ShipmentPlanRepo) GetByPeriod(ctx context.Context, period models.Period
 		return nil, fmt.Errorf("failed to parse date. error: %w", err)
 	}
 
-	query := fmt.Sprintf(`SELECT id, day, product, count, money FROM %s WHERE day>=$1 AND day<$2`, ShipmentPlanTable)
+	query := fmt.Sprintf(`SELECT s.id, day, product, s.count, money FROM %s as s
+ 		INNER JOIN %s AS p ON product=p.title WHERE day>=$1 AND day<$2 ORDER BY day, p.count`,
+		ShipmentPlanTable, ProductsTable,
+	)
 
 	if err := r.db.Select(&plan, query, fmt.Sprintf("%d", from.Unix()), fmt.Sprintf("%d", to.Unix())); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
+
+	for i, rc := range plan {
+		date, err := strconv.Atoi(rc.Day)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse date. error: %w", err)
+		}
+
+		dateUnix := time.Unix(int64(date), 0)
+		plan[i].Day = dateUnix.Format("02.01.2006")
+	}
+
 	return plan, nil
 }
 

@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -29,7 +30,10 @@ type OutputVolume interface {
 }
 
 func (r *OutputVolumeRepo) GetByDay(ctx context.Context, day string) (output []models.OutputVolume, err error) {
-	query := fmt.Sprintf(`SELECT id, for_stock, day, product, count, money FROM %s WHERE day=$1`, OutputVolumeTable)
+	query := fmt.Sprintf(`SELECT o.id, for_stock, day, product, o.count, money FROM %s as o
+		INNER JOIN %s AS p ON product=p.title WHERE day=$1 ORDER BY p.count`,
+		OutputVolumeTable, ProductsTable,
+	)
 
 	d, err := time.Parse("02.01.2006", day)
 	if err != nil {
@@ -39,6 +43,17 @@ func (r *OutputVolumeRepo) GetByDay(ctx context.Context, day string) (output []m
 	if err := r.db.Select(&output, query, fmt.Sprintf("%d", d.Unix())); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
+
+	for i, rc := range output {
+		date, err := strconv.Atoi(rc.Day)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse date. error: %w", err)
+		}
+
+		dateUnix := time.Unix(int64(date), 0)
+		output[i].Day = dateUnix.Format("02.01.2006")
+	}
+
 	return output, nil
 }
 
@@ -52,11 +67,25 @@ func (r *OutputVolumeRepo) GetByPeriod(ctx context.Context, period models.Period
 		return nil, fmt.Errorf("failed to parse date. error: %w", err)
 	}
 
-	query := fmt.Sprintf(`SELECT id, for_stock, day, product, count, money FROM %s WHERE day>=$1 AND day<$2`, OutputVolumeTable)
+	query := fmt.Sprintf(`SELECT o.id, for_stock, day, product, o.count, money FROM %s as o
+		INNER JOIN %s AS p ON product=p.title WHERE day>=$1 AND day<$2  ORDER BY day, p.count`,
+		OutputVolumeTable, ProductsTable,
+	)
 
 	if err := r.db.Select(&output, query, fmt.Sprintf("%d", from.Unix()), fmt.Sprintf("%d", to.Unix())); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
+
+	for i, rc := range output {
+		date, err := strconv.Atoi(rc.Day)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse date. error: %w", err)
+		}
+
+		dateUnix := time.Unix(int64(date), 0)
+		output[i].Day = dateUnix.Format("02.01.2006")
+	}
+
 	return output, nil
 }
 

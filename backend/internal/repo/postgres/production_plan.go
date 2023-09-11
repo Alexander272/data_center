@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -45,16 +46,30 @@ func (r *ProductionPlanRepo) GetByPeriod(ctx context.Context, period models.Peri
 		condition = "date>=$1 AND date<$2"
 	}
 
-	query := fmt.Sprintf(`SELECT id, date, sector, money, quantity, type FROM %s WHERE %s`, ProductionPlanTable, condition)
+	query := fmt.Sprintf(`SELECT pp.id, date, product, money, quantity, type FROM %s as pp
+		INNER JOIN %s AS p ON product=p.title WHERE %s ORDER BY date, p.count`,
+		ProductionPlanTable, ProductsTable, condition,
+	)
 
 	if err := r.db.Select(&plan, query, args...); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
+
+	for i, rc := range plan {
+		date, err := strconv.Atoi(rc.Date)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse date. error: %w", err)
+		}
+
+		dateUnix := time.Unix(int64(date), 0)
+		plan[i].Date = dateUnix.Format("02.01.2006")
+	}
+
 	return plan, nil
 }
 
 func (r *ProductionPlanRepo) CreateSeveral(ctx context.Context, plan []models.ProductionPlan) error {
-	query := fmt.Sprintf(`INSERT INTO %s(id, date, sector, money) VALUES `, ProductionPlanTable)
+	query := fmt.Sprintf(`INSERT INTO %s(id, date, product, money) VALUES `, ProductionPlanTable)
 
 	args := make([]interface{}, 0)
 	values := make([]string, 0, len(plan))
@@ -68,7 +83,7 @@ func (r *ProductionPlanRepo) CreateSeveral(ctx context.Context, plan []models.Pr
 	for i, f := range plan {
 		id := uuid.New()
 		values = append(values, fmt.Sprintf("($%d, $%d, $%d, $%d)", i*c+1, i*c+2, i*c+3, i*c+4))
-		args = append(args, id, fmt.Sprintf("%d", date.Unix()), f.Sector, f.Money)
+		args = append(args, id, fmt.Sprintf("%d", date.Unix()), f.Product, f.Money)
 	}
 	query += strings.Join(values, ", ")
 

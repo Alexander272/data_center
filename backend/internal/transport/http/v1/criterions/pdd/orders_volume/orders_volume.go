@@ -2,6 +2,7 @@ package orders_volume
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
@@ -25,21 +26,28 @@ func Register(api *gin.RouterGroup, service services.OrdersVolume) {
 
 	orders := api.Group("/orders-volume")
 	{
-		orders.GET("/:day", handlers.getByDay)
+		orders.GET("/:period", handlers.getByPeriod)
 		orders.POST("/", handlers.create)
 		orders.PUT("/:day", handlers.update)
 		orders.DELETE("/:day", handlers.delete)
 	}
 }
 
-func (h *OrdersVolumeHandlers) getByDay(c *gin.Context) {
-	day := c.Param("day")
-	if day == "" {
-		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "день не задан")
+func (h *OrdersVolumeHandlers) getByPeriod(c *gin.Context) {
+	p := c.Param("period")
+	if p == "" {
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "период не задан")
 		return
 	}
 
-	orders, err := h.service.GetByDay(c, day)
+	period := models.Period{From: p}
+	if strings.Contains(p, "-") {
+		parts := strings.Split(p, "-")
+		period.From = parts[0]
+		period.To = parts[1]
+	}
+
+	orders, err := h.service.GetByPeriod(c, period)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		return

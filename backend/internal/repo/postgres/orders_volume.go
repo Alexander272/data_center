@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
@@ -22,6 +23,7 @@ func NewOrdersVolumeRepo(db *sqlx.DB) *OrdersVolumeRepo {
 
 type OrdersVolume interface {
 	GetByDay(context.Context, string) ([]models.OrdersVolume, error)
+	GetByPeriod(context.Context, models.Period) ([]models.OrdersVolume, error)
 	Create(context.Context, models.OrdersVolume) error
 	UpdateByDay(context.Context, models.OrdersVolume) error
 	DeleteByDay(context.Context, string) error
@@ -38,6 +40,46 @@ func (r *OrdersVolumeRepo) GetByDay(ctx context.Context, day string) (orders []m
 	if err := r.db.Select(&orders, query, fmt.Sprintf("%d", d.Unix())); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
+
+	for i, rc := range orders {
+		date, err := strconv.Atoi(rc.Day)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse date. error: %w", err)
+		}
+
+		dateUnix := time.Unix(int64(date), 0)
+		orders[i].Day = dateUnix.Format("02.01.2006")
+	}
+
+	return orders, nil
+}
+
+func (r *OrdersVolumeRepo) GetByPeriod(ctx context.Context, period models.Period) (orders []models.OrdersVolume, err error) {
+	from, err := time.Parse("02.01.2006", period.From)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse date. error: %w", err)
+	}
+	to, err := time.Parse("02.01.2006", period.To)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse date. error: %w", err)
+	}
+
+	query := fmt.Sprintf(`SELECT id, day, number_of_orders, sum_money, quantity FROM %s WHERE day>=$1 AND day<$2 ORDER BY day`, OrdersVolumeTable)
+
+	if err := r.db.Select(&orders, query, fmt.Sprintf("%d", from.Unix()), fmt.Sprintf("%d", to.Unix())); err != nil {
+		return nil, fmt.Errorf("failed to execute query. error: %w", err)
+	}
+
+	for i, rc := range orders {
+		date, err := strconv.Atoi(rc.Day)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse date. error: %w", err)
+		}
+
+		dateUnix := time.Unix(int64(date), 0)
+		orders[i].Day = dateUnix.Format("02.01.2006")
+	}
+
 	return orders, nil
 }
 
