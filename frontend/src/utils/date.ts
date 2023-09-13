@@ -2,8 +2,8 @@ export const FormatDate = (date: Date) => {
 	return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
-export const GetWeek = () => {
-	const date = new Date()
+export const GetWeek = (startDate?: Date) => {
+	const date = startDate || new Date()
 
 	const day = date.getDate()
 	const dayInWeek = date.getDay()

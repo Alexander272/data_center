@@ -7,9 +7,7 @@ export const loadApi = api.injectEndpoints({
 		// получение данных о загрузке за период
 		getProductionLoadByPeriod: builder.query<{ data: IProductionLoad[] }, IPeriod>({
 			query: period => `criterions/production-load/${period.from}${period.to ? '-' + period.to : ''}`,
-			providesTags: (_res, _err, period) => [
-				{ type: 'Api', id: `production-load/${period.from}${period.to ? '-' + period.to : ''}` },
-			],
+			providesTags: [{ type: 'Api', id: `production-load` }],
 		}),
 
 		// сохранение данных о загрузке
@@ -19,7 +17,7 @@ export const loadApi = api.injectEndpoints({
 				method: 'POST',
 				body: data,
 			}),
-			invalidatesTags: (_res, _err, data) => [{ type: 'Api', id: `production-load/${data[0].date}` }],
+			invalidatesTags: [{ type: 'Api', id: `production-load` }],
 		}),
 
 		// обновление данных о загрузке
@@ -29,7 +27,7 @@ export const loadApi = api.injectEndpoints({
 				method: 'PUT',
 				body: data,
 			}),
-			invalidatesTags: (_res, _err, data) => [{ type: 'Api', id: `production-load/${data[0].date}` }],
+			invalidatesTags: [{ type: 'Api', id: `production-load` }],
 		}),
 	}),
 	overrideExisting: false,

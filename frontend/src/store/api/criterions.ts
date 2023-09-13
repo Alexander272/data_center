@@ -7,7 +7,7 @@ export const criterionsApi = api.injectEndpoints({
 		// получение списка доступных критериев
 		getCriterions: builder.query<{ data: ICriterion[] }, string>({
 			query: day => `criterions/${day}`,
-			// providesTags: (_res, _err, day) => [{ type: 'Api', id: `criterions/${day}` }],
+			providesTags: (_res, _err, day) => [{ type: 'Api', id: `criterions/${day}` }],
 		}),
 
 		// получение списка выполненных дней (месяцев)
@@ -31,7 +31,10 @@ export const criterionsApi = api.injectEndpoints({
 				body: data,
 			}),
 			// invalidatesTags: (_res, _err, data) => [{ type: 'Api', id: `criterions/${data.date}` }],
-			invalidatesTags: [{ type: 'Api', id: 'criterions/complete' }],
+			invalidatesTags: (_res, _err, data) => [
+				{ type: 'Api', id: `criterions/${data.date}` },
+				{ type: 'Api', id: 'criterions/complete' },
+			],
 		}),
 	}),
 	overrideExisting: false,

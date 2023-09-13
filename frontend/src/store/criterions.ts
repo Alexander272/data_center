@@ -23,17 +23,24 @@ export const criterionSlice = createSlice({
 	initialState,
 	reducers: {
 		setCriterions: (state, action: PayloadAction<ICriterion[]>) => {
+			state.complete = false
 			state.criterions = action.payload
-			state.skipped = action.payload.map(c => {
-				if (c.complete) return ''
-				return c.key
-			})
-			state.skipped = state.skipped.filter(c => Boolean(c))
-			state.active = state.skipped[0] || ''
+			// state.skipped = action.payload.map(c => {
+			// if (c.complete) return ''
+			// return c.key
+			// })
+			// state.skipped = state.skipped.filter(c => Boolean(c))
+			if (state.active == '') {
+				//TODO перестать использовать skipped
+				state.skipped = action.payload.map(c => c.key)
+				state.active = state.skipped[0] || ''
+			}
 		},
 
 		setDate: (state, action: PayloadAction<string>) => {
 			state.date = action.payload
+			state.complete = false
+			state.active = ''
 		},
 
 		setActive: (state, action: PayloadAction<string>) => {
@@ -42,14 +49,15 @@ export const criterionSlice = createSlice({
 			// state.complete = state.criterions.find(c => c.key == action.payload)?.complete || false
 		},
 
-		setComplete: (state, action: PayloadAction<string>) => {
-			state.skipped = state.skipped.filter(s => s != action.payload)
+		setComplete: state => {
+			// setComplete: (state, action: PayloadAction<string>) => {
+			// state.skipped = state.skipped.filter(s => s != action.payload)
 			state.complete = true
 
-			state.criterions = state.criterions.map(c => {
-				if (c.key == action.payload) c.complete = true
-				return c
-			})
+			// state.criterions = state.criterions.map(c => {
+			// 	if (c.key == action.payload) c.complete = true
+			// 	return c
+			// })
 		},
 	},
 })

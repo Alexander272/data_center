@@ -1,5 +1,6 @@
 export interface IProductionLoad {
 	id: string | null
+	date?: string
 	sector: string | null
 	days: number | null
 }

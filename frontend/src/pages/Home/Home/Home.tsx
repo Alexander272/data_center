@@ -1,9 +1,12 @@
 import { MouseEvent, Suspense, lazy, useState } from 'react'
+import dayjs from 'dayjs'
+import 'dayjs/locale/ru'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { Box, Button, ButtonGroup, CircularProgress, Stack, Typography } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNewOutlined'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForwardIosOutlined'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
-import { setPeriodType } from '@/store/dashboard'
+import { nextPeriod, prevPeriod, setPeriodType } from '@/store/dashboard'
 import type { PeriodEnum } from '@/types/period'
 import Stepper from '@/components/Stepper/Stepper'
 import { Container } from './home.style'
@@ -11,6 +14,7 @@ import { Container } from './home.style'
 const Shipment = lazy(() => import('@/pages/Home/Shipment/Shipment'))
 const Output = lazy(() => import('@/pages/Home/Output/Output'))
 const Orders = lazy(() => import('@/pages/Home/Orders/Orders'))
+const Load = lazy(() => import('@/pages/Home/Load/Load'))
 
 // const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
 // const Quality = lazy(() => import('@/pages/Home/components/Quality/Quality'))
@@ -27,6 +31,9 @@ const steps = [
 ]
 
 export default function Home() {
+	dayjs.extend(customParseFormat)
+	dayjs.locale('ru')
+
 	const periodType = useAppSelector(state => state.dashboard.periodType)
 	const period = useAppSelector(state => state.dashboard.period)
 
@@ -47,6 +54,18 @@ export default function Home() {
 		// dispatch(setActive(key))
 		setSelected(key)
 	}
+
+	const prevHandler = () => {
+		dispatch(prevPeriod())
+	}
+	const nextHandler = () => {
+		dispatch(nextPeriod())
+	}
+
+	// console.log(dayjs(period.from, 'DD.MM.YYYY').unix() >= dayjs().subtract(1, 'd').unix())
+	// console.log(dayjs().subtract(1, 'd').diff(dayjs(period.from, 'DD.MM.YYYY'), 'd') <= 0)
+	// console.log(dayjs().subtract(1, 'd').diff(dayjs(period.to, 'DD.MM.YYYY'), 'd') <= 0)
+	// console.log(dayjs(period.from, 'DD.MM.YYYY').unix(), dayjs().subtract(1, 'd').unix())
 
 	return (
 		<Container>
@@ -86,7 +105,6 @@ export default function Home() {
 						Неделя
 					</Button>
 					<Button
-						disabled
 						name='month'
 						onClick={typeHandler}
 						variant={periodType == 'month' ? 'contained' : 'outlined'}
@@ -126,7 +144,7 @@ export default function Home() {
 
 				<Box padding={2} borderRadius={'16px'} sx={{ backgroundColor: '#fff' }} width={'100%'}>
 					<Stack direction={'row'} mb={3}>
-						<Button disabled sx={{ borderRadius: '12px', minWidth: 48 }}>
+						<Button onClick={prevHandler} sx={{ borderRadius: '12px', minWidth: 48 }}>
 							<ArrowBackIcon />
 						</Button>
 
@@ -135,7 +153,14 @@ export default function Home() {
 							{period.to ? '-' + period.to : ''})
 						</Typography>
 
-						<Button disabled sx={{ borderRadius: '12px', minWidth: 48 }}>
+						<Button
+							disabled={
+								dayjs().subtract(1, 'd').diff(dayjs(period.from, 'DD.MM.YYYY'), 'd') <= 0 ||
+								dayjs().subtract(1, 'd').diff(dayjs(period.to, 'DD.MM.YYYY'), 'd') <= 0
+							}
+							onClick={nextHandler}
+							sx={{ borderRadius: '12px', minWidth: 48 }}
+						>
 							<ArrowForwardIcon />
 						</Button>
 					</Stack>
@@ -156,6 +181,7 @@ export default function Home() {
 						{selected == 'shipment' && <Shipment />}
 						{selected == 'output' && <Output />}
 						{selected == 'orders' && <Orders />}
+						{selected == 'load' && <Load />}
 					</Suspense>
 				</Box>
 			</Stack>

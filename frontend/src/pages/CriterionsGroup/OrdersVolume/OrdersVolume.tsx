@@ -13,17 +13,36 @@ import type { IOrdersVolume, IOrdersVolumeDTO } from '@/types/orderVolume'
 const emptyData = [{ id: '1', numberOfOrders: null, sumMoney: null, quantity: null }]
 
 export default function OrdersVolume() {
-	const active = useAppSelector(state => state.criterions.active)
+	// const active = useAppSelector(state => state.criterions.active)
 	const date = useAppSelector(state => state.criterions.date)
 
 	const [table, setTable] = useState<IOrdersVolume[]>(emptyData)
 
 	const dispatch = useAppDispatch()
 
+	const countPaste = (values: string[]) => {
+		return values.map(v => v.replace(' ', ''))
+	}
+	const moneyPaste = (values: string[]) => {
+		return values.map(v => v.replace(' ', '').replace(',', '.'))
+	}
+
 	const columns: Column<IOrdersVolume>[] = [
-		{ ...keyColumn<IOrdersVolume, 'numberOfOrders'>('numberOfOrders', intColumn), title: 'Количество заказов' },
-		{ ...keyColumn<IOrdersVolume, 'sumMoney'>('sumMoney', floatColumn), title: 'Сумма заказов' },
-		{ ...keyColumn<IOrdersVolume, 'quantity'>('quantity', intColumn), title: 'Количество единиц продукции' },
+		{
+			...keyColumn<IOrdersVolume, 'numberOfOrders'>('numberOfOrders', intColumn),
+			title: 'Количество заказов',
+			prePasteValues: countPaste,
+		},
+		{
+			...keyColumn<IOrdersVolume, 'sumMoney'>('sumMoney', floatColumn),
+			title: 'Сумма заказов',
+			prePasteValues: moneyPaste,
+		},
+		{
+			...keyColumn<IOrdersVolume, 'quantity'>('quantity', intColumn),
+			title: 'Количество единиц продукции',
+			prePasteValues: countPaste,
+		},
 	]
 
 	const { data: orders } = useGetOrdersVolumeByPeriodQuery({ from: date }, { skip: !date })
@@ -62,7 +81,7 @@ export default function OrdersVolume() {
 			quantity: table[0].quantity || 0,
 		}
 
-		if (!table[0].numberOfOrders || !table[0].sumMoney || !table[0].quantity) {
+		if (table[0].numberOfOrders == null || table[0].sumMoney == null || table[0].quantity == null) {
 			// TODO выводить ошибку
 			return
 		}
@@ -70,7 +89,8 @@ export default function OrdersVolume() {
 		try {
 			if (!orders?.data) {
 				await saveOrders(order).unwrap()
-				dispatch(setComplete(active))
+				dispatch(setComplete())
+				// dispatch(setComplete(active))
 			} else {
 				await updateOrders(order).unwrap()
 			}

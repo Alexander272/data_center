@@ -15,7 +15,7 @@ export default function Day({ data }: Props) {
 						<TableRow>
 							<TableCell sx={{ fontWeight: 'bold' }}>Продукция</TableCell>
 							<TableCell align='right' sx={{ fontWeight: 'bold' }}>
-								Шт
+								Факт. Шт
 							</TableCell>
 							<TableCell align='right' sx={{ fontWeight: 'bold' }}>
 								Факт. Руб

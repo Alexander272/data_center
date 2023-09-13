@@ -17,7 +17,7 @@ export default function Orders() {
 			{data?.data ? (
 				<Suspense fallback={<CircularProgress />}>
 					{periodType == 'day' && <Day data={data.data} />}
-					{periodType == 'week' && <Week data={data.data} />}
+					{periodType != 'day' && <Week data={data.data} />}
 				</Suspense>
 			) : null}
 

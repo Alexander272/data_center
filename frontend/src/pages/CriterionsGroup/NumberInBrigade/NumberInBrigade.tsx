@@ -39,7 +39,8 @@ export default function NumberInBrigade() {
 		const idx = skipped.findIndex(s => s == active)
 		if (idx == -1) return
 
-		if (ready) dispatch(setComplete(active))
+		// if (ready) dispatch(setComplete(active))
+		if (ready) dispatch(setComplete())
 		if (idx <= skipped.length - 1) dispatch(setActive(skipped[idx + 1]))
 	}
 

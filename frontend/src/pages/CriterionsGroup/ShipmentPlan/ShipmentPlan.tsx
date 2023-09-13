@@ -21,17 +21,32 @@ const emptyData = [
 ]
 
 export default function ShipmentPlan() {
-	const active = useAppSelector(state => state.criterions.active)
+	// const active = useAppSelector(state => state.criterions.active)
 	const date = useAppSelector(state => state.criterions.date)
 
 	const [table, setTable] = useState<IShipmentPlan[]>(emptyData)
 
 	const dispatch = useAppDispatch()
 
+	const countPaste = (values: string[]) => {
+		return values.map(v => v.replace(' ', ''))
+	}
+	const moneyPaste = (values: string[]) => {
+		return values.map(v => v.replace(' ', '').replace(',', '.'))
+	}
+
 	const columns: Column<IShipmentPlan>[] = [
 		{ ...keyColumn<IShipmentPlan, 'product'>('product', textColumn), title: 'Тип продукции', disabled: true },
-		{ ...keyColumn<IShipmentPlan, 'count'>('count', intColumn), title: 'Отгрузка в штуках' },
-		{ ...keyColumn<IShipmentPlan, 'money'>('money', floatColumn), title: 'Отгрузка в деньгах' },
+		{
+			...keyColumn<IShipmentPlan, 'count'>('count', intColumn),
+			title: 'Отгрузка в штуках',
+			prePasteValues: countPaste,
+		},
+		{
+			...keyColumn<IShipmentPlan, 'money'>('money', floatColumn),
+			title: 'Отгрузка в деньгах',
+			prePasteValues: moneyPaste,
+		},
 	]
 
 	const { data: shipment } = useGetShipmentPlanByPeriodQuery({ from: date }, { skip: !date })
@@ -63,7 +78,7 @@ export default function ShipmentPlan() {
 	}
 
 	const saveHandler = async () => {
-		if (table.some(t => !t.count || !t.money)) {
+		if (table.some(t => t.count == null || t.money == null)) {
 			console.log('empty')
 			// TODO выводить ошибку
 			return
@@ -84,7 +99,8 @@ export default function ShipmentPlan() {
 		try {
 			if (!shipment?.data) {
 				await saveShipment(newShipment).unwrap()
-				dispatch(setComplete(active))
+				// dispatch(setComplete(active))
+				dispatch(setComplete())
 			} else {
 				await updateShipment(newShipment).unwrap()
 			}
@@ -96,6 +112,21 @@ export default function ShipmentPlan() {
 
 	return (
 		<>
+			{/* <Box
+				position={'absolute'}
+				top={0}
+				left={0}
+				bottom={0}
+				right={0}
+				display={'flex'}
+				justifyContent={'center'}
+				alignItems={'center'}
+				zIndex={5}
+				sx={{ backgroundColor: '#eeeeee47' }}
+			>
+				<CircularProgress />
+			</Box> */}
+
 			<Typography variant='h5' textAlign='center'>
 				Выполнение плана отгрузок
 			</Typography>

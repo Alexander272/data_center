@@ -29,6 +29,7 @@ export const Week = () => {
 		dispatch(setDate(date))
 	}
 
+	//TODO переписать с использованием dayjs
 	const renderDays = () => {
 		const days: JSX.Element[] = []
 
@@ -42,7 +43,7 @@ export const Week = () => {
 			const formatDate = FormatDate(dayDate)
 
 			let complete = false
-			const cDay = completedDays?.data.find(d => d.date == formatDate)
+			const cDay = completedDays?.data?.find(d => d.date == formatDate)
 			if (cDay && cDay.complete) complete = true
 
 			days.push(

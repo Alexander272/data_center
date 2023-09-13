@@ -21,7 +21,7 @@ const emptyData: IOutputVolume[] = [
 ]
 
 export default function OutputVolume() {
-	const active = useAppSelector(state => state.criterions.active)
+	// const active = useAppSelector(state => state.criterions.active)
 	const date = useAppSelector(state => state.criterions.date)
 
 	/*
@@ -36,10 +36,25 @@ export default function OutputVolume() {
 
 	const dispatch = useAppDispatch()
 
+	const countPaste = (values: string[]) => {
+		return values.map(v => v.replace(' ', ''))
+	}
+	const moneyPaste = (values: string[]) => {
+		return values.map(v => v.replace(' ', '').replace(',', '.'))
+	}
+
 	const columns: Column<IOutputVolume>[] = [
 		{ ...keyColumn<IOutputVolume, 'product'>('product', textColumn), title: 'Тип продукции', disabled: true },
-		{ ...keyColumn<IOutputVolume, 'count'>('count', intColumn), title: 'Объем выпуска продукции в штуках' },
-		{ ...keyColumn<IOutputVolume, 'money'>('money', floatColumn), title: 'Объем выпуска продукции в деньгах' },
+		{
+			...keyColumn<IOutputVolume, 'count'>('count', intColumn),
+			title: 'Объем выпуска продукции в штуках',
+			prePasteValues: countPaste,
+		},
+		{
+			...keyColumn<IOutputVolume, 'money'>('money', floatColumn),
+			title: 'Объем выпуска продукции в деньгах',
+			prePasteValues: moneyPaste,
+		},
 	]
 
 	const { data: output } = useGetOutputVolumeByPeriodQuery({ from: date }, { skip: !date })
@@ -84,12 +99,12 @@ export default function OutputVolume() {
 	}
 
 	const saveHandler = async () => {
-		if (stockTable.some(t => !t.count || !t.money)) {
+		if (stockTable.some(t => t.count == null || t.money == null)) {
 			console.log('empty')
 			// TODO выводить ошибку
 			return
 		}
-		if (orderTable.some(t => !t.count || !t.money)) {
+		if (orderTable.some(t => t.count == null || t.money == null)) {
 			console.log('empty')
 			// TODO выводить ошибку
 			return
@@ -122,7 +137,8 @@ export default function OutputVolume() {
 		try {
 			if (!output?.data) {
 				await saveOutput(newOutput).unwrap()
-				dispatch(setComplete(active))
+				dispatch(setComplete())
+				// dispatch(setComplete(active))
 			} else {
 				await updateOutput(newOutput).unwrap()
 			}

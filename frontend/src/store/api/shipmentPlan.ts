@@ -7,9 +7,7 @@ export const shipmentApi = api.injectEndpoints({
 		// получение данных об отгрузках за день
 		getShipmentPlanByPeriod: builder.query<{ data: IShipmentPlan[] }, IPeriod>({
 			query: period => `criterions/shipment-plan/${period.from}${period.to ? '-' + period.to : ''}`,
-			providesTags: (_res, _err, period) => [
-				{ type: 'Api', id: `shipment-plan/${period.from}${period.to ? '-' + period.to : ''}` },
-			],
+			providesTags: [{ type: 'Api', id: `shipment-plan` }],
 		}),
 
 		// сохранение данных об отгрузках
@@ -19,7 +17,7 @@ export const shipmentApi = api.injectEndpoints({
 				method: 'POST',
 				body: data,
 			}),
-			invalidatesTags: (_res, _err, data) => [{ type: 'Api', id: `shipment-plan/${data[0].day}` }],
+			invalidatesTags: [{ type: 'Api', id: `shipment-plan` }],
 		}),
 
 		// обновление данных об отгрузках
@@ -29,7 +27,7 @@ export const shipmentApi = api.injectEndpoints({
 				method: 'PUT',
 				body: data,
 			}),
-			invalidatesTags: (_res, _err, data) => [{ type: 'Api', id: `shipment-plan/${data[0].day}` }],
+			invalidatesTags: [{ type: 'Api', id: `shipment-plan` }],
 		}),
 	}),
 	overrideExisting: false,

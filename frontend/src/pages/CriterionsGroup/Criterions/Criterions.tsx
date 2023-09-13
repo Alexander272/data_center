@@ -33,7 +33,7 @@ export default function Home() {
 
 	const { data } = useGetCriterionsQuery(date, { skip: !date })
 
-	const [completeCriterion] = useCompleteCriterionMutation()
+	const [completeCriterion, { isLoading }] = useCompleteCriterionMutation()
 
 	useEffect(() => {
 		if (data) dispatch(setCriterions(data.data))
@@ -96,6 +96,23 @@ export default function Home() {
 
 			<Stack spacing={2} direction={'row'} width={'100%'} height={'100%'}>
 				<Stepper active={active} data={criterions} onSelect={stepHandler} width='350px' />
+
+				{isLoading && (
+					<Box
+						position={'absolute'}
+						top={0}
+						left={0}
+						bottom={0}
+						right={0}
+						display={'flex'}
+						justifyContent={'center'}
+						alignItems={'center'}
+						zIndex={5}
+						sx={{ backgroundColor: '#eeeeee47' }}
+					>
+						<CircularProgress />
+					</Box>
+				)}
 
 				<Box
 					width={'100%'}

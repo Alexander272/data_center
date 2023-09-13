@@ -113,29 +113,29 @@ export default function Week({ data }: Props) {
 		)
 
 		setSeriesSumMoneyStock({
-			name: 'Деньги (на склад)',
+			name: 'на склад, руб',
 			data: Array.from(sumMoneyStock, entry => {
 				if (entry[1] < minMoney.current) minMoney.current = entry[1]
 				return entry[1]
 			}),
 		})
 		setSeriesSumCountStock({
-			name: 'Кол-во (на склад)',
+			name: 'на склад, шт',
 			data: Array.from(sumCountStock, entry => {
 				if (entry[1] < minCount.current) minCount.current = entry[1]
 				return entry[1]
 			}),
 		})
 		setSeriesSumMoneyOrder({
-			name: 'Деньги (в заказы)',
-			data: Array.from(sumMoneyStock, entry => {
+			name: 'в заказы, руб',
+			data: Array.from(sumMoneyOrder, entry => {
 				if (entry[1] < minMoney.current) minMoney.current = entry[1]
 				return entry[1]
 			}),
 		})
 		setSeriesSumCountOrder({
-			name: 'Кол-во (в заказы)',
-			data: Array.from(sumCountStock, entry => {
+			name: 'в заказы, шт',
+			data: Array.from(sumCountOrder, entry => {
 				if (entry[1] < minCount.current) minCount.current = entry[1]
 				return entry[1]
 			}),
@@ -145,31 +145,31 @@ export default function Week({ data }: Props) {
 	return (
 		<Stack spacing={1}>
 			<Typography align='center' fontWeight={'bold'}>
-				Выпуск в руб на склад
-			</Typography>
-			<Box height={600}>
-				{seriesMoneyStock.length ? <Line data={{ series: seriesMoneyStock, axis }} /> : null}
-			</Box>
-
-			<Typography align='center' fontWeight={'bold'}>
-				Выпуск в штуках на склад
-			</Typography>
-			<Box height={600}>
-				{seriesCountStock.length ? <Line data={{ series: seriesCountStock, axis }} /> : null}
-			</Box>
-
-			<Typography align='center' fontWeight={'bold'}>
-				Выпуск в руб в заказы
+				Выпуск в заказы, руб
 			</Typography>
 			<Box height={600}>
 				{seriesMoneyStock.length ? <Line data={{ series: seriesMoneyOrder, axis }} /> : null}
 			</Box>
 
 			<Typography align='center' fontWeight={'bold'}>
-				Выпуск в штуках в заказы
+				Выпуск в заказы, штук
 			</Typography>
 			<Box height={600}>
 				{seriesCountStock.length ? <Line data={{ series: seriesCountOrder, axis }} /> : null}
+			</Box>
+
+			<Typography align='center' fontWeight={'bold'}>
+				Выпуск на склад, руб
+			</Typography>
+			<Box height={600}>
+				{seriesMoneyStock.length ? <Line data={{ series: seriesMoneyStock, axis }} /> : null}
+			</Box>
+
+			<Typography align='center' fontWeight={'bold'}>
+				Выпуск на склад, штук
+			</Typography>
+			<Box height={600}>
+				{seriesCountStock.length ? <Line data={{ series: seriesCountStock, axis }} /> : null}
 			</Box>
 
 			<Typography align='center' fontWeight={'bold'}>

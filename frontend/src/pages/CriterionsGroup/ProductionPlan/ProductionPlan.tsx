@@ -21,16 +21,24 @@ const emptyData: IProductionPlan[] = [
 ]
 
 export default function ProductionPlan() {
-	const active = useAppSelector(state => state.criterions.active)
+	// const active = useAppSelector(state => state.criterions.active)
 	const date = useAppSelector(state => state.criterions.date)
 
 	const [table, setTable] = useState<IProductionPlan[]>(emptyData)
 
 	const dispatch = useAppDispatch()
 
+	const moneyPaste = (values: string[]) => {
+		return values.map(v => v.replace(' ', '').replace(',', '.'))
+	}
+
 	const columns: Column<IProductionPlan>[] = [
 		{ ...keyColumn<IProductionPlan, 'product'>('product', textColumn), title: 'Тип продукции', disabled: true },
-		{ ...keyColumn<IProductionPlan, 'money'>('money', floatColumn), title: 'Отгрузка в деньгах' },
+		{
+			...keyColumn<IProductionPlan, 'money'>('money', floatColumn),
+			title: 'Отгрузка в деньгах',
+			prePasteValues: moneyPaste,
+		},
 	]
 
 	const { data: plan } = useGetProductionPlanByPeriodQuery({ from: date }, { skip: !date })
@@ -62,7 +70,7 @@ export default function ProductionPlan() {
 	}
 
 	const saveHandler = async () => {
-		if (table.some(t => !t.money)) {
+		if (table.some(t => t.money == null)) {
 			console.log('empty')
 			// TODO выводить ошибку
 			return
@@ -82,7 +90,8 @@ export default function ProductionPlan() {
 		try {
 			if (!plan?.data) {
 				await savePlan(newPlan).unwrap()
-				dispatch(setComplete(active))
+				dispatch(setComplete())
+				// dispatch(setComplete(active))
 			} else {
 				await updatePlan(newPlan).unwrap()
 			}
@@ -95,7 +104,7 @@ export default function ProductionPlan() {
 	return (
 		<>
 			<Typography variant='h5' textAlign='center'>
-				Ежедневный объем заказов переданных в производство
+				План отгрузки на день, руб
 			</Typography>
 
 			<DataSheetGrid value={table} columns={columns} onChange={tableHandler} lockRows />

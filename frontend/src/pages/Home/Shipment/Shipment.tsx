@@ -67,7 +67,7 @@ export default function Shipment() {
 			{shipment?.data && plan?.data ? (
 				<Suspense fallback={<CircularProgress />}>
 					{periodType == 'day' && <Day data={data} />}
-					{periodType == 'week' && <Week data={data} />}
+					{periodType != 'day' && <Week data={data} />}
 				</Suspense>
 			) : (
 				<Box mt={2}>

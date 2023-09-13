@@ -52,17 +52,17 @@ export default function Week({ data }: Props) {
 	return (
 		<Stack spacing={1}>
 			<Typography align='center' fontWeight={'bold'}>
-				Количество заказов
+				Количество заказов, шт
 			</Typography>
 			<Box height={500}>{seriesNumber ? <Line data={{ series: [seriesNumber], axis }} /> : null}</Box>
 
 			<Typography align='center' fontWeight={'bold'}>
-				Сумма заказов
+				Сумма заказов, руб
 			</Typography>
 			<Box height={500}>{seriesMoney ? <Line data={{ series: [seriesMoney], axis }} /> : null}</Box>
 
 			<Typography align='center' fontWeight={'bold'}>
-				Суммарное количество ед. продукции в заказах
+				Суммарное количество ед. продукции в заказах, шт
 			</Typography>
 			<Box height={500}>{seriesQuantity ? <Line data={{ series: [seriesQuantity], axis }} /> : null}</Box>
 		</Stack>

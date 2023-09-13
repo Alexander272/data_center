@@ -7,9 +7,7 @@ export const outputApi = api.injectEndpoints({
 		// получение данных о выпуске за период
 		getOutputVolumeByPeriod: builder.query<{ data: IOutputVolume[] }, IPeriod>({
 			query: period => `criterions/output-volume/${period.from}${period.to ? '-' + period.to : ''}`,
-			providesTags: (_res, _err, period) => [
-				{ type: 'Api', id: `output-volume/${period.from}${period.to ? '-' + period.to : ''}` },
-			],
+			providesTags: [{ type: 'Api', id: `output-volume` }],
 		}),
 
 		// сохранение данных о выпуске
@@ -19,7 +17,7 @@ export const outputApi = api.injectEndpoints({
 				method: 'POST',
 				body: data,
 			}),
-			invalidatesTags: (_res, _err, data) => [{ type: 'Api', id: `output-volume/${data[0].day}` }],
+			invalidatesTags: [{ type: 'Api', id: `output-volume` }],
 		}),
 
 		// обновление данных о выпуске
@@ -29,7 +27,7 @@ export const outputApi = api.injectEndpoints({
 				method: 'PUT',
 				body: data,
 			}),
-			invalidatesTags: (_res, _err, data) => [{ type: 'Api', id: `output-volume/${data[0].day}` }],
+			invalidatesTags: [{ type: 'Api', id: `output-volume` }],
 		}),
 	}),
 	overrideExisting: false,

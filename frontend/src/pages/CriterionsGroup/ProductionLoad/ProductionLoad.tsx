@@ -19,7 +19,7 @@ const emptyData: IProductionLoad[] = [
 ]
 
 export default function ProductionLoad() {
-	const active = useAppSelector(state => state.criterions.active)
+	// const active = useAppSelector(state => state.criterions.active)
 	const date = useAppSelector(state => state.criterions.date)
 
 	const [table, setTable] = useState<IProductionLoad[]>(emptyData)
@@ -60,7 +60,7 @@ export default function ProductionLoad() {
 	}
 
 	const saveHandler = async () => {
-		if (table.some(t => !t.days)) {
+		if (table.some(t => t.days == null)) {
 			console.log('empty')
 			// TODO выводить ошибку
 			return
@@ -80,7 +80,8 @@ export default function ProductionLoad() {
 		try {
 			if (!load?.data) {
 				await saveLoad(newLoad).unwrap()
-				dispatch(setComplete(active))
+				dispatch(setComplete())
+				// dispatch(setComplete(active))
 			} else {
 				await updateLoad(newLoad).unwrap()
 			}
@@ -93,7 +94,7 @@ export default function ProductionLoad() {
 	return (
 		<>
 			<Typography variant='h5' textAlign='center'>
-				загруженность производства по участкам
+				Загруженность производства по участкам
 			</Typography>
 
 			<DataSheetGrid value={table} columns={columns} onChange={tableHandler} lockRows />
