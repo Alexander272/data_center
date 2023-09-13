@@ -43,7 +43,7 @@ func (r *ProductionPlanRepo) GetByPeriod(ctx context.Context, period models.Peri
 			return nil, fmt.Errorf("failed to parse date. error: %w", err)
 		}
 		args = append(args, fmt.Sprintf("%d", to.Unix()))
-		condition = "date>=$1 AND date<$2"
+		condition = "date>=$1 AND date<=$2"
 	}
 
 	query := fmt.Sprintf(`SELECT pp.id, date, product, money, quantity, type FROM %s as pp

@@ -68,7 +68,7 @@ func (r *OutputVolumeRepo) GetByPeriod(ctx context.Context, period models.Period
 	}
 
 	query := fmt.Sprintf(`SELECT o.id, for_stock, day, product, o.count, money FROM %s as o
-		INNER JOIN %s AS p ON product=p.title WHERE day>=$1 AND day<$2  ORDER BY day, p.count`,
+		INNER JOIN %s AS p ON product=p.title WHERE day>=$1 AND day<=$2  ORDER BY day, p.count`,
 		OutputVolumeTable, ProductsTable,
 	)
 

@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -42,14 +43,25 @@ func (r *ProductionLoadRepo) GetByPeriod(ctx context.Context, period models.Peri
 			return nil, fmt.Errorf("failed to parse date. error: %w", err)
 		}
 		args = append(args, fmt.Sprintf("%d", to.Unix()))
-		condition = "date>=$1 AND date<$2"
+		condition = "date>=$1 AND date<=$2"
 	}
 
-	query := fmt.Sprintf(`SELECT id, date, sector, days FROM %s WHERE %s`, ProductionLoadTable, condition)
+	query := fmt.Sprintf(`SELECT id, date, sector, days FROM %s WHERE %s ORDER BY date, sector`, ProductionLoadTable, condition)
 
 	if err := r.db.Select(&load, query, args...); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
+
+	for i, rc := range load {
+		date, err := strconv.Atoi(rc.Date)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse date. error: %w", err)
+		}
+
+		dateUnix := time.Unix(int64(date), 0)
+		load[i].Date = dateUnix.Format("02.01.2006")
+	}
+
 	return load, nil
 }
 

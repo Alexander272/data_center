@@ -69,7 +69,7 @@ func (r *ShipmentPlanRepo) GetByPeriod(ctx context.Context, period models.Period
 	}
 
 	query := fmt.Sprintf(`SELECT s.id, day, product, s.count, money FROM %s as s
- 		INNER JOIN %s AS p ON product=p.title WHERE day>=$1 AND day<$2 ORDER BY day, p.count`,
+ 		INNER JOIN %s AS p ON product=p.title WHERE day>=$1 AND day<=$2 ORDER BY day, p.count`,
 		ShipmentPlanTable, ProductsTable,
 	)
 

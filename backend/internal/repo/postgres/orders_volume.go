@@ -64,7 +64,7 @@ func (r *OrdersVolumeRepo) GetByPeriod(ctx context.Context, period models.Period
 		return nil, fmt.Errorf("failed to parse date. error: %w", err)
 	}
 
-	query := fmt.Sprintf(`SELECT id, day, number_of_orders, sum_money, quantity FROM %s WHERE day>=$1 AND day<$2 ORDER BY day`, OrdersVolumeTable)
+	query := fmt.Sprintf(`SELECT id, day, number_of_orders, sum_money, quantity FROM %s WHERE day>=$1 AND day<=$2 ORDER BY day`, OrdersVolumeTable)
 
 	if err := r.db.Select(&orders, query, fmt.Sprintf("%d", from.Unix()), fmt.Sprintf("%d", to.Unix())); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
