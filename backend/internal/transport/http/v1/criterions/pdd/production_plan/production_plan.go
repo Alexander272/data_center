@@ -40,6 +40,11 @@ func (h *ProductionPlanHandlers) get(c *gin.Context) {
 		return
 	}
 
+	typePlan := c.Query("type")
+	if typePlan == "" {
+		typePlan = "shipment"
+	}
+
 	period := models.Period{From: p}
 	if strings.Contains(p, "-") {
 		parts := strings.Split(p, "-")
@@ -47,7 +52,7 @@ func (h *ProductionPlanHandlers) get(c *gin.Context) {
 		period.To = parts[1]
 	}
 
-	load, err := h.service.GetByPeriod(c, period)
+	load, err := h.service.GetByPeriod(c, period, typePlan)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		return
@@ -90,7 +95,12 @@ func (h *ProductionPlanHandlers) delete(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.DeleteByDate(c, date); err != nil {
+	typePlan := c.Query("type")
+	if typePlan == "" {
+		typePlan = "shipment"
+	}
+
+	if err := h.service.DeleteByDate(c, date, typePlan); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		return
 	}

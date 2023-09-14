@@ -46,7 +46,7 @@ func (r *ProductionLoadRepo) GetByPeriod(ctx context.Context, period models.Peri
 		condition = "date>=$1 AND date<=$2"
 	}
 
-	query := fmt.Sprintf(`SELECT id, date, sector, days FROM %s WHERE %s ORDER BY date, sector`, ProductionLoadTable, condition)
+	query := fmt.Sprintf(`SELECT id, date, sector, days, quantity FROM %s WHERE %s ORDER BY date, sector`, ProductionLoadTable, condition)
 
 	if err := r.db.Select(&load, query, args...); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
@@ -66,7 +66,7 @@ func (r *ProductionLoadRepo) GetByPeriod(ctx context.Context, period models.Peri
 }
 
 func (r *ProductionLoadRepo) CreateSeveral(ctx context.Context, load []models.ProductionLoad) error {
-	query := fmt.Sprintf(`INSERT INTO %s(id, date, sector, days) VALUES `, ProductionLoadTable)
+	query := fmt.Sprintf(`INSERT INTO %s(id, date, sector, days, quantity) VALUES `, ProductionLoadTable)
 
 	args := make([]interface{}, 0)
 	values := make([]string, 0, len(load))
@@ -76,10 +76,10 @@ func (r *ProductionLoadRepo) CreateSeveral(ctx context.Context, load []models.Pr
 		return fmt.Errorf("failed to parse date. error: %w", err)
 	}
 
-	c := 4
+	c := 5
 	for i, f := range load {
 		id := uuid.New()
-		values = append(values, fmt.Sprintf("($%d, $%d, $%d, $%d)", i*c+1, i*c+2, i*c+3, i*c+4))
+		values = append(values, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d)", i*c+1, i*c+2, i*c+3, i*c+4, i*c+5))
 		args = append(args, id, fmt.Sprintf("%d", date.Unix()), f.Sector, f.Days)
 	}
 	query += strings.Join(values, ", ")
