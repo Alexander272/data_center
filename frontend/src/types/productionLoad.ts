@@ -3,6 +3,7 @@ export interface IProductionLoad {
 	date?: string
 	sector: string | null
 	days: number | null
+	quantity: number | null
 }
 
 export interface IProductionLoadDTO {
@@ -10,4 +11,5 @@ export interface IProductionLoadDTO {
 	date: string
 	sector: string
 	days: number
+	quantity: number
 }

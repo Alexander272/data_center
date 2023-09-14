@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn } from 'react-datasheet-grid'
-import { Button, Typography } from '@mui/material'
+import { Button, CircularProgress, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setComplete } from '@/store/criterions'
 import {
@@ -46,8 +46,8 @@ export default function OrdersVolume() {
 	]
 
 	const { data: orders } = useGetOrdersVolumeByPeriodQuery({ from: date }, { skip: !date })
-	const [saveOrders] = useSaveOrdersVolumeMutation()
-	const [updateOrders] = useUpdateOrdersVolumeMutation()
+	const [saveOrders, { isLoading: saveLoading }] = useSaveOrdersVolumeMutation()
+	const [updateOrders, { isLoading: updateLoading }] = useUpdateOrdersVolumeMutation()
 
 	useEffect(() => {
 		if (orders && orders.data) {
@@ -108,7 +108,13 @@ export default function OrdersVolume() {
 
 			<DataSheetGrid value={table} columns={columns} onChange={tableHandler} lockRows />
 
-			<Button variant='outlined' onClick={submitHandler} sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}>
+			<Button
+				variant='outlined'
+				onClick={submitHandler}
+				disabled={saveLoading || updateLoading}
+				startIcon={saveLoading || updateLoading ? <CircularProgress size={18} /> : null}
+				sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}
+			>
 				Сохранить
 			</Button>
 		</>

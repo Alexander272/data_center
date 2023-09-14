@@ -16,6 +16,9 @@ export default function Day({ data }: Props) {
 							<TableCell align='right' sx={{ fontWeight: 'bold' }}>
 								Кол-во дней
 							</TableCell>
+							<TableCell align='right' sx={{ fontWeight: 'bold' }}>
+								Кол-во ед продукции
+							</TableCell>
 						</TableRow>
 					</TableHead>
 					<TableBody>
@@ -23,6 +26,7 @@ export default function Day({ data }: Props) {
 							<TableRow key={d.id}>
 								<TableCell>{d.sector}</TableCell>
 								<TableCell align='right'>{d.days}</TableCell>
+								<TableCell align='right'>{d.quantity}</TableCell>
 							</TableRow>
 						))}
 					</TableBody>

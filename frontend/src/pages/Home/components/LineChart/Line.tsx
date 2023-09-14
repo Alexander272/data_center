@@ -31,7 +31,10 @@ export const Line: FC<Props> = ({ data, minYValue }) => {
 						yAxis: d.mark,
 						name: d.name,
 						label: {
-							formatter: (param: { name: string }) => param.name,
+							formatter: (param: { name: string; value: number }) =>
+								`${param.name} (${new Intl.NumberFormat('ru', { notation: 'compact' }).format(
+									param.value
+								)})`,
 						},
 					},
 				],
@@ -46,6 +49,16 @@ export const Line: FC<Props> = ({ data, minYValue }) => {
 			emphasis: { focus: 'series' },
 			// label: { show: true },
 			markLine: markLine,
+			label: {
+				show: true,
+				position: 'top',
+				backgroundColor: 'inherit',
+				padding: 6,
+				borderRadius: 8,
+				color: '#fff',
+				formatter: (param: { value: number }) =>
+					new Intl.NumberFormat('ru', { notation: 'compact' }).format(param.value),
+			},
 		}
 	})
 

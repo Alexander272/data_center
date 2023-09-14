@@ -7,6 +7,8 @@ type DayProps = {
 export const Day = styled.div<DayProps>`
 	/* width: 48px; */
 	/* width: 80px; */
+	/* width: 82px; */
+	/* height: 64px; */
 	width: 52px;
 	height: 48px;
 	/* padding: 12px; */
@@ -19,6 +21,7 @@ export const Day = styled.div<DayProps>`
 	background-color: #fff;
 	font-size: 1.3rem;
 	position: relative;
+	flex-direction: column;
 
 	// border
 	border: 2px solid var(--gray-border);

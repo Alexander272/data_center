@@ -1,7 +1,9 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { CircularProgress, Typography } from '@mui/material'
 import { useAppSelector } from '@/hooks/useStore'
 import { useGetOutputVolumeByPeriodQuery } from '@/store/api/outputVolume'
+import { useGetProductionPlanByPeriodQuery } from '@/store/api/productionPlan'
+import type { IOutput } from '@/types/outputVolume'
 
 const Day = lazy(() => import('@/pages/Home/Output/Day'))
 const Week = lazy(() => import('@/pages/Home/Output/Week'))
@@ -10,37 +12,51 @@ export default function Output() {
 	const periodType = useAppSelector(state => state.dashboard.periodType)
 	const period = useAppSelector(state => state.dashboard.period)
 
-	const { data, isLoading, isError } = useGetOutputVolumeByPeriodQuery(period, { skip: period.from == '' })
+	const [data, setData] = useState<IOutput[]>([])
+
+	const {
+		data: output,
+		isLoading: isLoadingOutput,
+		isError: isErrOutput,
+	} = useGetOutputVolumeByPeriodQuery(period, { skip: period.from == '' })
+	const {
+		data: plan,
+		isLoading: isLoadingPlan,
+		isError: isErrPlan,
+	} = useGetProductionPlanByPeriodQuery({ period, type: 'output' }, { skip: period.from == '' })
+
+	useEffect(() => {
+		if (output?.data || plan?.data) {
+			const d = output?.data?.map(s => {
+				const p = plan?.data?.find(p => p.product == s.product)
+				return {
+					id: s.id || '',
+					day: s.day || '',
+					forStock: s.forStock || false,
+					product: s.product || '',
+					count: s.count || 0,
+					money: s.money || 0,
+					planQuantity: p?.quantity || 0,
+					planMoney: p?.money || 0,
+				}
+			})
+			setData(d || [])
+		}
+	}, [output, plan])
 
 	return (
 		<>
-			{/* <Box padding={2} borderRadius={'16px'} sx={{ backgroundColor: '#fff' }} width={'100%'}>
-				<Stack direction={'row'} mb={3}>
-					<Button disabled sx={{ borderRadius: '12px', minWidth: 48 }}>
-						<ArrowBackIcon />
-					</Button>
-
-					<Typography textAlign={'center'} fontWeight={'bold'} fontSize={'1.6rem'} ml={'auto'} mr={'auto'}>
-						Объем выпуска продукции ({period.from}
-						{period.to ? '-' + period.to : ''})
-					</Typography>
-
-					<Button disabled sx={{ borderRadius: '12px', minWidth: 48 }}>
-						<ArrowForwardIcon />
-					</Button>
-				</Stack> */}
-
-			{data?.data ? (
+			{output?.data || plan?.data ? (
 				<Suspense fallback={<CircularProgress />}>
-					{periodType == 'day' && <Day data={data.data} />}
-					{periodType != 'day' && <Week data={data.data} />}
+					{periodType == 'day' && <Day data={data} />}
+					{periodType != 'day' && <Week data={data} />}
 				</Suspense>
 			) : null}
 
-			{!data?.data && isLoading ? <CircularProgress /> : null}
+			{(!output?.data || !plan?.data) && (isLoadingPlan || isLoadingOutput) ? <CircularProgress /> : null}
 
-			{!data?.data && !isLoading ? (
-				isError ? (
+			{!output?.data && !plan?.data && !isLoadingPlan && !isLoadingOutput ? (
+				!isErrOutput && !isErrPlan ? (
 					<Typography mt={2} fontSize={'1.2rem'} textAlign={'center'}>
 						Не удалось получить данные
 					</Typography>
@@ -50,7 +66,6 @@ export default function Output() {
 					</Typography>
 				)
 			) : null}
-			{/* </Box> */}
 		</>
 	)
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Column, DataSheetGrid, intColumn, keyColumn, textColumn } from 'react-datasheet-grid'
-import { Button, Typography } from '@mui/material'
+import { Button, CircularProgress, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import {
 	useGetProductionLoadByPeriodQuery,
@@ -11,11 +11,11 @@ import { setComplete } from '@/store/criterions'
 import type { IProductionLoad, IProductionLoadDTO } from '@/types/productionLoad'
 
 const emptyData: IProductionLoad[] = [
-	{ id: '', sector: 'СНП', days: null },
-	{ id: '', sector: 'Прокладки', days: null },
-	{ id: '', sector: 'Набивка', days: null },
-	{ id: '', sector: 'Кольца', days: null },
-	{ id: '', sector: 'Линия прокатки', days: null },
+	{ id: '', sector: 'СНП', days: null, quantity: null },
+	{ id: '', sector: 'Прокладки', days: null, quantity: null },
+	{ id: '', sector: 'Набивка', days: null, quantity: null },
+	{ id: '', sector: 'Кольца', days: null, quantity: null },
+	{ id: '', sector: 'Линия прокатки', days: null, quantity: null },
 ]
 
 export default function ProductionLoad() {
@@ -29,11 +29,12 @@ export default function ProductionLoad() {
 	const columns: Column<IProductionLoad>[] = [
 		{ ...keyColumn<IProductionLoad, 'sector'>('sector', textColumn), title: 'Участок', disabled: true },
 		{ ...keyColumn<IProductionLoad, 'days'>('days', intColumn), title: 'Загруженность (дней)' },
+		{ ...keyColumn<IProductionLoad, 'quantity'>('quantity', intColumn), title: 'Кол-во ед продукции' },
 	]
 
 	const { data: load } = useGetProductionLoadByPeriodQuery({ from: date }, { skip: !date })
-	const [saveLoad] = useSaveProductionLoadMutation()
-	const [updateLoad] = useUpdateProductionLoadMutation()
+	const [saveLoad, { isLoading: saveLoading }] = useSaveProductionLoadMutation()
+	const [updateLoad, { isLoading: updateLoading }] = useUpdateProductionLoadMutation()
 
 	useEffect(() => {
 		if (load && load.data) {
@@ -42,7 +43,7 @@ export default function ProductionLoad() {
 				for (let i = 0; i < temp.length; i++) {
 					const d = load.data.find(s => s.sector == temp[i].sector)
 					if (!d) return temp
-					temp[i] = { ...temp[i], id: d.id, days: +(d.days || '0') }
+					temp[i] = { ...temp[i], id: d.id, days: +(d.days || '0'), quantity: +(d.quantity || 0) }
 				}
 				return temp
 			})
@@ -74,6 +75,7 @@ export default function ProductionLoad() {
 				date: date,
 				sector: e.sector || '',
 				days: e.days || 0,
+				quantity: e.quantity || 0,
 			})
 		}
 
@@ -99,7 +101,13 @@ export default function ProductionLoad() {
 
 			<DataSheetGrid value={table} columns={columns} onChange={tableHandler} lockRows />
 
-			<Button variant='outlined' onClick={submitHandler} sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}>
+			<Button
+				variant='outlined'
+				onClick={submitHandler}
+				disabled={saveLoading || updateLoading}
+				startIcon={saveLoading || updateLoading ? <CircularProgress size={18} /> : null}
+				sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}
+			>
 				Сохранить
 			</Button>
 		</>

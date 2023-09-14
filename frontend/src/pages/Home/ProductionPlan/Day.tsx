@@ -1,28 +1,22 @@
 import { Box, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
-import type { IShipment } from '@/types/shipment'
+import type { IPlan } from '@/types/productionPlan'
 import { Pie } from '../components/PieChart/Pie'
 
 type Props = {
-	data: IShipment[]
+	data: IPlan[]
 }
 
 export default function Day({ data }: Props) {
 	return (
 		<Stack spacing={4}>
 			<Stack direction={'row'} spacing={1}>
-				<Box width={'100%'}>
+				<Box width={'80%'} ml={'auto'} mr={'auto'}>
 					<Table>
 						<TableHead>
 							<TableRow>
 								<TableCell sx={{ fontWeight: 'bold' }}>Продукция</TableCell>
 								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
 									Факт, Шт
-								</TableCell>
-								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
-									План, Шт
-								</TableCell>
-								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
-									Разница, Шт
 								</TableCell>
 								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
 									Факт, Руб
@@ -39,25 +33,9 @@ export default function Day({ data }: Props) {
 							{data.map(d => (
 								<TableRow key={d.id}>
 									<TableCell>{d.product}</TableCell>
-									<TableCell
-										align='right'
-										sx={{
-											borderRadius: '12px',
-											backgroundColor:
-												+(d.count || 0) < +(d.planQuantity || 0) ? '#ff55557d' : 'transparent',
-										}}
-									>
+									<TableCell align='right'>
 										{new Intl.NumberFormat('ru-Ru').format(+(d.count || 0))}
 									</TableCell>
-									<TableCell align='right'>
-										{new Intl.NumberFormat('ru-Ru').format(+(d.planQuantity || 0))}
-									</TableCell>
-									<TableCell align='right'>
-										{new Intl.NumberFormat('ru-Ru').format(
-											+(d.planQuantity || 0) - +(d.count || 0)
-										)}
-									</TableCell>
-
 									<TableCell
 										align='right'
 										sx={{
@@ -84,18 +62,6 @@ export default function Day({ data }: Props) {
 										data.reduce((acc, c) => acc + +(c.count || 0), 0)
 									)}
 								</TableCell>
-								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
-									{new Intl.NumberFormat('ru-Ru').format(
-										data.reduce((acc, c) => acc + +(c.planQuantity || 0), 0)
-									)}
-								</TableCell>
-								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
-									{new Intl.NumberFormat('ru-Ru').format(
-										data.reduce((acc, c) => acc + +(c.planQuantity || 0), 0) -
-											data.reduce((acc, c) => acc + +(c.count || 0), 0)
-									)}
-								</TableCell>
-
 								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
 									{new Intl.NumberFormat('ru-Ru').format(
 										data.reduce((acc, c) => acc + +(c.money || 0), 0)

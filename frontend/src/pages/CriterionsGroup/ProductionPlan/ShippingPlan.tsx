@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Column, DataSheetGrid, floatColumn, keyColumn, textColumn } from 'react-datasheet-grid'
+import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn, textColumn } from 'react-datasheet-grid'
 import { Button, CircularProgress, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setComplete } from '@/store/criterions'
@@ -20,20 +20,27 @@ const emptyData: IProductionPlan[] = [
 	{ id: '7', product: 'Прочее', quantity: null, money: null },
 ]
 
-export default function ProductionPlan() {
-	// const active = useAppSelector(state => state.criterions.active)
+export default function ShippingPlan() {
 	const date = useAppSelector(state => state.criterions.date)
 
 	const [table, setTable] = useState<IProductionPlan[]>(emptyData)
 
 	const dispatch = useAppDispatch()
 
+	const countPaste = (values: string[]) => {
+		return values.map(v => v.replace(' ', ''))
+	}
 	const moneyPaste = (values: string[]) => {
 		return values.map(v => v.replace(' ', '').replace(',', '.'))
 	}
 
 	const columns: Column<IProductionPlan>[] = [
 		{ ...keyColumn<IProductionPlan, 'product'>('product', textColumn), title: 'Тип продукции', disabled: true },
+		{
+			...keyColumn<IProductionPlan, 'quantity'>('quantity', intColumn),
+			title: 'Отгрузка в штуках',
+			prePasteValues: countPaste,
+		},
 		{
 			...keyColumn<IProductionPlan, 'money'>('money', floatColumn),
 			title: 'Отгрузка в деньгах',
@@ -42,7 +49,7 @@ export default function ProductionPlan() {
 	]
 
 	const { data: plan } = useGetProductionPlanByPeriodQuery(
-		{ period: { from: date }, type: 'annual' },
+		{ period: { from: date }, type: 'shipment' },
 		{ skip: !date }
 	)
 	const [savePlan, { isLoading: saveLoading }] = useSaveProductionPlanMutation()
@@ -73,7 +80,7 @@ export default function ProductionPlan() {
 	}
 
 	const saveHandler = async () => {
-		if (table.some(t => t.money == null)) {
+		if (table.some(t => t.money == null || t.quantity == null)) {
 			console.log('empty')
 			// TODO выводить ошибку
 			return
@@ -84,7 +91,7 @@ export default function ProductionPlan() {
 			const e = table[i]
 			newPlan.push({
 				id: '',
-				type: 'annual',
+				type: 'shipment',
 				date: date,
 				product: e.product || '',
 				money: e.money?.toString() || '',
@@ -108,7 +115,7 @@ export default function ProductionPlan() {
 	return (
 		<>
 			<Typography variant='h5' textAlign='center'>
-				Годовой план отгрузки на день, руб
+				План отгрузки на день, руб
 			</Typography>
 
 			<DataSheetGrid value={table} columns={columns} onChange={tableHandler} lockRows />

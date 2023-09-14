@@ -7,6 +7,6 @@ export const Container = styled.div`
 	/* margin-top: 40px; */
 	max-width: 1580px;
 	/* align-self: center; */
-	margin: 40px auto;
+	margin: 10px auto 40px;
 	height: 100%;
 `

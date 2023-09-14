@@ -20,5 +20,6 @@ export interface IShipment {
 	product: string
 	count: number
 	money: number
+	planQuantity: number
 	planMoney: number
 }

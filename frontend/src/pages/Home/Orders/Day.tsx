@@ -17,13 +17,13 @@ export default function Day({ data }: Props) {
 						</TableRow>
 						<TableRow>
 							<TableCell sx={{ fontWeight: 'bold' }}>Сумма заказов</TableCell>
-							<TableCell>{data[0].sumMoney}</TableCell>
+							<TableCell>{new Intl.NumberFormat('ru-Ru').format(+(data[0].sumMoney || 0))}</TableCell>
 						</TableRow>
 						<TableRow>
 							<TableCell sx={{ fontWeight: 'bold' }}>
 								Суммарное количество ед. продукции в заказах
 							</TableCell>
-							<TableCell>{data[0].quantity}</TableCell>
+							<TableCell>{new Intl.NumberFormat('ru-Ru').format(+(data[0].quantity || 0))}</TableCell>
 						</TableRow>
 					</TableBody>
 				</Table>

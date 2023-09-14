@@ -11,6 +11,7 @@ import type { PeriodEnum } from '@/types/period'
 import Stepper from '@/components/Stepper/Stepper'
 import { Container } from './home.style'
 
+const ProductionPlan = lazy(() => import('@/pages/Home/ProductionPlan/ProductionPlan'))
 const Shipment = lazy(() => import('@/pages/Home/Shipment/Shipment'))
 const Output = lazy(() => import('@/pages/Home/Output/Output'))
 const Orders = lazy(() => import('@/pages/Home/Orders/Orders'))
@@ -24,10 +25,11 @@ const Load = lazy(() => import('@/pages/Home/Load/Load'))
 // type Selected = 'sqdc' | 'quality' | 'expenses' | 'order'
 
 const steps = [
-	{ id: '1', key: 'shipment', label: 'Выполнение плана отгрузок' },
-	{ id: '2', key: 'output', label: 'Объем выпуска продукции' },
-	{ id: '3', key: 'orders', label: 'Объем заказов переданных в производство' },
-	{ id: '4', key: 'load', label: 'Загруженность производства' },
+	{ id: '1', key: 'production_plan', label: 'Выполнение годового плана' },
+	{ id: '2', key: 'shipment', label: 'Выполнение плана отгрузок' },
+	{ id: '3', key: 'output', label: 'Объем выпуска продукции' },
+	{ id: '4', key: 'orders', label: 'Объем заказов переданных в производство' },
+	{ id: '5', key: 'load', label: 'Загруженность производства' },
 ]
 
 export default function Home() {
@@ -37,7 +39,7 @@ export default function Home() {
 	const periodType = useAppSelector(state => state.dashboard.periodType)
 	const period = useAppSelector(state => state.dashboard.period)
 
-	const [selected, setSelected] = useState('shipment')
+	const [selected, setSelected] = useState('production_plan')
 
 	const dispatch = useAppDispatch()
 
@@ -178,6 +180,7 @@ export default function Home() {
 							</Box>
 						}
 					>
+						{selected == 'production_plan' && <ProductionPlan />}
 						{selected == 'shipment' && <Shipment />}
 						{selected == 'output' && <Output />}
 						{selected == 'orders' && <Orders />}

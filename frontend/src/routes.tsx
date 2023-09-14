@@ -21,6 +21,8 @@ const OrdersVolume = lazy(() => import('@/pages/CriterionsGroup/OrdersVolume/Ord
 const ShipmentPlan = lazy(() => import('@/pages/CriterionsGroup/ShipmentPlan/ShipmentPlan'))
 const ProductionLoad = lazy(() => import('@/pages/CriterionsGroup/ProductionLoad/ProductionLoad'))
 const ProductionPlan = lazy(() => import('@/pages/CriterionsGroup/ProductionPlan/ProductionPlan'))
+const ShippingPlan = lazy(() => import('@/pages/CriterionsGroup/ProductionPlan/ShippingPlan'))
+const OutputPlan = lazy(() => import('@/pages/CriterionsGroup/ProductionPlan/OutputPlan'))
 
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'))
 
@@ -55,6 +57,8 @@ export const AppRoutes = () => {
 							<Route path='shipment-plan' element={<ShipmentPlan />} />
 							<Route path='production-load' element={<ProductionLoad />} />
 							<Route path='production-plan' element={<ProductionPlan />} />
+							<Route path='shipping-plan' element={<ShippingPlan />} />
+							<Route path='output-plan' element={<OutputPlan />} />
 						</Route>
 					</Route>
 

@@ -1,11 +1,9 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
-import { Box, CircularProgress, Typography } from '@mui/material'
+import { CircularProgress, Typography } from '@mui/material'
 import { useAppSelector } from '@/hooks/useStore'
 import { useGetShipmentPlanByPeriodQuery } from '@/store/api/shipmentPlan'
 import { useGetProductionPlanByPeriodQuery } from '@/store/api/productionPlan'
-import { IShipment } from '@/types/shipment'
-
-// import Day from './Day'
+import type { IShipment } from '@/types/shipment'
 
 const Day = lazy(() => import('@/pages/Home/Shipment/Day'))
 const Week = lazy(() => import('@/pages/Home/Shipment/Week'))
@@ -18,33 +16,32 @@ export default function Shipment() {
 
 	const {
 		data: shipment,
-		// isLoading: isLoadingShipment,
+		isLoading: isLoadingShipment,
 		isError: isErrShipment,
 	} = useGetShipmentPlanByPeriodQuery(period, { skip: period.from == '' })
 	const {
 		data: plan,
-		// isLoading: isLoadingPlan,
+		isLoading: isLoadingPlan,
 		isError: isErrPlan,
-	} = useGetProductionPlanByPeriodQuery(period, { skip: period.from == '' })
+	} = useGetProductionPlanByPeriodQuery({ period, type: 'shipment' }, { skip: period.from == '' })
 
 	useEffect(() => {
-		if (shipment?.data && plan?.data) {
-			const d = shipment.data.map(s => {
-				const p = plan.data.find(p => p.product == s.product)
+		if (shipment?.data || plan?.data) {
+			const d = shipment?.data?.map(s => {
+				const p = plan?.data?.find(p => p.product == s.product)
 				return {
 					id: s.id || '',
 					date: s.day || '',
 					product: s.product || '',
 					count: s.count || 0,
 					money: s.money || 0,
+					planQuantity: p?.quantity || 0,
 					planMoney: p?.money || 0,
 				}
 			})
-			setData(d)
+			setData(d || [])
 		}
 	}, [shipment, plan])
-
-	// if (!data?.data) return null
 
 	return (
 		<>
@@ -64,7 +61,7 @@ export default function Shipment() {
 					</Button>
 				</Stack> */}
 
-			{shipment?.data && plan?.data ? (
+			{/* {shipment?.data && plan?.data ? (
 				<Suspense fallback={<CircularProgress />}>
 					{periodType == 'day' && <Day data={data} />}
 					{periodType != 'day' && <Week data={data} />}
@@ -81,7 +78,28 @@ export default function Shipment() {
 						</Typography>
 					)}
 				</Box>
-			)}
+			)} */}
+
+			{shipment?.data || plan?.data ? (
+				<Suspense fallback={<CircularProgress />}>
+					{periodType == 'day' && <Day data={data} />}
+					{periodType != 'day' && <Week data={data} />}
+				</Suspense>
+			) : null}
+
+			{(!shipment?.data || !plan?.data) && (isLoadingPlan || isLoadingShipment) ? <CircularProgress /> : null}
+
+			{(!shipment?.data || !plan?.data) && !isLoadingPlan && !isLoadingShipment ? (
+				!isErrShipment && !isErrPlan ? (
+					<Typography fontSize={'1.2rem'} textAlign={'center'}>
+						Для выбранного периода данные не найдены
+					</Typography>
+				) : (
+					<Typography fontSize={'1.2rem'} textAlign={'center'}>
+						Не удалось получить данные
+					</Typography>
+				)
+			) : null}
 			{/* </Box> */}
 		</>
 	)

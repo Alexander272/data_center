@@ -15,3 +15,14 @@ export interface IOutputVolumeDTO {
 	count: string
 	money: string
 }
+
+export interface IOutput {
+	id: string
+	day: string
+	forStock: boolean
+	product: string
+	count: number
+	money: number
+	planQuantity: number
+	planMoney: number
+}

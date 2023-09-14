@@ -1,22 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import { Box, Stack, Typography } from '@mui/material'
-import type { IOutputVolume } from '@/types/outputVolume'
+import type { IOutput } from '@/types/outputVolume'
 import type { ISeriesData } from '@/types/sheet'
 import { Line } from '../components/LineChart/Line'
 
 type Props = {
-	data: IOutputVolume[]
+	data: IOutput[]
 }
 
 export default function Week({ data }: Props) {
 	const [axis, setAxis] = useState<string[]>([])
-	const [seriesMoneyStock, setSeriesMoneyStock] = useState<ISeriesData[]>([])
 	const [seriesCountStock, setSeriesCountStock] = useState<ISeriesData[]>([])
 	const [seriesMoneyOrder, setSeriesMoneyOrder] = useState<ISeriesData[]>([])
 	const [seriesCountOrder, setSeriesCountOrder] = useState<ISeriesData[]>([])
 
 	const [seriesSumCountStock, setSeriesSumCountStock] = useState<ISeriesData>()
-	const [seriesSumMoneyStock, setSeriesSumMoneyStock] = useState<ISeriesData>()
 	const [seriesSumCountOrder, setSeriesSumCountOrder] = useState<ISeriesData>()
 	const [seriesSumMoneyOrder, setSeriesSumMoneyOrder] = useState<ISeriesData>()
 
@@ -28,27 +26,21 @@ export default function Week({ data }: Props) {
 		const orders = data.filter(d => !d.forStock)
 
 		const axisLine = new Set<string>()
-		const moneyStockLines = new Map<string, number[]>()
 		const countStockLines = new Map<string, number[]>()
 		const moneyOrderLines = new Map<string, number[]>()
 		const countOrderLines = new Map<string, number[]>()
 
-		const sumMoneyStock = new Map<string, number>()
 		const sumCountStock = new Map<string, number>()
 		const sumMoneyOrder = new Map<string, number>()
 		const sumCountOrder = new Map<string, number>()
 
+		const planMoney = new Map<string, number>()
+		const planQuantity = new Map<string, number>()
+
 		stock.forEach(d => {
 			axisLine.add(d.day || '')
 
-			let data = moneyStockLines.get(d.product || '')
-			if (!data) {
-				moneyStockLines.set(d.product || '', [d.money || 0])
-			} else {
-				data.push(d.money || 0)
-				moneyStockLines.set(d.product || '', data)
-			}
-			data = countStockLines.get(d.product || '')
+			const data = countStockLines.get(d.product || '')
 			if (!data) {
 				countStockLines.set(d.product || '', [d.count || 0])
 			} else {
@@ -56,11 +48,7 @@ export default function Week({ data }: Props) {
 				countStockLines.set(d.product || '', data)
 			}
 
-			let s = sumMoneyStock.get(d.day || '')
-			if (!s) sumMoneyStock.set(d.day || '', +(d.money || 0))
-			else sumMoneyStock.set(d.day || '', s + +(d.money || 0))
-
-			s = sumCountStock.get(d.day || '')
+			const s = sumCountStock.get(d.day || '')
 			if (!s) sumCountStock.set(d.day || '', +(d.count || 0))
 			else sumCountStock.set(d.day || '', s + +(d.count || 0))
 		})
@@ -88,14 +76,12 @@ export default function Week({ data }: Props) {
 			s = sumCountOrder.get(d.day || '')
 			if (!s) sumCountOrder.set(d.day || '', +(d.count || 0))
 			else sumCountOrder.set(d.day || '', s + +(d.count || 0))
+
+			planMoney.set(d.product, d.planMoney)
+			planQuantity.set(d.product, d.planQuantity)
 		})
 
 		setAxis(Array.from(axisLine))
-		setSeriesMoneyStock(
-			Array.from(moneyStockLines, entry => {
-				return { name: entry[0], data: entry[1] }
-			})
-		)
 		setSeriesCountStock(
 			Array.from(countStockLines, entry => {
 				return { name: entry[0], data: entry[1] }
@@ -103,22 +89,17 @@ export default function Week({ data }: Props) {
 		)
 		setSeriesMoneyOrder(
 			Array.from(moneyOrderLines, entry => {
-				return { name: entry[0], data: entry[1] }
+				const p = planMoney.get(entry[0])
+				return { name: entry[0], data: entry[1], mark: p }
 			})
 		)
 		setSeriesCountOrder(
 			Array.from(countOrderLines, entry => {
-				return { name: entry[0], data: entry[1] }
+				const p = planQuantity.get(entry[0])
+				return { name: entry[0], data: entry[1], mark: p }
 			})
 		)
 
-		setSeriesSumMoneyStock({
-			name: 'на склад, руб',
-			data: Array.from(sumMoneyStock, entry => {
-				if (entry[1] < minMoney.current) minMoney.current = entry[1]
-				return entry[1]
-			}),
-		})
 		setSeriesSumCountStock({
 			name: 'на склад, шт',
 			data: Array.from(sumCountStock, entry => {
@@ -148,21 +129,14 @@ export default function Week({ data }: Props) {
 				Выпуск в заказы, руб
 			</Typography>
 			<Box height={600}>
-				{seriesMoneyStock.length ? <Line data={{ series: seriesMoneyOrder, axis }} /> : null}
+				{seriesMoneyOrder.length ? <Line data={{ series: seriesMoneyOrder, axis }} /> : null}
 			</Box>
 
 			<Typography align='center' fontWeight={'bold'}>
 				Выпуск в заказы, штук
 			</Typography>
 			<Box height={600}>
-				{seriesCountStock.length ? <Line data={{ series: seriesCountOrder, axis }} /> : null}
-			</Box>
-
-			<Typography align='center' fontWeight={'bold'}>
-				Выпуск на склад, руб
-			</Typography>
-			<Box height={600}>
-				{seriesMoneyStock.length ? <Line data={{ series: seriesMoneyStock, axis }} /> : null}
+				{seriesCountOrder.length ? <Line data={{ series: seriesCountOrder, axis }} /> : null}
 			</Box>
 
 			<Typography align='center' fontWeight={'bold'}>
@@ -178,11 +152,8 @@ export default function Week({ data }: Props) {
 			<Box height={400}>
 				<Stack direction={'row'} spacing={1} height={'100%'}>
 					<Box flexBasis={'50%'}>
-						{seriesSumMoneyStock && seriesSumMoneyOrder ? (
-							<Line
-								data={{ series: [seriesSumMoneyStock, seriesSumMoneyOrder], axis }}
-								minYValue={minMoney.current * 0.96}
-							/>
+						{seriesSumMoneyOrder ? (
+							<Line data={{ series: [seriesSumMoneyOrder], axis }} minYValue={minMoney.current * 0.96} />
 						) : null}
 					</Box>
 

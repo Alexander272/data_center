@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn, textColumn } from 'react-datasheet-grid'
-import { Button, Typography } from '@mui/material'
+import { Button, CircularProgress, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setComplete } from '@/store/criterions'
 import {
@@ -43,7 +43,15 @@ export default function OutputVolume() {
 		return values.map(v => v.replace(' ', '').replace(',', '.'))
 	}
 
-	const columns: Column<IOutputVolume>[] = [
+	const stockColumns: Column<IOutputVolume>[] = [
+		{ ...keyColumn<IOutputVolume, 'product'>('product', textColumn), title: 'Тип продукции', disabled: true },
+		{
+			...keyColumn<IOutputVolume, 'count'>('count', intColumn),
+			title: 'Объем выпуска продукции в штуках',
+			prePasteValues: countPaste,
+		},
+	]
+	const orderColumns: Column<IOutputVolume>[] = [
 		{ ...keyColumn<IOutputVolume, 'product'>('product', textColumn), title: 'Тип продукции', disabled: true },
 		{
 			...keyColumn<IOutputVolume, 'count'>('count', intColumn),
@@ -58,8 +66,8 @@ export default function OutputVolume() {
 	]
 
 	const { data: output } = useGetOutputVolumeByPeriodQuery({ from: date }, { skip: !date })
-	const [saveOutput] = useSaveOutputVolumeMutation()
-	const [updateOutput] = useUpdateOutputVolumeMutation()
+	const [saveOutput, { isLoading: saveLoading }] = useSaveOutputVolumeMutation()
+	const [updateOutput, { isLoading: updateLoading }] = useUpdateOutputVolumeMutation()
 
 	useEffect(() => {
 		if (output && output.data) {
@@ -154,7 +162,7 @@ export default function OutputVolume() {
 				Ежедневный объем выпуска продукции (на склад)
 			</Typography>
 
-			<DataSheetGrid value={stockTable} columns={columns} onChange={stockTableHandler} lockRows />
+			<DataSheetGrid value={stockTable} columns={stockColumns} onChange={stockTableHandler} lockRows />
 
 			{/* <Divider /> */}
 
@@ -162,11 +170,17 @@ export default function OutputVolume() {
 				Ежедневный объем выпуска продукции (в заказ)
 			</Typography>
 
-			<DataSheetGrid value={orderTable} columns={columns} onChange={orderTableHandler} lockRows />
+			<DataSheetGrid value={orderTable} columns={orderColumns} onChange={orderTableHandler} lockRows />
 
 			{/* <Divider /> */}
 
-			<Button variant='outlined' onClick={submitHandler} sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}>
+			<Button
+				variant='outlined'
+				onClick={submitHandler}
+				disabled={saveLoading || updateLoading}
+				startIcon={saveLoading || updateLoading ? <CircularProgress size={18} /> : null}
+				sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}
+			>
 				Сохранить
 			</Button>
 		</>

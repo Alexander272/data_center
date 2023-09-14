@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn, textColumn } from 'react-datasheet-grid'
-import { Button, Typography } from '@mui/material'
+import { Button, CircularProgress, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setComplete } from '@/store/criterions'
 import {
@@ -50,8 +50,8 @@ export default function ShipmentPlan() {
 	]
 
 	const { data: shipment } = useGetShipmentPlanByPeriodQuery({ from: date }, { skip: !date })
-	const [saveShipment] = useSaveShipmentPlanMutation()
-	const [updateShipment] = useUpdateShipmentPlanMutation()
+	const [saveShipment, { isLoading: saveLoading }] = useSaveShipmentPlanMutation()
+	const [updateShipment, { isLoading: updateLoading }] = useUpdateShipmentPlanMutation()
 
 	useEffect(() => {
 		if (shipment && shipment.data) {
@@ -112,28 +112,19 @@ export default function ShipmentPlan() {
 
 	return (
 		<>
-			{/* <Box
-				position={'absolute'}
-				top={0}
-				left={0}
-				bottom={0}
-				right={0}
-				display={'flex'}
-				justifyContent={'center'}
-				alignItems={'center'}
-				zIndex={5}
-				sx={{ backgroundColor: '#eeeeee47' }}
-			>
-				<CircularProgress />
-			</Box> */}
-
 			<Typography variant='h5' textAlign='center'>
 				Выполнение плана отгрузок
 			</Typography>
 
 			<DataSheetGrid value={table} columns={columns} onChange={tableHandler} lockRows disableExpandSelection />
 
-			<Button variant='outlined' onClick={submitHandler} sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}>
+			<Button
+				variant='outlined'
+				onClick={submitHandler}
+				disabled={saveLoading || updateLoading}
+				startIcon={saveLoading || updateLoading ? <CircularProgress size={18} /> : null}
+				sx={{ borderRadius: 8, width: 300, margin: '0 auto' }}
+			>
 				Сохранить
 			</Button>
 		</>

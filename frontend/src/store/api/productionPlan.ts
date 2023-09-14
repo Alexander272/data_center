@@ -1,12 +1,17 @@
-import type { IProductionPlan, IProductionPlanDTO } from '@/types/productionPlan'
+import type { IProductionPlan, IProductionPlanDTO, PlanType } from '@/types/productionPlan'
 import type { IPeriod } from '@/types/period'
 import { api } from './base'
 
 export const loadApi = api.injectEndpoints({
 	endpoints: builder => ({
 		// получение данных о плане за период
-		getProductionPlanByPeriod: builder.query<{ data: IProductionPlan[] }, IPeriod>({
-			query: period => `criterions/production-plan/${period.from}${period.to ? '-' + period.to : ''}`,
+		getProductionPlanByPeriod: builder.query<{ data: IProductionPlan[] }, { period: IPeriod; type: PlanType }>({
+			query: ({ period, type }) => ({
+				url: `criterions/production-plan/${period.from}${period.to ? '-' + period.to : ''}`,
+				method: 'GET',
+				params: new URLSearchParams([['type', type]]),
+			}),
+			// TODO возможно стоит добавить тип к id
 			providesTags: [{ type: 'Api', id: `production-load` }],
 		}),
 

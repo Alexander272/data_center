@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Box, Stack, Typography } from '@mui/material'
 import type { ISeriesData } from '@/types/sheet'
-import type { IShipment } from '@/types/shipment'
+import type { IPlan } from '@/types/productionPlan'
 import { Line } from '../components/LineChart/Line'
 
 type Props = {
-	data: IShipment[]
+	data: IPlan[]
 }
 
 // const colors = ['#3d6cff', '#65bd3b', '#f9b61e', '#f74c4c', '#41caff', '#25b773', '#f96c32']
@@ -29,8 +29,7 @@ export default function Week({ data }: Props) {
 		// const lines = {}
 		const moneyLines = new Map<string, number[]>()
 		const countLines = new Map<string, number[]>()
-		const planMoney = new Map<string, number>()
-		const planQuantity = new Map<string, number>()
+		const plan = new Map<string, number>()
 
 		const sumMoney = new Map<string, number>()
 		const sumCount = new Map<string, number>()
@@ -61,22 +60,21 @@ export default function Week({ data }: Props) {
 			if (!s) sumCount.set(d.date, +d.count)
 			else sumCount.set(d.date, s + +d.count)
 
-			planMoney.set(d.product, d.planMoney)
-			planQuantity.set(d.product, d.planQuantity)
+			plan.set(d.product, d.planMoney)
 		})
 
 		setAxis(Array.from(axisLine))
+
 		setSeriesMoney(
 			Array.from(moneyLines, entry => {
-				const p = planMoney.get(entry[0])
+				const p = plan.get(entry[0])
 				return { name: entry[0], data: entry[1], mark: p }
 			})
 		)
 
 		setSeriesCount(
 			Array.from(countLines, entry => {
-				const p = planQuantity.get(entry[0])
-				return { name: entry[0], data: entry[1], mark: p }
+				return { name: entry[0], data: entry[1] }
 			})
 		)
 
@@ -95,8 +93,6 @@ export default function Week({ data }: Props) {
 			}),
 		})
 	}, [data])
-
-	// if (!seriesMoney.length || !axis.length) return
 
 	return (
 		<Stack spacing={1}>
