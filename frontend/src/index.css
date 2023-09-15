@@ -10,6 +10,8 @@
   --success: #046c4e;
   --blue: #1a56db;
 
+  --dark-blue: #0538b5;
+
   --light-blue: #0066ffa3;
   --border-color: #0737b180;
   --border-white: #e5e4e9;
@@ -20,5 +22,6 @@
   /* display: flex; */
   /* flex-direction: column; */
   /* align-items: center; */
-  font-family: 'NunitoSans', sans-serif;
+  /* font-family: 'NunitoSans', sans-serif; */
+  /* font-family: 'Roboto', sans-serif; */
 }

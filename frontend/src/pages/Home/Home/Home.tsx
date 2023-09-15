@@ -1,13 +1,15 @@
-import { MouseEvent, Suspense, lazy, useState } from 'react'
+import { MouseEvent, Suspense, lazy, useRef, useState } from 'react'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ru'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { Box, Button, ButtonGroup, CircularProgress, Stack, Typography } from '@mui/material'
+import { Box, Button, ButtonGroup, CircularProgress, Menu, Stack, Typography } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNewOutlined'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForwardIosOutlined'
+import CalendarIcon from '@mui/icons-material/CalendarMonthOutlined'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
-import { nextPeriod, prevPeriod, setPeriodType } from '@/store/dashboard'
+import { nextPeriod, prevPeriod, setPeriod, setPeriodType } from '@/store/dashboard'
 import type { PeriodEnum } from '@/types/period'
+import { Calendar } from '@/components/Calendar/Calendar'
 import Stepper from '@/components/Stepper/Stepper'
 import { Container } from './home.style'
 
@@ -40,6 +42,8 @@ export default function Home() {
 	const period = useAppSelector(state => state.dashboard.period)
 
 	const [selected, setSelected] = useState('production_plan')
+	const [open, setOpen] = useState(false)
+	const anchor = useRef<HTMLButtonElement>(null)
 
 	const dispatch = useAppDispatch()
 
@@ -57,11 +61,19 @@ export default function Home() {
 		setSelected(key)
 	}
 
+	const toggleCalendar = () => {
+		setOpen(prev => !prev)
+	}
+
 	const prevHandler = () => {
 		dispatch(prevPeriod())
 	}
 	const nextHandler = () => {
 		dispatch(nextPeriod())
+	}
+	const periodHandler = (date: string) => {
+		dispatch(setPeriod(date))
+		setOpen(false)
 	}
 
 	// console.log(dayjs(period.from, 'DD.MM.YYYY').unix() >= dayjs().subtract(1, 'd').unix())
@@ -150,10 +162,18 @@ export default function Home() {
 							<ArrowBackIcon />
 						</Button>
 
-						<Typography fontWeight={'bold'} fontSize={'1.6rem'} ml={'auto'} mr={'auto'}>
+						<Typography fontWeight={'bold'} fontSize={'1.6rem'} ml={'auto'}>
 							{steps.find(s => s.key == selected)?.label} ({period.from}
 							{period.to ? '-' + period.to : ''})
 						</Typography>
+						<Button
+							onClick={toggleCalendar}
+							ref={anchor}
+							color='inherit'
+							sx={{ marginRight: 'auto', borderRadius: '12px', minWidth: 48 }}
+						>
+							<CalendarIcon />
+						</Button>
 
 						<Button
 							disabled={
@@ -166,6 +186,43 @@ export default function Home() {
 							<ArrowForwardIcon />
 						</Button>
 					</Stack>
+
+					<Menu
+						open={open}
+						onClose={toggleCalendar}
+						anchorEl={anchor.current}
+						transformOrigin={{ horizontal: 'center', vertical: 'top' }}
+						anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+						MenuListProps={{
+							role: 'listbox',
+							disableListWrap: true,
+						}}
+						slotProps={{
+							paper: {
+								elevation: 0,
+								sx: {
+									overflow: 'visible',
+									padding: 0,
+									mt: 1.2,
+									filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+									'&:before': {
+										content: '""',
+										display: 'block',
+										position: 'absolute',
+										top: 0,
+										left: '50%',
+										width: 10,
+										height: 10,
+										bgcolor: 'background.paper',
+										transform: 'translate(-50%, -50%) rotate(45deg)',
+										zIndex: 0,
+									},
+								},
+							},
+						}}
+					>
+						<Calendar selected={period.from} onSelect={periodHandler} />
+					</Menu>
 
 					<Suspense
 						fallback={

@@ -130,6 +130,6 @@ export const dashboardSlice = createSlice({
 	},
 })
 
-export const { setPeriodType, prevPeriod, nextPeriod } = dashboardSlice.actions
+export const { setPeriodType, prevPeriod, nextPeriod, setPeriod } = dashboardSlice.actions
 
 export default dashboardSlice.reducer

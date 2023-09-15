@@ -1,4 +1,4 @@
-import { Calendar } from '@/components/Calendar/Calendar'
+import { Calendar } from '@/components/SQDCCalendar/Calendar'
 import { Box, Typography } from '@mui/material'
 
 export const Brigade = () => {

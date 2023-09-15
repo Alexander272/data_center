@@ -7,7 +7,7 @@ export const ordersApi = api.injectEndpoints({
 		// получение данных о заказах переданных в производство
 		getOrdersVolumeByPeriod: builder.query<{ data: IOrdersVolume[] }, IPeriod>({
 			query: period => `criterions/orders-volume/${period.from}${period.to ? '-' + period.to : ''}`,
-			providesTags: [{ type: 'Api', id: `orders-volume}` }],
+			providesTags: [{ type: 'Api', id: `orders-volume` }],
 		}),
 
 		// сохранение данных о заказах переданных в производство

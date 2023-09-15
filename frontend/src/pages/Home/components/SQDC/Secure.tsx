@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material'
-import { Calendar } from '@/components/Calendar/Calendar'
+import { Calendar } from '@/components/SQDCCalendar/Calendar'
 
 export default function Secure() {
 	return (

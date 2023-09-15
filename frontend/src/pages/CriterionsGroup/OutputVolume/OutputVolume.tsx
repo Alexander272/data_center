@@ -107,7 +107,7 @@ export default function OutputVolume() {
 	}
 
 	const saveHandler = async () => {
-		if (stockTable.some(t => t.count == null || t.money == null)) {
+		if (stockTable.some(t => t.count == null)) {
 			console.log('empty')
 			// TODO выводить ошибку
 			return

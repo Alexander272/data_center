@@ -1,95 +1,94 @@
-import { Grid, Typography } from '@mui/material'
-import { FC } from 'react'
-import { Cell } from './calendar.style'
-
-const getSkippedDays = () => {
-	const d = new Date()
-
-	const y = d.getFullYear()
-	const m = d.getMonth()
-
-	const firstDayOfMonth = new Date(y, m, 7).getDay()
-	const lastDateOfMonth = new Date(y, m + 1, 0).getDate()
-	// const lastDayOfLastMonth = m == 0 ? new Date(y - 1, 11, 0).getDate() : new Date(y, m, 0).getDate()
-
-	// console.log(firstDayOfMonth)
-	// console.log(lastDateOfMonth)
-	// console.log(lastDayOfLastMonth)
-
-	// console.log(data)
-
-	return { skip: firstDayOfMonth, daysCount: lastDateOfMonth }
-}
-
-interface Data {
-	day: string
-	status: ('good' | 'bad' | 'middle')[]
-}
+import { FC, MouseEvent, useState } from 'react'
+import { Box, Collapse, Stack } from '@mui/material'
+import dayjs, { Dayjs } from 'dayjs'
+import { Captions } from './Captions'
+import { Months } from './Months'
+import { Years } from './Years'
+import { DateGrid } from './DateGrid'
 
 type Props = {
-	data: Data[]
+	selected: string
+	onSelect: (date: string) => void
+	// mode?: 'single' | 'range'
+	picker?: 'day' | 'week' | 'month' | 'year'
+	// selectSize?: number
+	// showOutsideDays?: boolean
+	// fixedWeeks?: boolean
+	showWeekNumber?: boolean
 }
 
-export const Calendar: FC<Props> = ({ data }) => {
-	const { skip, daysCount } = getSkippedDays()
+export const Calendar: FC<Props> = ({ selected, onSelect, picker = 'day' }) => {
+	const [date, setDate] = useState(selected ? dayjs(selected, 'DD.MM.YYYY') : dayjs())
 
-	const renderTable = () => {
-		const days: JSX.Element[] = []
-		let status: ('good' | 'bad' | 'middle')[] = []
+	const [openMonth, setOpenMonth] = useState(picker == 'month')
+	const [openYears, setOpenYears] = useState(picker == 'year')
 
-		let index = 0
-		for (let i = 1; i <= daysCount; i++) {
-			if (index < data.length && data[index].day == i.toString()) {
-				status = data[index].status
-				index++
-			} else {
-				status = []
-			}
+	const changeDateHandler = (date: Dayjs) => {
+		setDate(date)
+	}
+	const changeMonthHandler = (date: Dayjs) => {
+		setDate(date)
+		setOpenMonth(false)
+		if (picker == 'month') onSelect(date.format('DD.MM.YYYY'))
+	}
+	const changeYearHandler = (date: Dayjs) => {
+		setDate(date)
+		setOpenYears(false)
+		if (picker == 'year') onSelect(date.format('DD.MM.YYYY'))
+	}
 
-			days.push(
-				<Grid
-					key={i}
-					item
-					xs={1}
-					position={'relative'}
-					width={'58px'}
-					height={'58px'}
-					sx={{
-						backgroundColor: '#fff',
-						border: '1px solid var(--blue-border)',
-						display: 'flex',
-						flexDirection: 'column',
-					}}
-				>
-					<Typography
-						position={'relative'}
-						zIndex={5}
-						sx={{
-							fontWeight: i == new Date().getDate() ? 'bold' : 'normal',
-							fontSize: i == new Date().getDate() ? '1.3rem' : '1rem',
-							position: 'absolute',
-							top: '50%',
-							left: '50%',
-							transform: 'translate(-50%, -50%)',
-						}}
-					>
-						{i}
-					</Typography>
+	const toggleMonth = () => {
+		if (picker != 'year' && picker != 'month') setOpenMonth(prev => !prev)
+	}
+	const toggleYear = () => {
+		if (picker != 'year') setOpenYears(prev => !prev)
+	}
 
-					{status.map((s, i) => (
-						<Cell key={s + i.toString()} status={s} />
-					))}
-				</Grid>
-			)
-		}
-
-		return days
+	const selectDate = (event: MouseEvent<HTMLDivElement>) => {
+		const { day } = (event.target as HTMLDivElement).dataset
+		if (!day) return
+		onSelect(day)
+		setDate(dayjs(day, 'DD.MM.YYYY'))
 	}
 
 	return (
-		<Grid container columns={7} sx={{ backgroundColor: 'var(--gray-border)' }}>
-			<Grid item xs={skip} />
-			{renderTable()}
-		</Grid>
+		<Stack
+			maxWidth={'300px'}
+			width={'300px'}
+			// boxShadow={'0 0 5px #8798ad'}
+			p={1}
+			borderRadius={'8px'}
+			position={'relative'}
+			overflow={'hidden'}
+		>
+			<Captions
+				currentMonth={date.month()}
+				year={date.year()}
+				date={date}
+				onChange={changeDateHandler}
+				toggleMonth={toggleMonth}
+				toggleYear={toggleYear}
+			/>
+
+			<Box position={'absolute'} zIndex={5} top={40} bottom={0} left={0} right={0} sx={{ pointerEvents: 'none' }}>
+				<Collapse in={openMonth} timeout={'auto'} unmountOnExit>
+					<Months date={date} onChange={changeMonthHandler} />
+				</Collapse>
+			</Box>
+
+			<Box position={'absolute'} zIndex={5} top={40} bottom={0} left={0} right={0} sx={{ pointerEvents: 'none' }}>
+				<Collapse in={openYears} timeout={'auto'} unmountOnExit>
+					<Years date={dayjs()} selected={date} onChange={changeYearHandler} />
+				</Collapse>
+			</Box>
+
+			<Box onClick={selectDate}>
+				<DateGrid date={date} selected={date.format('DD.MM.YYYY')} picker={picker} />
+			</Box>
+
+			{/* {weeks.map(w => (
+				<Week key={w.format('DD.MM')} startWeek={w} selected={selected} currentMonth={date.month()} />
+			))} */}
+		</Stack>
 	)
 }
