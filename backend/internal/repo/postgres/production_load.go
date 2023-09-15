@@ -80,7 +80,7 @@ func (r *ProductionLoadRepo) CreateSeveral(ctx context.Context, load []models.Pr
 	for i, f := range load {
 		id := uuid.New()
 		values = append(values, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d)", i*c+1, i*c+2, i*c+3, i*c+4, i*c+5))
-		args = append(args, id, fmt.Sprintf("%d", date.Unix()), f.Sector, f.Days)
+		args = append(args, id, fmt.Sprintf("%d", date.Unix()), f.Sector, f.Days, f.Quantity)
 	}
 	query += strings.Join(values, ", ")
 
