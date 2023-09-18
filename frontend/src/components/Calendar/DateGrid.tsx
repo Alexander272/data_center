@@ -4,7 +4,7 @@ import { Week } from './Week'
 
 type Props = {
 	date: Dayjs
-	selected: string
+	selected: string | string[]
 	picker?: 'day' | 'week' | 'month' | 'year'
 }
 

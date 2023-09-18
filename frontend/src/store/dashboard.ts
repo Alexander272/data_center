@@ -38,7 +38,7 @@ export const dashboardSlice = createSlice({
 					state.period.from = date.startOf('w').format('DD.MM.YYYY')
 					state.period.to = date.endOf('w').format('DD.MM.YYYY')
 				} else {
-					const d = date.subtract(7, 'd')
+					const d = date.subtract(5, 'd')
 					state.period.from = d.startOf('w').format('DD.MM.YYYY')
 					state.period.to = d.endOf('w').format('DD.MM.YYYY')
 				}

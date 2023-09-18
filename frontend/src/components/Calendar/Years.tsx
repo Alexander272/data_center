@@ -23,6 +23,7 @@ export const Years: FC<Props> = ({ date, selected, onChange }) => {
 
 			temp.push(
 				<Typography
+					key={d.year()}
 					data-year={d.year()}
 					onClick={selectYear}
 					width={'100%'}

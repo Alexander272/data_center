@@ -56,6 +56,9 @@ export const Line: FC<Props> = ({ data, minYValue }) => {
 				padding: 6,
 				borderRadius: 8,
 				color: '#fff',
+				fontSize: 14,
+				textBorderColor: '#282a36',
+				textBorderWidth: 2,
 				formatter: (param: { value: number }) =>
 					new Intl.NumberFormat('ru', { notation: 'compact' }).format(param.value),
 			},

@@ -5,10 +5,15 @@ import { Captions } from './Captions'
 import { Months } from './Months'
 import { Years } from './Years'
 import { DateGrid } from './DateGrid'
+// import { IPeriod } from '@/types/period'
 
 type Props = {
-	selected: string
-	onSelect: (date: string) => void
+	selected?: string
+	startDate?: string
+	endDate?: string
+	range?: [from: string, to?: string]
+	// selected: string | IPeriod
+	onSelect?: (date: [from: string, to?: string]) => void
 	// mode?: 'single' | 'range'
 	picker?: 'day' | 'week' | 'month' | 'year'
 	// selectSize?: number
@@ -17,8 +22,11 @@ type Props = {
 	showWeekNumber?: boolean
 }
 
-export const Calendar: FC<Props> = ({ selected, onSelect, picker = 'day' }) => {
+export const Calendar: FC<Props> = ({ selected, range, onSelect, picker = 'day' }) => {
 	const [date, setDate] = useState(selected ? dayjs(selected, 'DD.MM.YYYY') : dayjs())
+	const [period, setPeriod] = useState(
+		range ? [dayjs(range[0], 'DD.MM.YYYY'), range[1] ? dayjs(range[1], 'DD.MM.YYYY') : undefined] : []
+	)
 
 	const [openMonth, setOpenMonth] = useState(picker == 'month')
 	const [openYears, setOpenYears] = useState(picker == 'year')
@@ -29,12 +37,13 @@ export const Calendar: FC<Props> = ({ selected, onSelect, picker = 'day' }) => {
 	const changeMonthHandler = (date: Dayjs) => {
 		setDate(date)
 		setOpenMonth(false)
-		if (picker == 'month') onSelect(date.format('DD.MM.YYYY'))
+		if (picker == 'month' && onSelect)
+			onSelect([date.format('DD.MM.YYYY'), date.endOf(picker).format('DD.MM.YYYY')])
 	}
 	const changeYearHandler = (date: Dayjs) => {
 		setDate(date)
 		setOpenYears(false)
-		if (picker == 'year') onSelect(date.format('DD.MM.YYYY'))
+		if (picker == 'year' && onSelect) onSelect([date.format('DD.MM.YYYY'), date.endOf(picker).format('DD.MM.YYYY')])
 	}
 
 	const toggleMonth = () => {
@@ -47,8 +56,17 @@ export const Calendar: FC<Props> = ({ selected, onSelect, picker = 'day' }) => {
 	const selectDate = (event: MouseEvent<HTMLDivElement>) => {
 		const { day } = (event.target as HTMLDivElement).dataset
 		if (!day) return
-		onSelect(day)
-		setDate(dayjs(day, 'DD.MM.YYYY'))
+		const newDate = dayjs(day, 'DD.MM.YYYY')
+		setDate(newDate)
+		if (picker != 'day') {
+			const from = newDate.startOf(picker)
+			const to = newDate.endOf(picker)
+
+			setPeriod([from, to])
+			onSelect && onSelect([from.format('DD.MM.YYYY'), to.format('DD.MM.YYYY')])
+			return
+		}
+		onSelect && onSelect([day])
 	}
 
 	return (
@@ -83,12 +101,15 @@ export const Calendar: FC<Props> = ({ selected, onSelect, picker = 'day' }) => {
 			</Box>
 
 			<Box onClick={selectDate}>
-				<DateGrid date={date} selected={date.format('DD.MM.YYYY')} picker={picker} />
+				<DateGrid
+					date={date}
+					selected={
+						picker == 'day' ? date.format('DD.MM.YYYY') : period.map(p => (p ? p.format('DD.MM.YYYY') : ''))
+						// : [period[0]?.format('DD.MM.YYYY') || '', period[1]?.format('DD.MM.YYYY') || '']
+					}
+					picker={picker}
+				/>
 			</Box>
-
-			{/* {weeks.map(w => (
-				<Week key={w.format('DD.MM')} startWeek={w} selected={selected} currentMonth={date.month()} />
-			))} */}
 		</Stack>
 	)
 }

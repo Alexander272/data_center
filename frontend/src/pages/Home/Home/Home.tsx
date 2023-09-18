@@ -34,6 +34,15 @@ const steps = [
 	{ id: '5', key: 'load', label: 'Загруженность производства' },
 ]
 
+const pickerType = {
+	day: 'day' as const,
+	week: 'week' as const,
+	month: 'month' as const,
+	year: 'year' as const,
+	quarter: undefined,
+	period: undefined,
+}
+
 export default function Home() {
 	dayjs.extend(customParseFormat)
 	dayjs.locale('ru')
@@ -71,8 +80,8 @@ export default function Home() {
 	const nextHandler = () => {
 		dispatch(nextPeriod())
 	}
-	const periodHandler = (date: string) => {
-		dispatch(setPeriod(date))
+	const periodHandler = (date: [from: string, to?: string]) => {
+		dispatch(setPeriod({ from: date[0], to: date[1] }))
 		setOpen(false)
 	}
 
@@ -170,6 +179,7 @@ export default function Home() {
 							onClick={toggleCalendar}
 							ref={anchor}
 							color='inherit'
+							// disabled={periodType != 'day'}
 							sx={{ marginRight: 'auto', borderRadius: '12px', minWidth: 48 }}
 						>
 							<CalendarIcon />
@@ -221,7 +231,12 @@ export default function Home() {
 							},
 						}}
 					>
-						<Calendar selected={period.from} onSelect={periodHandler} />
+						<Calendar
+							selected={period.from}
+							range={[period.from, period.to]}
+							picker={pickerType[periodType]}
+							onSelect={periodHandler}
+						/>
 					</Menu>
 
 					<Suspense

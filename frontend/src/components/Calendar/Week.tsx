@@ -4,12 +4,15 @@ import dayjs, { Dayjs } from 'dayjs'
 
 type Props = {
 	startWeek: Dayjs
-	selected: string
+	selected: string | string[]
 	currentMonth: number
 	picker?: 'day' | 'week' | 'month' | 'year'
 }
 
 export const Week: FC<Props> = ({ startWeek, selected, currentMonth, picker }) => {
+	const isSelected =
+		selected[0] == startWeek.format('DD.MM.YYYY') && selected[1] == startWeek.add(6, 'd').format('DD.MM.YYYY')
+
 	const renderWeek = () => {
 		const week = []
 
@@ -31,17 +34,21 @@ export const Week: FC<Props> = ({ startWeek, selected, currentMonth, picker }) =
 					width={38}
 					margin={'1px'}
 					fontWeight={day.format('DD.MM.YYYY') == dayjs().format('DD.MM.YYYY') ? 'bold' : 'normal'}
-					fontSize={day.format('DD.MM.YYYY') == dayjs().format('DD.MM.YYYY') ? '1.2rem' : '1rem'}
+					fontSize={day.format('DD.MM.YYYY') == dayjs().format('DD.MM.YYYY') ? '20px' : '1rem'}
 					sx={{
 						opacity: currentMonth != day.month() ? 0.5 : 1,
 						// pointerEvents: currentMonth != day.month() ? 'none' : 'all',
 						cursor: 'pointer',
 						backgroundColor: selected == day.format('DD.MM.YYYY') ? 'var(--dark-blue)' : 'transparent',
 						color: selected == day.format('DD.MM.YYYY') ? '#fff' : 'inherit',
-						transition: 'background .3s ease-in-out',
+						transition: 'background-color .4s ease-in-out',
 						':hover': {
 							backgroundColor:
-								selected == day.format('DD.MM.YYYY') ? 'var(--dark-blue)' : 'var(--blue-border)',
+								picker == 'day'
+									? selected == day.format('DD.MM.YYYY')
+										? 'var(--dark-blue)'
+										: 'var(--blue-border)'
+									: 'transparent',
 						},
 					}}
 				>
@@ -58,11 +65,13 @@ export const Week: FC<Props> = ({ startWeek, selected, currentMonth, picker }) =
 			direction={'row'}
 			sx={{
 				borderRadius: '10px',
-				transition: 'background .3s ease-in-out',
-				// ':hover': {
-				// 	// backgroundColor: selected == day.format('DD.MM.YYYY') ? 'var(--dark-blue)' : 'var(--blue-border)',
-				// 	backgroundColor: 'var(--blue-border)',
-				// },
+				transition: 'background-color .4s ease-in-out',
+				backgroundColor: isSelected ? 'var(--dark-blue)' : 'transparent',
+				color: isSelected ? '#fff' : 'inherit',
+				':hover': {
+					backgroundColor:
+						picker == 'week' ? (isSelected ? 'var(--dark-blue)' : 'var(--blue-border)') : 'transparent',
+				},
 			}}
 		>
 			{renderWeek()}
