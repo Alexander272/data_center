@@ -24,11 +24,11 @@ type Services struct {
 
 type Deps struct {
 	Repos           *repo.Repo
-	TokenManager    auth.TokenManager
 	Keycloak        *auth.KeycloakClient
 	Hasher          hasher.PasswordHasher
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
+	// TokenManager    auth.TokenManager
 }
 
 func NewServices(deps Deps) *Services {
@@ -36,7 +36,7 @@ func NewServices(deps Deps) *Services {
 	role := NewRoleService(deps.Repos.Role)
 	user := NewUserService(deps.Repos.User)
 
-	session := NewSessionService(deps.Repos.Session, menu, deps.Keycloak, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL)
+	session := NewSessionService(deps.Repos.Session, menu, deps.Keycloak, deps.AccessTokenTTL, deps.RefreshTokenTTL)
 
 	ordersVolume := NewOrdersVolumeService(deps.Repos.OrdersVolume)
 	shipmentPlan := NewShipmentPlanService(deps.Repos.ShipmentPlan)

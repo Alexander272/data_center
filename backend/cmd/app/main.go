@@ -59,10 +59,10 @@ func main() {
 		logger.Fatalf("failed to initialize redis %s", err.Error())
 	}
 
-	tokenManager, err := auth.NewManager(conf.Auth.Key)
-	if err != nil {
-		logger.Fatalf("failed to initialize token manager: %s", err.Error())
-	}
+	// tokenManager, err := auth.NewManager(conf.Auth.Key)
+	// if err != nil {
+	// 	logger.Fatalf("failed to initialize token manager: %s", err.Error())
+	// }
 
 	hasher := hasher.NewSHA256Hasher(10)
 
@@ -80,13 +80,20 @@ func main() {
 	// e,err := casbin.NewSyncedEnforcer("configs/privacy.conf", adapter.NewAdapterFromOptions(opts))
 	// e.StartAutoLoadPolicy()
 
-	keycloak := auth.NewKeycloakClient(conf.Keycloak.Url, conf.Keycloak.ClientId, conf.Keycloak.ClientSecret, conf.Keycloak.Realm)
+	keycloak := auth.NewKeycloakClient(
+		conf.Keycloak.Url,
+		conf.Keycloak.ClientId,
+		//conf.Keycloak.ClientSecret,
+		conf.Keycloak.Realm,
+		conf.Keycloak.Root,
+		conf.Keycloak.RootPass,
+	)
 
 	//* Services, Repos & API Handlers
 	repos := repo.NewRepo(db, redis)
 	services := services.NewServices(services.Deps{
-		Repos:           repos,
-		TokenManager:    tokenManager,
+		Repos: repos,
+		// TokenManager:    tokenManager,
 		Keycloak:        keycloak,
 		Hasher:          hasher,
 		AccessTokenTTL:  conf.Auth.AccessTokenTTL,

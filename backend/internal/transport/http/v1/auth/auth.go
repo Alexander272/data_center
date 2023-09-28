@@ -9,26 +9,28 @@ import (
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/api"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthHandlers struct {
-	// TODO добавить бота для отправки ошибок
 	service    services.Session
 	auth       config.AuthConfig
+	botApi     api.MostBotApi
 	cookieName string
 }
 
-func NewAuthHandlers(service services.Session, auth config.AuthConfig, cookieName string) *AuthHandlers {
+func NewAuthHandlers(service services.Session, auth config.AuthConfig, botApi api.MostBotApi, cookieName string) *AuthHandlers {
 	return &AuthHandlers{
 		service:    service,
 		auth:       auth,
+		botApi:     botApi,
 		cookieName: cookieName,
 	}
 }
 
-func Register(api *gin.RouterGroup, service services.Session, auth config.AuthConfig, cookieName string) {
-	handlers := NewAuthHandlers(service, auth, cookieName)
+func Register(api *gin.RouterGroup, service services.Session, auth config.AuthConfig, botApi api.MostBotApi, cookieName string) {
+	handlers := NewAuthHandlers(service, auth, botApi, cookieName)
 
 	authRoute := api.Group("/auth")
 	{
@@ -52,6 +54,7 @@ func (h *AuthHandlers) signIn(c *gin.Context) {
 			return
 		}
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), req)
 		return
 	}
 
@@ -77,6 +80,7 @@ func (h *AuthHandlers) signOut(c *gin.Context) {
 
 	if err := h.service.SingOut(c, token); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), nil)
 		return
 	}
 
@@ -112,6 +116,7 @@ func (h *AuthHandlers) refresh(c *gin.Context) {
 			return
 		}
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), nil)
 		return
 	}
 

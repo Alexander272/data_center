@@ -6,22 +6,24 @@ import (
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/api"
 	"github.com/gin-gonic/gin"
 )
 
 type CriterionsHandlers struct {
 	service services.CompleteCriterion
-	// TODO добавить бота для отправки ошибок
+	botApi  api.MostBotApi
 }
 
-func NewCriterionsHandlers(service services.CompleteCriterion) *CriterionsHandlers {
+func NewCriterionsHandlers(service services.CompleteCriterion, botApi api.MostBotApi) *CriterionsHandlers {
 	return &CriterionsHandlers{
 		service: service,
+		botApi:  botApi,
 	}
 }
 
-func Register(api *gin.RouterGroup, service services.CompleteCriterion) {
-	handlers := NewCriterionsHandlers(service)
+func Register(api *gin.RouterGroup, service services.CompleteCriterion, botApi api.MostBotApi) {
+	handlers := NewCriterionsHandlers(service, botApi)
 
 	complete := api.Group("/complete")
 	{
@@ -60,6 +62,7 @@ func (h *CriterionsHandlers) get(c *gin.Context) {
 	complete, err := h.service.Get(c, dto)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), dto)
 		return
 	}
 
@@ -90,6 +93,7 @@ func (h *CriterionsHandlers) complete(c *gin.Context) {
 
 	if err := h.service.Create(c, dto); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), dto)
 		return
 	}
 	c.JSON(http.StatusCreated, response.IdResponse{Message: "Критерий заполнен"})

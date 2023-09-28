@@ -15,20 +15,19 @@ type SessionService struct {
 	repo            repo.Session
 	menu            Menu
 	keycloak        *auth.KeycloakClient
-	tokenManager    auth.TokenManager
 	accessTokenTTL  time.Duration
 	refreshTokenTTL time.Duration
+	// tokenManager    auth.TokenManager
 }
 
-func NewSessionService(repo repo.Session, menu Menu, keycloak *auth.KeycloakClient, manager auth.TokenManager, accessTTL, refreshTTL time.Duration,
-) *SessionService {
+func NewSessionService(repo repo.Session, menu Menu, keycloak *auth.KeycloakClient, accessTTL, refreshTTL time.Duration) *SessionService {
 	return &SessionService{
 		repo:            repo,
 		menu:            menu,
 		keycloak:        keycloak,
-		tokenManager:    manager,
 		accessTokenTTL:  accessTTL,
 		refreshTokenTTL: refreshTTL,
+		// tokenManager:    manager,
 	}
 }
 

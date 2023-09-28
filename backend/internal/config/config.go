@@ -16,6 +16,7 @@ type (
 		Keycloak    KeycloakConfig
 		Http        HttpConfig
 		Limiter     LimiterConfig
+		Bot         BotConfig
 	}
 
 	HttpConfig struct {
@@ -57,14 +58,18 @@ type (
 		ClientId     string `env:"KEYCLOAK_CLIENT_ID"`
 		ClientSecret string `env:"KEYCLOAK_CLIENT_SECRET"`
 		Realm        string `yaml:"keycloak_realm" env:"KEYCLOAK_REALM"`
-		// Username     string `env:"KEYCLOAK_USERNAME"`
-		// Password     string `env:"KEYCLOAK_PASSWORD"`
+		Root         string `env:"KEYCLOAK_ROOT"`
+		RootPass     string `env:"KEYCLOAK_ROOT_PASS"`
 	}
 
 	LimiterConfig struct {
 		RPS   int           `yaml:"rps" env:"RPS" env-default:"10"`
 		Burst int           `yaml:"burst" env:"BURST" env-default:"20"`
 		TTL   time.Duration `yaml:"ttl" env:"TTL" env-default:"10m"`
+	}
+
+	BotConfig struct {
+		Url string `yaml:"bot_url" env:"BOT_URL"`
 	}
 )
 

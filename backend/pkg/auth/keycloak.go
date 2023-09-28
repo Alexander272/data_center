@@ -1,6 +1,11 @@
 package auth
 
-import "github.com/Nerzal/gocloak/v13"
+import (
+	"context"
+
+	"github.com/Alexander272/data_center/backend/pkg/logger"
+	"github.com/Nerzal/gocloak/v13"
+)
 
 type KeycloakClient struct {
 	Client       *gocloak.GoCloak // keycloak client
@@ -9,24 +14,28 @@ type KeycloakClient struct {
 	Realm        string           // realm specified in Keycloak
 }
 
-func NewKeycloakClient(url, clientId, clientSecret, realm string) *KeycloakClient {
+func NewKeycloakClient(url, clientId, realm string, adminName, adminPass string) *KeycloakClient {
 	client := gocloak.NewClient(url)
 
-	// token, err := client.LoginAdmin(context.Background(), login, password, realm)
-	// if err != nil {
-	// 	logger.Fatalf("failed to login admin to keycloak. error: %s", err.Error())
-	// }
+	ctx := context.Background()
 
-	// secret, err := client.GetClientSecret(context.Background(), token.AccessToken, realm, clientId)
-	// if err != nil {
-	// 	logger.Fatalf("failed to get secret to keycloak. error: %s", err.Error())
-	// }
-	// logger.Debug(secret)
+	token, err := client.LoginAdmin(ctx, adminName, adminPass, realm)
+	if err != nil {
+		logger.Fatalf("failed to login admin to keycloak. error: %s", err.Error())
+	}
+
+	clients, err := client.GetClients(ctx, token.AccessToken, realm, gocloak.GetClientsParams{ClientID: &clientId})
+	if err != nil {
+		logger.Fatalf("failed to get clients to keycloak. error: %s", err.Error())
+	}
+	//logger.Debug(clients)
+
+	secret := *clients[0].Secret
 
 	return &KeycloakClient{
 		Client:       client,
 		ClientId:     clientId,
-		ClientSecret: clientSecret,
+		ClientSecret: secret,
 		Realm:        realm,
 	}
 }

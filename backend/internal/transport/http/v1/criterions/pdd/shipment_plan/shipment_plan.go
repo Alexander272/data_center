@@ -7,22 +7,24 @@ import (
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/api"
 	"github.com/gin-gonic/gin"
 )
 
 type ShipmentPlanHandlers struct {
 	service services.ShipmentPlan
-	// TODO добавить бота для отправки ошибок
+	botApi  api.MostBotApi
 }
 
-func NewShipmentPlanHandlers(service services.ShipmentPlan) *ShipmentPlanHandlers {
+func NewShipmentPlanHandlers(service services.ShipmentPlan, botApi api.MostBotApi) *ShipmentPlanHandlers {
 	return &ShipmentPlanHandlers{
 		service: service,
+		botApi:  botApi,
 	}
 }
 
-func Register(api *gin.RouterGroup, service services.ShipmentPlan) {
-	handlers := NewShipmentPlanHandlers(service)
+func Register(api *gin.RouterGroup, service services.ShipmentPlan, botApi api.MostBotApi) {
+	handlers := NewShipmentPlanHandlers(service, botApi)
 
 	shipment := api.Group("/shipment-plan")
 	{
@@ -51,6 +53,7 @@ func (h *ShipmentPlanHandlers) getByDay(c *gin.Context) {
 	plan, err := h.service.GetByPeriod(c, period)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), period)
 		return
 	}
 	c.JSON(http.StatusOK, response.DataResponse{Data: plan})
@@ -65,6 +68,7 @@ func (h *ShipmentPlanHandlers) create(c *gin.Context) {
 
 	if err := h.service.Create(c, dto); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), dto)
 		return
 	}
 	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные об отгрузке успешно добавлены"})
@@ -79,6 +83,7 @@ func (h *ShipmentPlanHandlers) createSeveral(c *gin.Context) {
 
 	if err := h.service.CreateSeveral(c, dto); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), dto)
 		return
 	}
 	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные об отгрузке успешно добавлены"})
@@ -93,6 +98,7 @@ func (h *ShipmentPlanHandlers) update(c *gin.Context) {
 
 	if err := h.service.UpdateSeveral(c, dto); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), dto)
 		return
 	}
 	c.JSON(http.StatusOK, response.IdResponse{Message: "Данные об отгрузке успешно обновлены"})
@@ -107,6 +113,7 @@ func (h *ShipmentPlanHandlers) delete(c *gin.Context) {
 
 	if err := h.service.DeleteByDay(c, day); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), day)
 		return
 	}
 	c.JSON(http.StatusOK, response.IdResponse{})

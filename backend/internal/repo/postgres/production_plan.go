@@ -70,7 +70,7 @@ func (r *ProductionPlanRepo) GetByPeriod(ctx context.Context, period models.Peri
 }
 
 func (r *ProductionPlanRepo) CreateSeveral(ctx context.Context, plan []models.ProductionPlan) error {
-	query := fmt.Sprintf(`INSERT INTO %s(id, date, type, product, money) VALUES `, ProductionPlanTable)
+	query := fmt.Sprintf(`INSERT INTO %s(id, date, type, product, money, quantity) VALUES `, ProductionPlanTable)
 
 	args := make([]interface{}, 0)
 	values := make([]string, 0, len(plan))
@@ -80,11 +80,11 @@ func (r *ProductionPlanRepo) CreateSeveral(ctx context.Context, plan []models.Pr
 		return fmt.Errorf("failed to parse date. error: %w", err)
 	}
 
-	c := 5
+	c := 6
 	for i, f := range plan {
 		id := uuid.New()
-		values = append(values, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d)", i*c+1, i*c+2, i*c+3, i*c+4, i*c+5))
-		args = append(args, id, fmt.Sprintf("%d", date.Unix()), f.Type, f.Product, f.Money)
+		values = append(values, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d)", i*c+1, i*c+2, i*c+3, i*c+4, i*c+5, i*c+6))
+		args = append(args, id, fmt.Sprintf("%d", date.Unix()), f.Type, f.Product, f.Money, f.Quantity)
 	}
 	query += strings.Join(values, ", ")
 
