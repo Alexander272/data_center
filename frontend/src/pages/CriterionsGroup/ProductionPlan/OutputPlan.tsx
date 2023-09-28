@@ -9,6 +9,8 @@ import {
 	useUpdateProductionPlanMutation,
 } from '@/store/api/productionPlan'
 import type { IProductionPlan, IProductionPlanDTO } from '@/types/productionPlan'
+import type { IResError } from '@/types/err'
+import { IToast, Toast } from '@/components/Toast/Toast'
 
 const emptyData: IProductionPlan[] = [
 	{ id: '1', product: 'СНП', quantity: null, money: null },
@@ -22,6 +24,8 @@ const emptyData: IProductionPlan[] = [
 
 export default function OutputPlan() {
 	const date = useAppSelector(state => state.criterions.date)
+
+	const [toast, setToast] = useState<IToast>({ type: 'success', message: '', open: false })
 
 	const [table, setTable] = useState<IProductionPlan[]>(emptyData)
 
@@ -62,7 +66,13 @@ export default function OutputPlan() {
 				for (let i = 0; i < temp.length; i++) {
 					const d = plan.data.find(s => s.product == temp[i].product)
 					if (!d) return temp
-					temp[i] = { ...temp[i], id: d.id, product: d.product, money: +(d.money || '0') }
+					temp[i] = {
+						...temp[i],
+						id: d.id,
+						product: d.product,
+						quantity: +(d.quantity || 0),
+						money: +(d.money || '0'),
+					}
 				}
 				return temp
 			})
@@ -70,6 +80,10 @@ export default function OutputPlan() {
 			setTable(emptyData)
 		}
 	}, [plan])
+
+	const closeHandler = () => {
+		setToast({ type: 'success', message: '', open: false })
+	}
 
 	const tableHandler = (data: IProductionPlan[]) => {
 		setTable(data)
@@ -81,8 +95,7 @@ export default function OutputPlan() {
 
 	const saveHandler = async () => {
 		if (table.some(t => t.money == null || t.quantity == null)) {
-			console.log('empty')
-			// TODO выводить ошибку
+			setToast({ type: 'error', message: 'Пустые поля недопустимы. Проверьте заполнение полей', open: true })
 			return
 		}
 
@@ -94,6 +107,7 @@ export default function OutputPlan() {
 				type: 'output',
 				date: date,
 				product: e.product || '',
+				quantity: e.quantity || 0,
 				money: e.money?.toString() || '',
 			})
 		}
@@ -102,18 +116,20 @@ export default function OutputPlan() {
 			if (!plan?.data) {
 				await savePlan(newPlan).unwrap()
 				dispatch(setComplete())
+				setToast({ type: 'success', message: 'Данные сохранены', open: true })
 				// dispatch(setComplete(active))
 			} else {
 				await updatePlan(newPlan).unwrap()
 			}
 		} catch (error) {
-			//TODO выводить ошибку
-			console.error('rejected', error)
+			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: false })
 		}
 	}
 
 	return (
 		<>
+			<Toast data={toast} onClose={closeHandler} />
+
 			<Typography variant='h5' textAlign='center'>
 				План выпуска на день, руб
 			</Typography>

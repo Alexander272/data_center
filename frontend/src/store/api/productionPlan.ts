@@ -12,7 +12,7 @@ export const loadApi = api.injectEndpoints({
 				params: new URLSearchParams([['type', type]]),
 			}),
 			// TODO возможно стоит добавить тип к id
-			providesTags: [{ type: 'Api', id: `production-load` }],
+			providesTags: [{ type: 'Api', id: `production-plan` }],
 		}),
 
 		// сохранение данных о плане

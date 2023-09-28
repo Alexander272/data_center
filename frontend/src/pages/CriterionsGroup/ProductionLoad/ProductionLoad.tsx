@@ -9,6 +9,8 @@ import {
 } from '@/store/api/productionLoad'
 import { setComplete } from '@/store/criterions'
 import type { IProductionLoad, IProductionLoadDTO } from '@/types/productionLoad'
+import type { IResError } from '@/types/err'
+import { IToast, Toast } from '@/components/Toast/Toast'
 
 const emptyData: IProductionLoad[] = [
 	{ id: '', sector: 'СНП', days: null, quantity: null },
@@ -21,6 +23,8 @@ const emptyData: IProductionLoad[] = [
 export default function ProductionLoad() {
 	// const active = useAppSelector(state => state.criterions.active)
 	const date = useAppSelector(state => state.criterions.date)
+
+	const [toast, setToast] = useState<IToast>({ type: 'success', message: '', open: false })
 
 	const [table, setTable] = useState<IProductionLoad[]>(emptyData)
 
@@ -52,6 +56,10 @@ export default function ProductionLoad() {
 		}
 	}, [load])
 
+	const closeHandler = () => {
+		setToast({ type: 'success', message: '', open: false })
+	}
+
 	const tableHandler = (data: IProductionLoad[]) => {
 		setTable(data)
 	}
@@ -62,8 +70,7 @@ export default function ProductionLoad() {
 
 	const saveHandler = async () => {
 		if (table.some(t => t.days == null)) {
-			console.log('empty')
-			// TODO выводить ошибку
+			setToast({ type: 'error', message: 'Пустые поля недопустимы. Проверьте заполнение полей', open: true })
 			return
 		}
 
@@ -83,18 +90,20 @@ export default function ProductionLoad() {
 			if (!load?.data) {
 				await saveLoad(newLoad).unwrap()
 				dispatch(setComplete())
+				setToast({ type: 'success', message: 'Данные сохранены', open: true })
 				// dispatch(setComplete(active))
 			} else {
 				await updateLoad(newLoad).unwrap()
 			}
 		} catch (error) {
-			//TODO выводить ошибку
-			console.error('rejected', error)
+			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: false })
 		}
 	}
 
 	return (
 		<>
+			<Toast data={toast} onClose={closeHandler} />
+
 			<Typography variant='h5' textAlign='center'>
 				Загруженность производства по участкам
 			</Typography>

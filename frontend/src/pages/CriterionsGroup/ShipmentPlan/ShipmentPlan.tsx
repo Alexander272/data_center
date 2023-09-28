@@ -9,6 +9,8 @@ import {
 	useUpdateShipmentPlanMutation,
 } from '@/store/api/shipmentPlan'
 import type { IShipmentPlan, IShipmentPlanDTO } from '@/types/shipment'
+import type { IResError } from '@/types/err'
+import { IToast, Toast } from '@/components/Toast/Toast'
 
 const emptyData = [
 	{ id: '1', product: 'СНП', count: null, money: null },
@@ -23,6 +25,8 @@ const emptyData = [
 export default function ShipmentPlan() {
 	// const active = useAppSelector(state => state.criterions.active)
 	const date = useAppSelector(state => state.criterions.date)
+
+	const [toast, setToast] = useState<IToast>({ type: 'success', message: '', open: false })
 
 	const [table, setTable] = useState<IShipmentPlan[]>(emptyData)
 
@@ -69,6 +73,10 @@ export default function ShipmentPlan() {
 		}
 	}, [shipment])
 
+	const closeHandler = () => {
+		setToast({ type: 'success', message: '', open: false })
+	}
+
 	const tableHandler = (data: IShipmentPlan[]) => {
 		setTable(data)
 	}
@@ -79,8 +87,7 @@ export default function ShipmentPlan() {
 
 	const saveHandler = async () => {
 		if (table.some(t => t.count == null || t.money == null)) {
-			console.log('empty')
-			// TODO выводить ошибку
+			setToast({ type: 'error', message: 'Пустые поля недопустимы. Проверьте заполнение полей', open: true })
 			return
 		}
 
@@ -101,17 +108,19 @@ export default function ShipmentPlan() {
 				await saveShipment(newShipment).unwrap()
 				// dispatch(setComplete(active))
 				dispatch(setComplete())
+				setToast({ type: 'success', message: 'Данные сохранены', open: true })
 			} else {
 				await updateShipment(newShipment).unwrap()
 			}
 		} catch (error) {
-			//TODO выводить ошибку
-			console.error('rejected', error)
+			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: false })
 		}
 	}
 
 	return (
 		<>
+			<Toast data={toast} onClose={closeHandler} />
+
 			<Typography variant='h5' textAlign='center'>
 				Выполнение плана отгрузок
 			</Typography>

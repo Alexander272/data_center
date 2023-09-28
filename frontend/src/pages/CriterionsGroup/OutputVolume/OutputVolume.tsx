@@ -9,6 +9,8 @@ import {
 	useUpdateOutputVolumeMutation,
 } from '@/store/api/outputVolume'
 import type { IOutputVolume, IOutputVolumeDTO } from '@/types/outputVolume'
+import type { IResError } from '@/types/err'
+import { IToast, Toast } from '@/components/Toast/Toast'
 
 const emptyData: IOutputVolume[] = [
 	{ id: '1', product: 'СНП', count: null, money: null },
@@ -24,12 +26,7 @@ export default function OutputVolume() {
 	// const active = useAppSelector(state => state.criterions.active)
 	const date = useAppSelector(state => state.criterions.date)
 
-	/*
-
-	загрузка (срок выполнения по видам продукции). тип продукции + кол-во дней
-
-	план отдельный критерий. сумма на день (или на месяц)
-	*/
+	const [toast, setToast] = useState<IToast>({ type: 'success', message: '', open: false })
 
 	const [stockTable, setStockTable] = useState<IOutputVolume[]>(emptyData)
 	const [orderTable, setOrderTable] = useState<IOutputVolume[]>(emptyData)
@@ -95,6 +92,10 @@ export default function OutputVolume() {
 		}
 	}, [output])
 
+	const closeHandler = () => {
+		setToast({ type: 'success', message: '', open: false })
+	}
+
 	const stockTableHandler = (data: IOutputVolume[]) => {
 		setStockTable(data)
 	}
@@ -108,13 +109,11 @@ export default function OutputVolume() {
 
 	const saveHandler = async () => {
 		if (stockTable.some(t => t.count == null)) {
-			console.log('empty')
-			// TODO выводить ошибку
+			setToast({ type: 'error', message: 'Пустые поля недопустимы. Проверьте заполнение полей', open: true })
 			return
 		}
 		if (orderTable.some(t => t.count == null || t.money == null)) {
-			console.log('empty')
-			// TODO выводить ошибку
+			setToast({ type: 'error', message: 'Пустые поля недопустимы. Проверьте заполнение полей', open: true })
 			return
 		}
 
@@ -146,18 +145,20 @@ export default function OutputVolume() {
 			if (!output?.data) {
 				await saveOutput(newOutput).unwrap()
 				dispatch(setComplete())
+				setToast({ type: 'success', message: 'Данные сохранены', open: true })
 				// dispatch(setComplete(active))
 			} else {
 				await updateOutput(newOutput).unwrap()
 			}
 		} catch (error) {
-			//TODO выводить ошибку
-			console.error('rejected', error)
+			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: false })
 		}
 	}
 
 	return (
 		<>
+			<Toast data={toast} onClose={closeHandler} />
+
 			<Typography variant='h5' textAlign='center'>
 				Ежедневный объем выпуска продукции (на склад)
 			</Typography>

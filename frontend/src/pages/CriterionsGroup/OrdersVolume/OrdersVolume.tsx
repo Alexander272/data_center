@@ -9,12 +9,16 @@ import {
 	useUpdateOrdersVolumeMutation,
 } from '@/store/api/ordersVolume'
 import type { IOrdersVolume, IOrdersVolumeDTO } from '@/types/orderVolume'
+import type { IResError } from '@/types/err'
+import { IToast, Toast } from '@/components/Toast/Toast'
 
 const emptyData = [{ id: '1', numberOfOrders: null, sumMoney: null, quantity: null }]
 
 export default function OrdersVolume() {
 	// const active = useAppSelector(state => state.criterions.active)
 	const date = useAppSelector(state => state.criterions.date)
+
+	const [toast, setToast] = useState<IToast>({ type: 'success', message: '', open: false })
 
 	const [table, setTable] = useState<IOrdersVolume[]>(emptyData)
 
@@ -64,6 +68,10 @@ export default function OrdersVolume() {
 		}
 	}, [orders])
 
+	const closeHandler = () => {
+		setToast({ type: 'success', message: '', open: false })
+	}
+
 	const tableHandler = (data: IOrdersVolume[]) => {
 		setTable(data)
 	}
@@ -82,7 +90,7 @@ export default function OrdersVolume() {
 		}
 
 		if (table[0].numberOfOrders == null || table[0].sumMoney == null || table[0].quantity == null) {
-			// TODO выводить ошибку
+			setToast({ type: 'error', message: 'Пустые поля недопустимы. Проверьте заполнение полей', open: true })
 			return
 		}
 
@@ -90,18 +98,20 @@ export default function OrdersVolume() {
 			if (!orders?.data) {
 				await saveOrders(order).unwrap()
 				dispatch(setComplete())
+				setToast({ type: 'success', message: 'Данные сохранены', open: true })
 				// dispatch(setComplete(active))
 			} else {
 				await updateOrders(order).unwrap()
 			}
 		} catch (error) {
-			// TODO выводить ошибку
-			console.error('rejected', error)
+			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: false })
 		}
 	}
 
 	return (
 		<>
+			<Toast data={toast} onClose={closeHandler} />
+
 			<Typography variant='h5' textAlign='center'>
 				Ежедневный объем заказов переданных в производство
 			</Typography>

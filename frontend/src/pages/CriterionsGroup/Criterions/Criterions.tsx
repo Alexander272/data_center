@@ -31,6 +31,7 @@ export default function Home() {
 	const dispatch = useAppDispatch()
 	const navigate = useNavigate()
 
+	//TODO обработать ошибки
 	const { data } = useGetCriterionsQuery(date, { skip: !date })
 
 	const [completeCriterion, { isLoading }] = useCompleteCriterionMutation()

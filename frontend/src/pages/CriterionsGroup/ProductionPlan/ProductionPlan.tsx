@@ -9,6 +9,8 @@ import {
 	useUpdateProductionPlanMutation,
 } from '@/store/api/productionPlan'
 import type { IProductionPlan, IProductionPlanDTO } from '@/types/productionPlan'
+import type { IResError } from '@/types/err'
+import { IToast, Toast } from '@/components/Toast/Toast'
 
 const emptyData: IProductionPlan[] = [
 	{ id: '1', product: 'СНП', quantity: null, money: null },
@@ -23,6 +25,8 @@ const emptyData: IProductionPlan[] = [
 export default function ProductionPlan() {
 	// const active = useAppSelector(state => state.criterions.active)
 	const date = useAppSelector(state => state.criterions.date)
+
+	const [toast, setToast] = useState<IToast>({ type: 'success', message: '', open: false })
 
 	const [table, setTable] = useState<IProductionPlan[]>(emptyData)
 
@@ -64,6 +68,10 @@ export default function ProductionPlan() {
 		}
 	}, [plan])
 
+	const closeHandler = () => {
+		setToast({ type: 'success', message: '', open: false })
+	}
+
 	const tableHandler = (data: IProductionPlan[]) => {
 		setTable(data)
 	}
@@ -74,8 +82,7 @@ export default function ProductionPlan() {
 
 	const saveHandler = async () => {
 		if (table.some(t => t.money == null)) {
-			console.log('empty')
-			// TODO выводить ошибку
+			setToast({ type: 'error', message: 'Пустые поля недопустимы. Проверьте заполнение полей', open: true })
 			return
 		}
 
@@ -95,18 +102,20 @@ export default function ProductionPlan() {
 			if (!plan?.data) {
 				await savePlan(newPlan).unwrap()
 				dispatch(setComplete())
+				setToast({ type: 'success', message: 'Данные сохранены', open: true })
 				// dispatch(setComplete(active))
 			} else {
 				await updatePlan(newPlan).unwrap()
 			}
 		} catch (error) {
-			//TODO выводить ошибку
-			console.error('rejected', error)
+			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: false })
 		}
 	}
 
 	return (
 		<>
+			<Toast data={toast} onClose={closeHandler} />
+
 			<Typography variant='h5' textAlign='center'>
 				Годовой план отгрузки на день, руб
 			</Typography>
