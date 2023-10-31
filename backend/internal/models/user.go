@@ -1,12 +1,14 @@
 package models
 
 type User struct {
-	Id       string `json:"id" db:"id"`
-	UserName string `json:"userName" db:"user_name"`
-	Sector   string `json:"sector"`
-	Role     string `json:"role" db:"role"`
-	MenuApi  []Menu `json:"-"`
-	Menu     []Menu `json:"menu"`
+	Id           string `json:"id" db:"id"`
+	UserName     string `json:"userName" db:"user_name"`
+	Sector       string `json:"sector,omitempty"`
+	Role         string `json:"role" db:"role"`
+	MenuApi      []Menu `json:"-"`
+	Menu         []Menu `json:"menu"`
+	AccessToken  string `json:"token,omitempty"`
+	RefreshToken string `json:"-"`
 }
 
 type UserShort struct {

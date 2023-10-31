@@ -9,39 +9,47 @@ import (
 )
 
 func (m *Middleware) VerifyToken(c *gin.Context) {
-	tokenInHeader := c.GetHeader("Authorization")
-	tokenInCookie, _ := c.Cookie(m.CookieName)
+	// tokenInHeader := c.GetHeader("Authorization")
+	// tokenInCookie, _ := c.Cookie(m.CookieName)
 
-	if tokenInHeader == "" && tokenInCookie == "" {
-		response.NewErrorResponse(c, http.StatusUnauthorized, "empty token", "сессия не найдена")
-		return
-	}
+	// if tokenInHeader == "" && tokenInCookie == "" {
+	// 	response.NewErrorResponse(c, http.StatusUnauthorized, "empty token", "сессия не найдена")
+	// 	return
+	// }
 
-	token := tokenInCookie
-	if tokenInHeader != "" {
-		token = strings.Replace(tokenInHeader, "Bearer ", "", 1)
-	}
+	// token := tokenInCookie
+	// if tokenInHeader != "" {
+	// 	token = strings.Replace(tokenInHeader, "Bearer ", "", 1)
+	// }
+
+	token := strings.Replace(c.GetHeader("Authorization"), "Bearer ", "", 1)
 
 	result, err := m.Keycloak.Client.RetrospectToken(c, token, m.Keycloak.ClientId, m.Keycloak.ClientSecret, m.Keycloak.Realm)
 	if err != nil {
+		//TODO переписать хост на домен
 		c.SetCookie(m.CookieName, "", -1, "/", c.Request.Host, m.auth.Secure, true)
 		response.NewErrorResponse(c, http.StatusUnauthorized, err.Error(), "сессия не найдена")
 		return
 	}
 
+	//? При одновременных запросах с просроченным токеном, оба запроса обновляют токен, а сохраняется один => при следующий запросах пользователя выкинет из системы
+
+	// result.Jti
 	// logger.Debug("result ", result)
 
 	if !*result.Active {
+		response.NewErrorResponse(c, http.StatusUnauthorized, "token is not active", "время сессии истекло, повторите вход")
+		return
+
 		// если он протух надо пробовать его обновлять
+		// _, token, err = m.services.Session.Refresh(c, token)
+		// if err != nil {
+		// 	c.SetCookie(m.CookieName, "", -1, "/", c.Request.Host, m.auth.Secure, true)
+		// 	response.NewErrorResponse(c, http.StatusUnauthorized, err.Error(), "не удалось обновить сессию")
+		// 	return
+		// }
 
-		_, token, err = m.services.Session.Refresh(c, token)
-		if err != nil {
-			c.SetCookie(m.CookieName, "", -1, "/", c.Request.Host, m.auth.Secure, true)
-			response.NewErrorResponse(c, http.StatusUnauthorized, err.Error(), "не удалось обновить сессию")
-			return
-		}
-
-		c.SetCookie(m.CookieName, token, int(m.auth.RefreshTokenTTL.Seconds()), "/", m.auth.Domain, m.auth.Secure, true)
+		// c.SetCookie(m.CookieName, token, int(m.auth.RefreshTokenTTL.Seconds()), "/", m.auth.Domain, m.auth.Secure, true)
 
 		// response.NewErrorResponse(c, http.StatusUnauthorized, "Invalid or expired Token", "user in not authorized")
 		// return
@@ -57,7 +65,7 @@ func (m *Middleware) VerifyToken(c *gin.Context) {
 	}
 
 	// logger.Debug(user)
-	c.Set(m.CtxUser, user)
+	c.Set(m.CtxUser, *user)
 
 	// logger.Debug(" ")
 	// logger.Debug("jwt ", jwt)

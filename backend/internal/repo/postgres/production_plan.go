@@ -96,14 +96,14 @@ func (r *ProductionPlanRepo) CreateSeveral(ctx context.Context, plan []models.Pr
 }
 
 func (r *ProductionPlanRepo) DeleteByDate(ctx context.Context, date string, typePlan string) error {
-	query := fmt.Sprintf(`DELETE FROM %s WHERE date=$1`, ProductionPlanTable)
+	query := fmt.Sprintf(`DELETE FROM %s WHERE date=$1 AND type=$2`, ProductionPlanTable)
 
 	d, err := time.Parse("02.01.2006", date)
 	if err != nil {
 		return fmt.Errorf("failed to parse date. error: %w", err)
 	}
 
-	_, err = r.db.Exec(query, fmt.Sprintf("%d", d.Unix()))
+	_, err = r.db.Exec(query, fmt.Sprintf("%d", d.Unix()), typePlan)
 	if err != nil {
 		return fmt.Errorf("failed to execute query. error: %w", err)
 	}

@@ -36,7 +36,7 @@ func NewServices(deps Deps) *Services {
 	role := NewRoleService(deps.Repos.Role)
 	user := NewUserService(deps.Repos.User)
 
-	session := NewSessionService(deps.Repos.Session, menu, deps.Keycloak, deps.AccessTokenTTL, deps.RefreshTokenTTL)
+	session := NewSessionService(menu, deps.Keycloak)
 
 	ordersVolume := NewOrdersVolumeService(deps.Repos.OrdersVolume)
 	shipmentPlan := NewShipmentPlanService(deps.Repos.ShipmentPlan)

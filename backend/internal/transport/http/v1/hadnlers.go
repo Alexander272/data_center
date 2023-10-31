@@ -19,7 +19,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const CookieName = "data_center_session"
+const CookieName = "sealur_internal_session"
 
 type Handler struct {
 	services   *services.Services

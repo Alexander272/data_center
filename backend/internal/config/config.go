@@ -9,7 +9,7 @@ import (
 
 type (
 	Config struct {
-		Environment string `yaml:"environment" env-default:"dev"`
+		Environment string `yaml:"environment" env:"APP_ENV" env-default:"dev"`
 		Redis       RedisConfig
 		Postgres    PostgresConfig
 		Auth        AuthConfig
@@ -49,7 +49,7 @@ type (
 		LimitAuthTTL    time.Duration `yaml:"limit_auth_ttl"`
 		CountAttempt    int32         `yaml:"count_attempt"`
 		Secure          bool          `yaml:"secure"`
-		Domain          string        `yaml:"domain"`
+		Domain          string        `yaml:"domain" env-default:"sealur.ru"`
 		Key             string        `env:"JWT"`
 	}
 
