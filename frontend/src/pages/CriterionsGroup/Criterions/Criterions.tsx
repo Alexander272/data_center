@@ -122,6 +122,7 @@ export default function Home() {
 					display={'flex'}
 					flexDirection={'column'}
 					gap={'20px'}
+					boxShadow={'rgba(54, 54, 54, 0.17) 2px 2px 8px 0px'}
 					sx={{ backgroundColor: '#fff' }}
 				>
 					<Suspense fallback={<CircularProgress />}>

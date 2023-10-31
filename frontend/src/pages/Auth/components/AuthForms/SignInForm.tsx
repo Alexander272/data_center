@@ -3,9 +3,12 @@ import { Alert, Button, FormControl, LinearProgress, Snackbar } from '@mui/mater
 import { Input, FormContent, SignInForm, Title } from './forms.style'
 import { VisiblePassword } from '../VisiblePassword/VisiblePassword'
 import { ISignIn } from '@/types/user'
-import { signIn } from '@/services/auth'
+// import { signIn } from '@/services/auth'
 import { useAppDispatch } from '@/hooks/useStore'
 import { setUser } from '@/store/user'
+import { useSignInMutation } from '@/store/api/auth'
+import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query'
+import { IError } from '@/types/err'
 
 type Props = {
 	isOpen: boolean
@@ -16,14 +19,15 @@ export const SignIn: FC<Props> = ({ isOpen }) => {
 	const [username, setUsername] = useState('')
 	const [password, setPassword] = useState('')
 
-	const [loading, setLoading] = useState(false)
+	// const [loading, setLoading] = useState(false)
 	const [open, setOpen] = useState(false)
 	const [error, setError] = useState<string>('')
 
 	const dispatch = useAppDispatch()
 
-	const usernameHandler = (event: ChangeEvent<HTMLInputElement>) => setUsername(event.target.value)
+	const [signIn, { isLoading }] = useSignInMutation()
 
+	const usernameHandler = (event: ChangeEvent<HTMLInputElement>) => setUsername(event.target.value)
 	const passwordHandler = (event: ChangeEvent<HTMLInputElement>) => setPassword(event.target.value)
 
 	const submitHandler = (event: FormEvent<HTMLFormElement>) => {
@@ -35,16 +39,26 @@ export const SignIn: FC<Props> = ({ isOpen }) => {
 	}
 
 	const signInHandler = async () => {
-		setLoading(true)
+		// setLoading(true)
 		const value: ISignIn = { username, password }
 
-		const res = await signIn(value)
-		if (res.error) {
-			handleClick(res.error)
-		} else if (res.data) {
+		try {
+			const res = await signIn(value).unwrap()
 			dispatch(setUser(res.data))
+		} catch (error) {
+			const fetchError = error as FetchBaseQueryError
+			console.log(fetchError)
+			handleClick((fetchError.data as IError).message)
+			// setError(error.data.message)
 		}
-		setLoading(false)
+
+		// const res = await signIn(value)
+		// if (res.error) {
+		// 	handleClick(res.error)
+		// } else if (res.data) {
+		// 	dispatch(setUser(res.data))
+		// }
+		// setLoading(false)
 	}
 
 	const handleClick = (message: string) => {
@@ -73,7 +87,7 @@ export const SignIn: FC<Props> = ({ isOpen }) => {
 				</Alert>
 			</Snackbar>
 
-			{loading ? <LinearProgress sx={{ position: 'absolute', bottom: 1, left: 0, right: 0 }} /> : null}
+			{isLoading ? <LinearProgress sx={{ position: 'absolute', bottom: 1, left: 0, right: 0 }} /> : null}
 
 			<Title open={isOpen}>Вход</Title>
 
@@ -82,8 +96,8 @@ export const SignIn: FC<Props> = ({ isOpen }) => {
 					<Input
 						value={username}
 						onChange={usernameHandler}
-						name='username or email'
-						placeholder='Имя пользователя или Email'
+						name='username'
+						placeholder='Имя пользователя'
 						size='small'
 					/>
 				</FormControl>
@@ -107,7 +121,7 @@ export const SignIn: FC<Props> = ({ isOpen }) => {
 					type='submit'
 					variant='contained'
 					sx={{ borderRadius: '20px', fontSize: '1rem', fontWeight: 600, marginTop: 3 }}
-					disabled={loading}
+					disabled={isLoading}
 				>
 					Войти
 				</Button>

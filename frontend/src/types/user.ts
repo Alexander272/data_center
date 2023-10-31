@@ -6,9 +6,10 @@ export interface ISignIn {
 export interface IUser {
 	id: string
 	userName: string
-	sector: string
+	sector?: string
 	role: string
 	menu: IMenu[]
+	token: string
 }
 
 export interface IMenu {

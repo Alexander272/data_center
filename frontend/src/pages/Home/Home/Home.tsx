@@ -18,6 +18,7 @@ const Shipment = lazy(() => import('@/pages/Home/Shipment/Shipment'))
 const Output = lazy(() => import('@/pages/Home/Output/Output'))
 const Orders = lazy(() => import('@/pages/Home/Orders/Orders'))
 const Load = lazy(() => import('@/pages/Home/Load/Load'))
+// const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
 
 // const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
 // const Quality = lazy(() => import('@/pages/Home/components/Quality/Quality'))
@@ -32,6 +33,7 @@ const steps = [
 	{ id: '3', key: 'output', label: 'Объем выпуска продукции' },
 	{ id: '4', key: 'orders', label: 'Объем заказов переданных в производство' },
 	{ id: '5', key: 'load', label: 'Загруженность производства' },
+	// { id: '6', key: 'sqdc', label: 'SQDC' },
 ]
 
 const pickerType = {
@@ -165,7 +167,13 @@ export default function Home() {
 			<Stack direction={'row'} spacing={1} width={'100%'}>
 				<Stepper active={selected} data={steps} onSelect={stepHandler} width='300px' />
 
-				<Box padding={2} borderRadius={'16px'} sx={{ backgroundColor: '#fff' }} width={'100%'}>
+				<Box
+					padding={2}
+					borderRadius={'16px'}
+					width={'100%'}
+					boxShadow={'rgba(54, 54, 54, 0.17) 0px 0px 4px 0px'}
+					sx={{ backgroundColor: '#fff' }}
+				>
 					<Stack direction={'row'} mb={3}>
 						<Button onClick={prevHandler} sx={{ borderRadius: '12px', minWidth: 48 }}>
 							<ArrowBackIcon />
@@ -257,6 +265,7 @@ export default function Home() {
 						{selected == 'output' && <Output />}
 						{selected == 'orders' && <Orders />}
 						{selected == 'load' && <Load />}
+						{/* {selected == 'sqdc' && <SQDC />} */}
 					</Suspense>
 				</Box>
 			</Stack>

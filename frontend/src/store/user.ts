@@ -5,6 +5,7 @@ import type { IUser } from '@/types/user'
 export interface IUserState {
 	ready: boolean
 	loading: boolean
+	token: string
 	userId: string
 	isAuth: boolean
 	role: string
@@ -14,6 +15,7 @@ export interface IUserState {
 const initialState: IUserState = {
 	ready: false,
 	loading: false,
+	token: '',
 	userId: '',
 	isAuth: false,
 	role: 'user',
@@ -25,6 +27,7 @@ export const userSlice = createSlice({
 	reducers: {
 		// установка авторизации пользователя
 		setAuth: (state, action: PayloadAction<IUser>) => {
+			state.token = action.payload.token
 			state.userId = action.payload.id
 			state.role = action.payload.role
 			state.isAuth = true
@@ -32,18 +35,14 @@ export const userSlice = createSlice({
 		},
 		// установка данных о пользователе и авторизации
 		setUser: (state, action: PayloadAction<IUser>) => {
+			state.token = action.payload.token
 			state.userId = action.payload.id
 			state.role = action.payload.role
 			state.isAuth = true
 			state.user = action.payload
 		},
 		// сброс пользователя
-		clearUser: state => {
-			state.userId = ''
-			state.role = ''
-			state.isAuth = false
-			state.user = undefined
-		},
+		clearUser: () => initialState,
 	},
 })
 
