@@ -1,4 +1,4 @@
-export interface IShipmentPlan {
+export interface IShipment {
 	id: string | null
 	day?: string
 	product: string | null
@@ -6,7 +6,7 @@ export interface IShipmentPlan {
 	money: number | null
 }
 
-export interface IShipmentPlanDTO {
+export interface IShipmentDTO {
 	id: string
 	day: string
 	product: string
@@ -14,7 +14,7 @@ export interface IShipmentPlanDTO {
 	money: string
 }
 
-export interface IShipment {
+export interface IShipmentFull {
 	id: string
 	date: string
 	product: string

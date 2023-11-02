@@ -2,7 +2,7 @@ import { MouseEvent, Suspense, lazy, useRef, useState } from 'react'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ru'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
-import { Box, Button, ButtonGroup, CircularProgress, Menu, Stack, Typography } from '@mui/material'
+import { Box, Button, ButtonGroup, Menu, Stack, Typography } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNewOutlined'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForwardIosOutlined'
 import CalendarIcon from '@mui/icons-material/CalendarMonthOutlined'
@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { nextPeriod, prevPeriod, setPeriod, setPeriodType } from '@/store/dashboard'
 import type { PeriodEnum } from '@/types/period'
 import { Calendar } from '@/components/Calendar/Calendar'
+import { Fallback } from '@/components/Fallback/Fallback'
 import Stepper from '@/components/Stepper/Stepper'
 import { Container } from './home.style'
 
@@ -43,6 +44,14 @@ const pickerType = {
 	year: 'year' as const,
 	quarter: undefined,
 	period: undefined,
+}
+
+const components = {
+	production_plan: <ProductionPlan />,
+	shipment: <Shipment />,
+	output: <Output />,
+	orders: <Orders />,
+	load: <Load />,
 }
 
 export default function Home() {
@@ -247,24 +256,13 @@ export default function Home() {
 						/>
 					</Menu>
 
-					<Suspense
-						fallback={
-							<Box
-								width={'100%'}
-								display={'flex'}
-								height={'100%'}
-								justifyContent={'center'}
-								alignItems={'center'}
-							>
-								<CircularProgress />
-							</Box>
-						}
-					>
-						{selected == 'production_plan' && <ProductionPlan />}
+					<Suspense fallback={<Fallback />}>
+						{/* {selected == 'production_plan' && <ProductionPlan />}
 						{selected == 'shipment' && <Shipment />}
 						{selected == 'output' && <Output />}
 						{selected == 'orders' && <Orders />}
-						{selected == 'load' && <Load />}
+						{selected == 'load' && <Load />} */}
+						{components[selected as 'load']}
 						{/* {selected == 'sqdc' && <SQDC />} */}
 					</Suspense>
 				</Box>

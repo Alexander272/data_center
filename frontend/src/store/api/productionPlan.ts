@@ -2,7 +2,7 @@ import type { IProductionPlan, IProductionPlanDTO, PlanType } from '@/types/prod
 import type { IPeriod } from '@/types/period'
 import { api } from './base'
 
-export const loadApi = api.injectEndpoints({
+export const planApi = api.injectEndpoints({
 	endpoints: builder => ({
 		// получение данных о плане за период
 		getProductionPlanByPeriod: builder.query<{ data: IProductionPlan[] }, { period: IPeriod; type: PlanType }>({
@@ -39,4 +39,4 @@ export const loadApi = api.injectEndpoints({
 })
 
 export const { useGetProductionPlanByPeriodQuery, useSaveProductionPlanMutation, useUpdateProductionPlanMutation } =
-	loadApi
+	planApi

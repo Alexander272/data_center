@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Box, Stack, Typography } from '@mui/material'
 import type { ISeriesData } from '@/types/sheet'
-import type { IShipment } from '@/types/shipment'
+import type { IShipmentFull } from '@/types/shipment'
 import { Line } from '../components/LineChart/Line'
 
 type Props = {
-	data: IShipment[]
+	data: IShipmentFull[]
 }
 
 // const colors = ['#3d6cff', '#65bd3b', '#f9b61e', '#f74c4c', '#41caff', '#25b773', '#f96c32']

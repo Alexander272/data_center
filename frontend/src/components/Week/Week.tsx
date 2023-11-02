@@ -13,15 +13,6 @@ const DaysOfWeek = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
 export const Week = () => {
 	const curDate = dayjs()
 
-	// const d = new Date()
-
-	// const y = d.getFullYear()
-	// const m = d.getMonth()
-
-	// const day = d.getDate()
-	// const lastDate = m == 0 ? new Date(y - 1, 11, 0) : new Date(y, m, 0)
-	// const lastDay = m == 0 ? new Date(y - 1, 11, 0).getDate() : new Date(y, m, 0).getDate()
-
 	const date = useAppSelector(state => state.criterions.date)
 	const dispatch = useAppDispatch()
 
@@ -69,59 +60,10 @@ export const Week = () => {
 							{complete && <CheckIcon sx={{ fontSize: '18px' }} />}
 							{!complete && <HourglassIcon sx={{ fontSize: '18px', color: '#adadad' }} />}
 						</Box>
-
-						{/* <Typography fontSize={'inherit'} pl={1} sx={{ pointerEvents: 'none' }}>
-						{d.format('DD.MM')}
-					</Typography>
-					<Typography fontSize={'inherit'} pl={1} sx={{ pointerEvents: 'none' }}>
-						{DaysOfWeek[d.day()]}
-					</Typography>
-
-					<Box position={'absolute'} right={2} bottom={2} height={'24px'} sx={{ pointerEvents: 'none' }}>
-						{complete && <CheckIcon sx={{ fontSize: '24px' }} />}
-						{!complete && <HourglassIcon sx={{ fontSize: '24px', color: '#adadad' }} />}
-					</Box> */}
 					</Day>
 				</Box>
 			)
 		}
-
-		// for (let i = 6; i >= 0; i--) {
-		// 	let dayDate: Date
-		// 	if (day - i > 0) {
-		// 		dayDate = new Date(d.setDate(day - i))
-		// 	} else {
-		// 		dayDate = new Date(lastDate.setDate(lastDay + day - i))
-		// 	}
-		// 	const formatDate = FormatDate(dayDate)
-
-		// 	let complete = false
-		// 	const cDay = completedDays?.data?.find(d => d.date == formatDate)
-		// 	if (cDay && cDay.complete) complete = true
-
-		// 	days.push(
-		// 		<Day
-		// 			key={i}
-		// 			active={formatDate == date}
-		// 			complete={complete}
-		// 			data-date={formatDate}
-		// 			onClick={changeDateHandler}
-		// 		>
-		// 			<Typography fontSize={'inherit'} pl={1} sx={{ pointerEvents: 'none' }}>
-		// 				{/* {day - i > 0 ? day - i : lastDay + day - i} */}
-		// 				{/* {formatDate.replace('.2023', '')} */}
-		// 				{formatDate.split('.')[0]}
-		// 			</Typography>
-
-		// 			<Box position={'absolute'} right={2} bottom={6} height={'18px'} sx={{ pointerEvents: 'none' }}>
-		// 				{complete && <CheckIcon sx={{ fontSize: '18px' }} />}
-		// 				{!complete && <HourglassIcon sx={{ fontSize: '18px', color: '#adadad' }} />}
-		// 			</Box>
-		// 		</Day>
-		// 	)
-
-		// 	if (date == '' && i == 0) dispatch(setDate(formatDate))
-		// }
 
 		return days
 	}

@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { Outlet } from 'react-router-dom'
-import { CircularProgress } from '@mui/material'
+import { Fallback } from '@/components/Fallback/Fallback'
 import { Header } from '@/components/Header/Header'
 // import { Loader } from '@/components/Loader/Loader'
 import { Base, Wrapper } from './main.style'
@@ -12,11 +12,11 @@ import { Base, Wrapper } from './main.style'
 export default function Main() {
 	return (
 		<Base>
-			<Suspense fallback={<CircularProgress />}>
+			<Suspense fallback={<Fallback />}>
 				<Header />
 
 				<Wrapper>
-					<Suspense fallback={<CircularProgress />}>
+					<Suspense fallback={<Fallback />}>
 						<Outlet />
 					</Suspense>
 				</Wrapper>

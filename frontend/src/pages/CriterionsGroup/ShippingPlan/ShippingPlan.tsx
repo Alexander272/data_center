@@ -1,26 +1,24 @@
 import { useEffect, useState } from 'react'
-import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn } from 'react-datasheet-grid'
 import { Button, CircularProgress, Typography } from '@mui/material'
-import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
-import { setComplete } from '@/store/criterions'
-import {
-	useGetOrdersVolumeByPeriodQuery,
-	useSaveOrdersVolumeMutation,
-	useUpdateOrdersVolumeMutation,
-} from '@/store/api/ordersVolume'
-import type { IOrdersVolume, IOrdersVolumeDTO } from '@/types/orderVolume'
-import type { IResError } from '@/types/err'
+import { type Column, DataSheetGrid, keyColumn, intColumn, floatColumn } from 'react-datasheet-grid'
 import { IToast, Toast } from '@/components/Toast/Toast'
+import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
+import type { IShippingPlan, IShippingPlanDTO } from '@/types/shippingPlan'
+import {
+	useCreateShippingPlanMutation,
+	useGetShippingPlanByPeriodQuery,
+	useUpdateShippingPlanMutation,
+} from '@/store/api/shippingPlan'
+import { setComplete } from '@/store/criterions'
+import { IResError } from '@/types/err'
 
 const emptyData = [{ id: '1', numberOfOrders: null, sumMoney: null, quantity: null }]
 
-export default function OrdersVolume() {
-	// const active = useAppSelector(state => state.criterions.active)
+export default function ShippingPlan() {
 	const date = useAppSelector(state => state.criterions.date)
 
 	const [toast, setToast] = useState<IToast>({ type: 'success', message: '', open: false })
-
-	const [table, setTable] = useState<IOrdersVolume[]>(emptyData)
+	const [table, setTable] = useState<IShippingPlan[]>(emptyData)
 
 	const dispatch = useAppDispatch()
 
@@ -31,48 +29,48 @@ export default function OrdersVolume() {
 		return values.map(v => v.replace(' ', '').replace(',', '.'))
 	}
 
-	const columns: Column<IOrdersVolume>[] = [
+	const columns: Column<IShippingPlan>[] = [
 		{
-			...keyColumn<IOrdersVolume, 'numberOfOrders'>('numberOfOrders', intColumn),
+			...keyColumn<IShippingPlan, 'numberOfOrders'>('numberOfOrders', intColumn),
 			title: 'Количество заказов',
 			prePasteValues: countPaste,
 		},
 		{
-			...keyColumn<IOrdersVolume, 'sumMoney'>('sumMoney', floatColumn),
+			...keyColumn<IShippingPlan, 'sumMoney'>('sumMoney', floatColumn),
 			title: 'Сумма заказов',
 			prePasteValues: moneyPaste,
 		},
 		{
-			...keyColumn<IOrdersVolume, 'quantity'>('quantity', intColumn),
+			...keyColumn<IShippingPlan, 'quantity'>('quantity', intColumn),
 			title: 'Количество единиц продукции',
 			prePasteValues: countPaste,
 		},
 	]
 
-	const { data: orders } = useGetOrdersVolumeByPeriodQuery({ from: date }, { skip: !date })
-	const [saveOrders, { isLoading: saveLoading }] = useSaveOrdersVolumeMutation()
-	const [updateOrders, { isLoading: updateLoading }] = useUpdateOrdersVolumeMutation()
+	const { data: plan } = useGetShippingPlanByPeriodQuery({ from: date }, { skip: !date })
+	const [savePlan, { isLoading: saveLoading }] = useCreateShippingPlanMutation()
+	const [updatePlan, { isLoading: updateLoading }] = useUpdateShippingPlanMutation()
 
 	useEffect(() => {
-		if (orders && orders.data) {
+		if (plan && plan.data) {
 			setTable([
 				{
-					id: orders.data[0].id,
-					numberOfOrders: orders.data[0].numberOfOrders,
-					sumMoney: +(orders.data[0].sumMoney || '0'),
-					quantity: orders.data[0].quantity,
+					id: plan.data[0].id,
+					numberOfOrders: plan.data[0].numberOfOrders,
+					sumMoney: +(plan.data[0].sumMoney || '0'),
+					quantity: plan.data[0].quantity,
 				},
 			])
 		} else {
 			setTable(emptyData)
 		}
-	}, [orders])
+	}, [plan])
 
 	const closeHandler = () => {
 		setToast({ type: 'success', message: '', open: false })
 	}
 
-	const tableHandler = (data: IOrdersVolume[]) => {
+	const tableHandler = (data: IShippingPlan[]) => {
 		setTable(data)
 	}
 
@@ -81,31 +79,31 @@ export default function OrdersVolume() {
 	}
 
 	const saveHandler = async () => {
-		const order: IOrdersVolumeDTO = {
-			id: '',
+		if (table[0].numberOfOrders == null || table[0].sumMoney == null || table[0].quantity == null) {
+			setToast({ type: 'error', message: 'Пустые поля недопустимы. Проверьте заполнение полей', open: true })
+			return
+		}
+
+		const newPlan: IShippingPlanDTO = {
+			id: table[0].id || '',
 			day: date,
 			numberOfOrders: table[0].numberOfOrders || 0,
 			sumMoney: table[0].sumMoney?.toString() || '0',
 			quantity: table[0].quantity || 0,
 		}
 
-		if (table[0].numberOfOrders == null || table[0].sumMoney == null || table[0].quantity == null) {
-			setToast({ type: 'error', message: 'Пустые поля недопустимы. Проверьте заполнение полей', open: true })
-			return
-		}
-
 		try {
-			if (!orders?.data) {
-				await saveOrders(order).unwrap()
+			if (!plan?.data) {
+				await savePlan(newPlan).unwrap()
 				dispatch(setComplete())
 				setToast({ type: 'success', message: 'Данные сохранены', open: true })
-				// dispatch(setComplete(active))
 			} else {
-				await updateOrders(order).unwrap()
+				await updatePlan(newPlan).unwrap()
 				setToast({ type: 'success', message: 'Данные обновлены', open: true })
 			}
 		} catch (error) {
-			setToast({ type: 'error', message: (error as IResError).data.message, open: true })
+			const fetchError = error as IResError
+			setToast({ type: 'error', message: fetchError.data.message, open: true })
 		}
 	}
 
@@ -114,7 +112,7 @@ export default function OrdersVolume() {
 			<Toast data={toast} onClose={closeHandler} />
 
 			<Typography variant='h5' textAlign='center'>
-				Ежедневный объем заказов переданных в производство
+				План отгрузки на день, руб
 			</Typography>
 
 			<DataSheetGrid value={table} columns={columns} onChange={tableHandler} lockRows />

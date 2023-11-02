@@ -3,12 +3,8 @@ import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn, textColumn } 
 import { Button, CircularProgress, Typography } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setComplete } from '@/store/criterions'
-import {
-	useGetShipmentPlanByPeriodQuery,
-	useSaveShipmentPlanMutation,
-	useUpdateShipmentPlanMutation,
-} from '@/store/api/shipmentPlan'
-import type { IShipmentPlan, IShipmentPlanDTO } from '@/types/shipment'
+import { useGetShipmentByPeriodQuery, useSaveShipmentMutation, useUpdateShipmentMutation } from '@/store/api/shipment'
+import type { IShipment, IShipmentDTO } from '@/types/shipment'
 import type { IResError } from '@/types/err'
 import { IToast, Toast } from '@/components/Toast/Toast'
 
@@ -22,13 +18,13 @@ const emptyData = [
 	{ id: '7', product: 'Прочее', count: null, money: null },
 ]
 
-export default function ShipmentPlan() {
+export default function Shipment() {
 	// const active = useAppSelector(state => state.criterions.active)
 	const date = useAppSelector(state => state.criterions.date)
 
 	const [toast, setToast] = useState<IToast>({ type: 'success', message: '', open: false })
 
-	const [table, setTable] = useState<IShipmentPlan[]>(emptyData)
+	const [table, setTable] = useState<IShipment[]>(emptyData)
 
 	const dispatch = useAppDispatch()
 
@@ -39,23 +35,23 @@ export default function ShipmentPlan() {
 		return values.map(v => v.replace(' ', '').replace(',', '.'))
 	}
 
-	const columns: Column<IShipmentPlan>[] = [
-		{ ...keyColumn<IShipmentPlan, 'product'>('product', textColumn), title: 'Тип продукции', disabled: true },
+	const columns: Column<IShipment>[] = [
+		{ ...keyColumn<IShipment, 'product'>('product', textColumn), title: 'Тип продукции', disabled: true },
 		{
-			...keyColumn<IShipmentPlan, 'count'>('count', intColumn),
+			...keyColumn<IShipment, 'count'>('count', intColumn),
 			title: 'Отгрузка в штуках',
 			prePasteValues: countPaste,
 		},
 		{
-			...keyColumn<IShipmentPlan, 'money'>('money', floatColumn),
+			...keyColumn<IShipment, 'money'>('money', floatColumn),
 			title: 'Отгрузка в деньгах',
 			prePasteValues: moneyPaste,
 		},
 	]
 
-	const { data: shipment } = useGetShipmentPlanByPeriodQuery({ from: date }, { skip: !date })
-	const [saveShipment, { isLoading: saveLoading }] = useSaveShipmentPlanMutation()
-	const [updateShipment, { isLoading: updateLoading }] = useUpdateShipmentPlanMutation()
+	const { data: shipment } = useGetShipmentByPeriodQuery({ from: date }, { skip: !date })
+	const [saveShipment, { isLoading: saveLoading }] = useSaveShipmentMutation()
+	const [updateShipment, { isLoading: updateLoading }] = useUpdateShipmentMutation()
 
 	useEffect(() => {
 		if (shipment && shipment.data) {
@@ -77,7 +73,7 @@ export default function ShipmentPlan() {
 		setToast({ type: 'success', message: '', open: false })
 	}
 
-	const tableHandler = (data: IShipmentPlan[]) => {
+	const tableHandler = (data: IShipment[]) => {
 		setTable(data)
 	}
 
@@ -91,7 +87,7 @@ export default function ShipmentPlan() {
 			return
 		}
 
-		const newShipment: IShipmentPlanDTO[] = []
+		const newShipment: IShipmentDTO[] = []
 		for (let i = 0; i < table.length; i++) {
 			const e = table[i]
 			newShipment.push({

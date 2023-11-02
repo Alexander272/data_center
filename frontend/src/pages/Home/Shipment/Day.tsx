@@ -1,9 +1,9 @@
 import { Box, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
-import type { IShipment } from '@/types/shipment'
+import type { IShipmentFull } from '@/types/shipment'
 import { Pie } from '../components/PieChart/Pie'
 
 type Props = {
-	data: IShipment[]
+	data: IShipmentFull[]
 }
 
 export default function Day({ data }: Props) {

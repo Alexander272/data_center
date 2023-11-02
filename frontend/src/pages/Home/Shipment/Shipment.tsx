@@ -1,9 +1,9 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { CircularProgress, Typography } from '@mui/material'
 import { useAppSelector } from '@/hooks/useStore'
-import { useGetShipmentPlanByPeriodQuery } from '@/store/api/shipmentPlan'
+import { useGetShipmentByPeriodQuery } from '@/store/api/shipment'
 import { useGetProductionPlanByPeriodQuery } from '@/store/api/productionPlan'
-import type { IShipment } from '@/types/shipment'
+import type { IShipmentFull } from '@/types/shipment'
 
 const Day = lazy(() => import('@/pages/Home/Shipment/Day'))
 const Week = lazy(() => import('@/pages/Home/Shipment/Week'))
@@ -12,13 +12,13 @@ export default function Shipment() {
 	const periodType = useAppSelector(state => state.dashboard.periodType)
 	const period = useAppSelector(state => state.dashboard.period)
 
-	const [data, setData] = useState<IShipment[]>([])
+	const [data, setData] = useState<IShipmentFull[]>([])
 
 	const {
 		data: shipment,
 		isLoading: isLoadingShipment,
 		isError: isErrShipment,
-	} = useGetShipmentPlanByPeriodQuery(period, { skip: period.from == '' })
+	} = useGetShipmentByPeriodQuery(period, { skip: period.from == '' })
 	const {
 		data: plan,
 		isLoading: isLoadingPlan,

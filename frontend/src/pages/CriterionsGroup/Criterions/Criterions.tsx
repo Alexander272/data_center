@@ -1,9 +1,10 @@
 import { Suspense, useCallback, useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { Box, CircularProgress, Divider, Stack, Typography } from '@mui/material'
+import { Box, CircularProgress, Divider, Stack } from '@mui/material'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setActive, setCriterions } from '@/store/criterions'
 import { useCompleteCriterionMutation, useGetCriterionsQuery } from '@/store/api/criterions'
+import { Fallback } from '@/components/Fallback/Fallback'
 import Stepper from '@/components/Stepper/Stepper'
 import { StepButtons } from '@/components/Stepper/StepButtons'
 import { Week } from '@/components/Week/Week'
@@ -125,16 +126,16 @@ export default function Home() {
 					boxShadow={'rgba(54, 54, 54, 0.17) 2px 2px 8px 0px'}
 					sx={{ backgroundColor: '#fff' }}
 				>
-					<Suspense fallback={<CircularProgress />}>
+					<Suspense fallback={<Fallback />}>
 						<Outlet />
 					</Suspense>
 
 					{/* {active == '' && <Typography textAlign={'center'}>Критерий не выбран</Typography>} */}
-					{!skipped.length && active == '' ? (
+					{/* {!skipped.length && active == '' ? (
 						<Typography textAlign={'center'} fontSize={'1.2rem'}>
 							Все критерии заполнены
 						</Typography>
-					) : null}
+					) : null} */}
 
 					<Divider sx={{ marginTop: 'auto' }} />
 

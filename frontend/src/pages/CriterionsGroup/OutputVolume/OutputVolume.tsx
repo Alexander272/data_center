@@ -151,7 +151,7 @@ export default function OutputVolume() {
 				await updateOutput(newOutput).unwrap()
 			}
 		} catch (error) {
-			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: false })
+			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: true })
 		}
 	}
 

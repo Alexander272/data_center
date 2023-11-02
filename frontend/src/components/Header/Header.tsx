@@ -1,8 +1,15 @@
 import { Box, Stack } from '@mui/material'
 import { CheckPermission } from '@/utils/auth'
-import { Container, NavLink } from './header.style'
+import { useSignOutMutation } from '@/store/api/auth'
+import { Container, NavButton, NavLink } from './header.style'
 
 export const Header = () => {
+	const [signOut] = useSignOutMutation()
+
+	const signOutHandler = () => {
+		void signOut(undefined)
+	}
+
 	return (
 		<Container>
 			<Box maxWidth={1580} width={'100%'} padding={'0px 10px'} display={'flex'}>
@@ -13,6 +20,8 @@ export const Header = () => {
 					{CheckPermission({ section: 'criterions', method: 'GET' }) && (
 						<NavLink to={'criterions'}>Критерии</NavLink>
 					)}
+
+					<NavButton onClick={signOutHandler}>Выйти</NavButton>
 				</Stack>
 			</Box>
 		</Container>

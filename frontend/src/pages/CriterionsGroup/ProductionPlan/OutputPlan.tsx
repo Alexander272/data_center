@@ -122,7 +122,7 @@ export default function OutputPlan() {
 				await updatePlan(newPlan).unwrap()
 			}
 		} catch (error) {
-			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: false })
+			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: true })
 		}
 	}
 

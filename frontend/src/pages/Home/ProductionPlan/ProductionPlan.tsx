@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { CircularProgress, Typography } from '@mui/material'
 import { useAppSelector } from '@/hooks/useStore'
-import { useGetShipmentPlanByPeriodQuery } from '@/store/api/shipmentPlan'
+import { useGetShipmentByPeriodQuery } from '@/store/api/shipment'
 import { useGetProductionPlanByPeriodQuery } from '@/store/api/productionPlan'
 import type { IPlan } from '@/types/productionPlan'
 
@@ -18,7 +18,7 @@ export default function ProductionPlan() {
 		data: shipment,
 		isLoading: isLoadingShipment,
 		isError: isErrShipment,
-	} = useGetShipmentPlanByPeriodQuery(period, { skip: period.from == '' })
+	} = useGetShipmentByPeriodQuery(period, { skip: period.from == '' })
 	const {
 		data: plan,
 		isLoading: isLoadingPlan,

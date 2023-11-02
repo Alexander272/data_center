@@ -36,17 +36,13 @@ const baseQueryWithReAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 	await mutex.waitForUnlock()
 	let result = await baseQuery(args, api, extraOptions)
 
-	console.log(api.endpoint)
-
-	if (result.error && result.error.status === 401 && api.endpoint !== 'sign-in') {
+	if (result.error && result.error.status === 401 && api.endpoint !== 'signIn' && api.endpoint != 'refresh') {
 		if (!mutex.isLocked()) {
 			const release = await mutex.acquire()
 
 			try {
 				const refreshResult = await baseQuery({ url: API.auth.refresh, method: 'POST' }, api, extraOptions)
 				if (refreshResult.data) {
-					console.log(refreshResult.data)
-
 					api.dispatch(setAuth((refreshResult.data as { data: IUser }).data))
 					result = await baseQuery(args, api, extraOptions)
 				} else {

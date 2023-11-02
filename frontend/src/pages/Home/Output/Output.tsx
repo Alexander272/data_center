@@ -58,11 +58,11 @@ export default function Output() {
 			{!output?.data && !plan?.data && !isLoadingPlan && !isLoadingOutput ? (
 				!isErrOutput && !isErrPlan ? (
 					<Typography mt={2} fontSize={'1.2rem'} textAlign={'center'}>
-						Не удалось получить данные
+						Для выбранного периода данные не найдены
 					</Typography>
 				) : (
 					<Typography mt={2} fontSize={'1.2rem'} textAlign={'center'}>
-						Для выбранного периода данные не найдены
+						Не удалось получить данные
 					</Typography>
 				)
 			) : null}

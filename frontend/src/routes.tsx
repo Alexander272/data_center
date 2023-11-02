@@ -1,10 +1,10 @@
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { CircularProgress } from '@mui/material'
 import { useRefresh } from '@/hooks/refresh'
 
 import Main from '@/layout/Main/Main'
 import RequireAuth from './pages/Auth/RequireAuth'
+import { Fallback } from './components/Fallback/Fallback'
 
 const Auth = lazy(() => import('@/pages/Auth/Auth'))
 
@@ -18,10 +18,10 @@ const AwaitingDecision = lazy(() => import('@/pages/CriterionsGroup/AwaitingDeci
 const NumberInBrigade = lazy(() => import('@/pages/CriterionsGroup/NumberInBrigade/NumberInBrigade'))
 const OutputVolume = lazy(() => import('@/pages/CriterionsGroup/OutputVolume/OutputVolume'))
 const OrdersVolume = lazy(() => import('@/pages/CriterionsGroup/OrdersVolume/OrdersVolume'))
-const ShipmentPlan = lazy(() => import('@/pages/CriterionsGroup/ShipmentPlan/ShipmentPlan'))
+const Shipment = lazy(() => import('@/pages/CriterionsGroup/Shipment/Shipment'))
 const ProductionLoad = lazy(() => import('@/pages/CriterionsGroup/ProductionLoad/ProductionLoad'))
 const ProductionPlan = lazy(() => import('@/pages/CriterionsGroup/ProductionPlan/ProductionPlan'))
-const ShippingPlan = lazy(() => import('@/pages/CriterionsGroup/ProductionPlan/ShippingPlan'))
+const ShippingPlan = lazy(() => import('@/pages/CriterionsGroup/ShippingPlan/ShippingPlan'))
 const OutputPlan = lazy(() => import('@/pages/CriterionsGroup/ProductionPlan/OutputPlan'))
 
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'))
@@ -29,11 +29,11 @@ const NotFound = lazy(() => import('@/pages/NotFound/NotFound'))
 export const AppRoutes = () => {
 	const { ready } = useRefresh()
 
-	if (!ready) return <></>
+	if (!ready) return <Fallback />
 
 	return (
 		<BrowserRouter basename={'/'}>
-			<Suspense fallback={<CircularProgress />}>
+			<Suspense fallback={<Fallback />}>
 				<Routes>
 					<Route path='/auth' element={<Auth />} />
 
@@ -54,7 +54,7 @@ export const AppRoutes = () => {
 							<Route path='number-in-brigade' element={<NumberInBrigade />} />
 							<Route path='output-volume' element={<OutputVolume />} />
 							<Route path='orders-volume' element={<OrdersVolume />} />
-							<Route path='shipment-plan' element={<ShipmentPlan />} />
+							<Route path='shipment' element={<Shipment />} />
 							<Route path='production-load' element={<ProductionLoad />} />
 							<Route path='production-plan' element={<ProductionPlan />} />
 							<Route path='shipping-plan' element={<ShippingPlan />} />
