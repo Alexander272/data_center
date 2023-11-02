@@ -12,10 +12,11 @@ type Services struct {
 	Criterions
 	CompleteCriterion
 	OrdersVolume
-	ShipmentPlan
+	Shipment
 	OutputVolume
 	ProductionLoad
 	ProductionPlan
+	ShippingPlan
 
 	Session
 	Role
@@ -39,10 +40,11 @@ func NewServices(deps Deps) *Services {
 	session := NewSessionService(menu, deps.Keycloak)
 
 	ordersVolume := NewOrdersVolumeService(deps.Repos.OrdersVolume)
-	shipmentPlan := NewShipmentPlanService(deps.Repos.ShipmentPlan)
+	shipment := NewShipmentService(deps.Repos.Shipment)
 	outputVolume := NewOutputVolumeService(deps.Repos.OutputVolume)
 	productionLoad := NewProductionLoadService(deps.Repos.ProductionLoad)
 	productionPlan := NewProductionPlanService(deps.Repos.ProductionPlan)
+	shippingPlan := NewShippingService(deps.Repos.ShippingPlan)
 
 	criterionDeps := CriterionDeps{
 		// shipment: shipmentPlan,
@@ -55,11 +57,12 @@ func NewServices(deps Deps) *Services {
 	completeCriterion := NewCompleteCriterionService(deps.Repos.CompleteCriterion)
 
 	return &Services{
-		ShipmentPlan:      shipmentPlan,
+		Shipment:          shipment,
 		OrdersVolume:      ordersVolume,
 		OutputVolume:      outputVolume,
 		ProductionLoad:    productionLoad,
 		ProductionPlan:    productionPlan,
+		ShippingPlan:      shippingPlan,
 		Criterions:        criterions,
 		CompleteCriterion: completeCriterion,
 

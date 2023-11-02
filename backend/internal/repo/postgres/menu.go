@@ -23,6 +23,14 @@ type Menu interface {
 	GetByRole(context.Context, string) ([]models.Menu, error)
 }
 
+/*
+	? можно попробовать сгруппировать все API и части APP по модулям, можно сделать так чтобы один модуль мог содержать другой
+	эти модули в первую очередь будут определять доступные разделы на клиенте
+
+	criterions -> day/month -> criterion
+	graphics ->
+*/
+
 func (r *MenuRepo) GetAll(ctx context.Context) (menus []models.Menu, err error) {
 	query := fmt.Sprintf(`SELECT id, name, type, path, method, is_show	FROM %s ORDER BY role_id, type`, MenuTable)
 

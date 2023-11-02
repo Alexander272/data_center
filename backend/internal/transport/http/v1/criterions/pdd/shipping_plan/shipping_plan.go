@@ -1,4 +1,4 @@
-package orders_volume
+package shipping_plan
 
 import (
 	"net/http"
@@ -11,34 +11,34 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type OrdersVolumeHandlers struct {
-	service services.OrdersVolume
+type ShippingPlanHandlers struct {
+	service services.ShippingPlan
 	botApi  api.MostBotApi
 }
 
-func NewOrdersVolumeHandlers(service services.OrdersVolume, botApi api.MostBotApi) *OrdersVolumeHandlers {
-	return &OrdersVolumeHandlers{
+func NewShippingPlanHandlers(service services.ShippingPlan, botApi api.MostBotApi) *ShippingPlanHandlers {
+	return &ShippingPlanHandlers{
 		service: service,
 		botApi:  botApi,
 	}
 }
 
-func Register(api *gin.RouterGroup, service services.OrdersVolume, botApi api.MostBotApi) {
-	handlers := NewOrdersVolumeHandlers(service, botApi)
+func Register(api *gin.RouterGroup, service services.ShippingPlan, botApi api.MostBotApi) {
+	handlers := NewShippingPlanHandlers(service, botApi)
 
-	orders := api.Group("/orders-volume")
+	shipping := api.Group("shipping-plan")
 	{
-		orders.GET("/:period", handlers.getByPeriod)
-		orders.POST("/", handlers.create)
-		orders.PUT("/:day", handlers.update)
-		orders.DELETE("/:day", handlers.delete)
+		shipping.GET("/:period", handlers.getByPeriod)
+		shipping.POST("", handlers.create)
+		shipping.PUT("/:day", handlers.updateByDay)
+		shipping.DELETE("/:day", handlers.deleteByDay)
 	}
 }
 
-func (h *OrdersVolumeHandlers) getByPeriod(c *gin.Context) {
+func (h *ShippingPlanHandlers) getByPeriod(c *gin.Context) {
 	p := c.Param("period")
 	if p == "" {
-		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "период не задан")
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "Период не задан")
 		return
 	}
 
@@ -49,17 +49,17 @@ func (h *OrdersVolumeHandlers) getByPeriod(c *gin.Context) {
 		period.To = parts[1]
 	}
 
-	orders, err := h.service.GetByPeriod(c, period)
+	shipping, err := h.service.GetByPeriod(c, period)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		h.botApi.SendError(c, err.Error(), period)
 		return
 	}
-	c.JSON(http.StatusOK, response.DataResponse{Data: orders})
+	c.JSON(http.StatusOK, response.DataResponse{Data: shipping})
 }
 
-func (h *OrdersVolumeHandlers) create(c *gin.Context) {
-	var dto models.OrdersVolume
+func (h *ShippingPlanHandlers) create(c *gin.Context) {
+	var dto models.ShippingPlan
 	if err := c.BindJSON(&dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
@@ -70,11 +70,12 @@ func (h *OrdersVolumeHandlers) create(c *gin.Context) {
 		h.botApi.SendError(c, err.Error(), dto)
 		return
 	}
-	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные о приходе заказов успешно добавлены"})
+
+	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные о плане отгрузки успешно добавлены"})
 }
 
-func (h *OrdersVolumeHandlers) update(c *gin.Context) {
-	var dto models.OrdersVolume
+func (h *ShippingPlanHandlers) updateByDay(c *gin.Context) {
+	var dto models.ShippingPlan
 	if err := c.BindJSON(&dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
@@ -85,10 +86,11 @@ func (h *OrdersVolumeHandlers) update(c *gin.Context) {
 		h.botApi.SendError(c, err.Error(), dto)
 		return
 	}
-	c.JSON(http.StatusOK, response.IdResponse{Message: "Данные о прихоже заказов успешно обновлены"})
+
+	c.JSON(http.StatusOK, response.IdResponse{Message: "Данные о плане отгрузки успешно обновлены"})
 }
 
-func (h *OrdersVolumeHandlers) delete(c *gin.Context) {
+func (h *ShippingPlanHandlers) deleteByDay(c *gin.Context) {
 	day := c.Param("day")
 	if day == "" {
 		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "День не задан")
@@ -100,5 +102,6 @@ func (h *OrdersVolumeHandlers) delete(c *gin.Context) {
 		h.botApi.SendError(c, err.Error(), day)
 		return
 	}
+
 	c.JSON(http.StatusNoContent, response.IdResponse{})
 }

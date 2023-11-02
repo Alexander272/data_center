@@ -1,6 +1,6 @@
 package models
 
-type ShipmentPlan struct {
+type Shipment struct {
 	Id      string `json:"id" db:"id"`
 	Day     string `json:"day" db:"day" binding:"required"`
 	Product string `json:"product" db:"product" binding:"required"`
@@ -8,7 +8,7 @@ type ShipmentPlan struct {
 	Money   string `json:"money" db:"money"`
 }
 
-type ShipmentPlanGrouped struct {
-	Day      string         `json:"day"`
-	Shipment []ShipmentPlan `json:"shipment"`
+type ShipmentGrouped struct {
+	Day      string     `json:"day"`
+	Shipment []Shipment `json:"shipment"`
 }

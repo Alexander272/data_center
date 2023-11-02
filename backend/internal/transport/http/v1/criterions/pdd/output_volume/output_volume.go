@@ -100,5 +100,5 @@ func (h *OutputVolumeHandlers) delete(c *gin.Context) {
 		h.botApi.SendError(c, err.Error(), day)
 		return
 	}
-	c.JSON(http.StatusOK, response.IdResponse{})
+	c.JSON(http.StatusNoContent, response.IdResponse{})
 }

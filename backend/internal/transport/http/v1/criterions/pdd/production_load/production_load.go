@@ -100,5 +100,5 @@ func (h *ProductionLoadHandlers) delete(c *gin.Context) {
 		h.botApi.SendError(c, err.Error(), date)
 		return
 	}
-	c.JSON(http.StatusOK, response.IdResponse{})
+	c.JSON(http.StatusNoContent, response.IdResponse{})
 }

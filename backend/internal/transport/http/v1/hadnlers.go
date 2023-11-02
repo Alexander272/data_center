@@ -1,10 +1,7 @@
 package v1
 
 import (
-	"net/http"
-
 	"github.com/Alexander272/data_center/backend/internal/config"
-	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/api"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/middleware"
@@ -15,7 +12,8 @@ import (
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/output_volume"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/production_load"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/production_plan"
-	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/shipment_plan"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/shipment"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/shipping_plan"
 	"github.com/gin-gonic/gin"
 )
 
@@ -42,13 +40,9 @@ func NewHandler(services *services.Services, auth config.AuthConfig, bot config.
 }
 
 func (h *Handler) Init(group *gin.RouterGroup) {
-	v1 := group.Group("/v1")
-	{
-		v1.GET("/", h.notImplemented)
-	}
-
 	botApi := api.NewMostApi(h.bot.Url)
 
+	v1 := group.Group("/v1")
 	auth.Register(v1, h.services.Session, h.auth, botApi, h.cookieName)
 
 	criterionsGroup := v1.Group("/criterions", h.middleware.VerifyToken, h.middleware.CheckPermissions)
@@ -56,12 +50,13 @@ func (h *Handler) Init(group *gin.RouterGroup) {
 	complete.Register(criterionsGroup, h.services.CompleteCriterion, botApi)
 
 	output_volume.Register(criterionsGroup, h.services.OutputVolume, botApi)
-	shipment_plan.Register(criterionsGroup, h.services.ShipmentPlan, botApi)
+	shipment.Register(criterionsGroup, h.services.Shipment, botApi)
 	orders_volume.Register(criterionsGroup, h.services.OrdersVolume, botApi)
 	production_load.Register(criterionsGroup, h.services.ProductionLoad, botApi)
 	production_plan.Register(criterionsGroup, h.services.ProductionPlan, botApi)
+	shipping_plan.Register(criterionsGroup, h.services.ShippingPlan, botApi)
 }
 
-func (h *Handler) notImplemented(c *gin.Context) {
-	response.NewErrorResponse(c, http.StatusInternalServerError, "not implemented", "not implemented")
-}
+// func (h *Handler) notImplemented(c *gin.Context) {
+// 	response.NewErrorResponse(c, http.StatusInternalServerError, "not implemented", "not implemented")
+// }

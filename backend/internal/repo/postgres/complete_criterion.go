@@ -27,6 +27,11 @@ type CompleteCriterion interface {
 	DeleteOld(ctx context.Context, lastDate string) error
 }
 
+/*
+	TODO Сейчас выполнение всех критериев отрабатывает некорректно (иногда)
+	Похоже надо как-то переписывать это все
+*/
+
 func (r *CompleteCriterionRepo) Get(ctx context.Context, filter models.ReportFilter) (complete []models.ReportComplete, err error) {
 	query := fmt.Sprintf(`SELECT date, CASE WHEN COUNT(criterion_id) = (SELECT COUNT(id) FROM %s AS m
 		WHERE method LIKE '%%(POST)|(PUT)|(DELETE)' AND m.type='API' AND m.role_id=c.role_id
