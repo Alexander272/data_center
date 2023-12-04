@@ -19,7 +19,8 @@ const Shipment = lazy(() => import('@/pages/Home/Shipment/Shipment'))
 const Output = lazy(() => import('@/pages/Home/Output/Output'))
 const Orders = lazy(() => import('@/pages/Home/Orders/Orders'))
 const Load = lazy(() => import('@/pages/Home/Load/Load'))
-// const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
+const ShippingPlan = lazy(() => import('@/pages/Home/ShippingPlan/ShippingPlan'))
+const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
 
 // const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
 // const Quality = lazy(() => import('@/pages/Home/components/Quality/Quality'))
@@ -30,11 +31,12 @@ const Load = lazy(() => import('@/pages/Home/Load/Load'))
 
 const steps = [
 	{ id: '1', key: 'production_plan', label: 'Выполнение годового плана' },
-	{ id: '2', key: 'shipment', label: 'Выполнение плана отгрузок' },
+	{ id: '2', key: 'shipping_plan', label: 'План отгрузок' },
+	// { id: '2', key: 'shipment', label: 'Выполнение плана отгрузок' },
 	{ id: '3', key: 'output', label: 'Объем выпуска продукции' },
 	{ id: '4', key: 'orders', label: 'Объем заказов переданных в производство' },
 	{ id: '5', key: 'load', label: 'Загруженность производства' },
-	// { id: '6', key: 'sqdc', label: 'SQDC' },
+	{ id: '6', key: 'sqdc', label: 'SQDC' },
 ]
 
 const pickerType = {
@@ -49,9 +51,11 @@ const pickerType = {
 const components = {
 	production_plan: <ProductionPlan />,
 	shipment: <Shipment />,
+	shipping_plan: <ShippingPlan />,
 	output: <Output />,
 	orders: <Orders />,
 	load: <Load />,
+	sqdc: <SQDC />,
 }
 
 export default function Home() {

@@ -1,33 +1,11 @@
 import { FC } from 'react'
-import { Box, Typography } from '@mui/material'
+import { Box, Tooltip, Typography, Zoom, tooltipClasses } from '@mui/material'
 import dayjs from 'dayjs'
-
-// const getSkippedDays = () => {
-// 	const d = new Date()
-
-// 	const y = d.getFullYear()
-// 	const m = d.getMonth()
-
-// 	const firstDayOfMonth = new Date(y, m, 7).getDay()
-// 	const lastDateOfMonth = new Date(y, m + 1, 0).getDate()
-// 	// const lastDayOfLastMonth = m == 0 ? new Date(y - 1, 11, 0).getDate() : new Date(y, m, 0).getDate()
-
-// 	// console.log(firstDayOfMonth)
-// 	// console.log(lastDateOfMonth)
-// 	// console.log(lastDayOfLastMonth)
-
-// 	// console.log(data)
-
-// 	return { skip: firstDayOfMonth, daysCount: lastDateOfMonth }
-// }
-
-// interface Data {
-// 	day: string
-// 	status: ('good' | 'bad' | 'middle')[]
-// }
+import { TooltipData } from './TooltipData'
 
 export interface IData {
 	type: 'good' | 'bad' | 'middle'
+	values?: string[]
 }
 
 export interface IDays {
@@ -48,61 +26,6 @@ type Props = {
 }
 
 export const Calendar: FC<Props> = ({ data }) => {
-	// const { skip, daysCount } = getSkippedDays()
-
-	// const renderTable = () => {
-	// 	const days: JSX.Element[] = []
-	// 	let status: ('good' | 'bad' | 'middle')[] = []
-
-	// 	let index = 0
-	// 	for (let i = 1; i <= daysCount; i++) {
-	// 		if (index < data.length && data[index].day == i.toString()) {
-	// 			status = data[index].status
-	// 			index++
-	// 		} else {
-	// 			status = []
-	// 		}
-
-	// 		days.push(
-	// 			<Grid
-	// 				key={i}
-	// 				item
-	// 				xs={1}
-	// 				position={'relative'}
-	// 				width={'58px'}
-	// 				height={'58px'}
-	// 				sx={{
-	// 					backgroundColor: '#fff',
-	// 					border: '1px solid var(--blue-border)',
-	// 					display: 'flex',
-	// 					flexDirection: 'column',
-	// 				}}
-	// 			>
-	// 				<Typography
-	// 					position={'relative'}
-	// 					zIndex={5}
-	// 					sx={{
-	// 						fontWeight: i == new Date().getDate() ? 'bold' : 'normal',
-	// 						fontSize: i == new Date().getDate() ? '1.3rem' : '1rem',
-	// 						position: 'absolute',
-	// 						top: '50%',
-	// 						left: '50%',
-	// 						transform: 'translate(-50%, -50%)',
-	// 					}}
-	// 				>
-	// 					{i}
-	// 				</Typography>
-
-	// 				{status.map((s, i) => (
-	// 					<Cell key={s + i.toString()} status={s} />
-	// 				))}
-	// 			</Grid>
-	// 		)
-	// 	}
-
-	// 	return days
-	// }
-
 	const start = dayjs().startOf('M')
 
 	const renderDays = () => {
@@ -124,8 +47,6 @@ export const Calendar: FC<Props> = ({ data }) => {
 					borderRadius={'10px'}
 					display={'flex'}
 					flexDirection={'column'}
-					// justifyContent={'center'}
-					// alignItems={'center'}
 					height={54}
 					width={54}
 					position={'relative'}
@@ -144,7 +65,31 @@ export const Calendar: FC<Props> = ({ data }) => {
 					</Typography>
 
 					{d.map((d, i) => (
-						<Box key={i} flexGrow={1} sx={{ backgroundColor: backgrounds[d.type], cursor: 'pointer' }} />
+						<Tooltip
+							key={i}
+							title={<TooltipData values={d.values} />}
+							TransitionComponent={Zoom}
+							enterDelay={2000}
+							slotProps={{
+								popper: {
+									sx: {
+										[`& .${tooltipClasses.tooltip}`]: {
+											backgroundColor: '#ffffff',
+											color: 'rgba(0, 0, 0, 0.87)',
+											border: '1px solid #dadde9',
+											paddingX: 2.5,
+											paddingY: 1.5,
+										},
+									},
+								},
+							}}
+						>
+							<Box
+								key={i}
+								flexGrow={1}
+								sx={{ backgroundColor: backgrounds[d.type], cursor: 'pointer' }}
+							/>
+						</Tooltip>
 					))}
 					{/* //TODO добавить каждому элементу tooltip с кастомным выводом данных */}
 				</Box>
@@ -182,10 +127,5 @@ export const Calendar: FC<Props> = ({ data }) => {
 			<Box gridColumn={(start.day() + 6) % 7} />
 			{renderDays()}
 		</Box>
-		// <Grid container columns={7} sx={{ borderRadius: '12px', boxShadow: '0px 2px 8px rgba(0,0,0,0.32)' }}>
-
-		// 	<Grid item xs={start.day()} />
-		// 	{renderTable()}
-		// </Grid>
 	)
 }
