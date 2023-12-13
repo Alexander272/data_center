@@ -18,7 +18,8 @@ func NewRoleRepo(db *sqlx.DB) *RoleRepo {
 }
 
 type Role interface {
-	GetAll(context.Context) ([]models.Role, error)
+	// GetAll(context.Context) ([]models.Role, error)
+	GetWithApiPaths(context.Context) ([]models.RoleWithApi, error)
 	Create(context.Context, models.RoleDTO) error
 	Update(context.Context, models.RoleDTO) error
 	Delete(context.Context, string) error
@@ -32,35 +33,50 @@ type RoleWithMenu struct {
 	Method string `db:"method"`
 }
 
-func (r *RoleRepo) GetAll(ctx context.Context) (roles []models.Role, err error) {
-	query := fmt.Sprintf(`SELECT r.id, r.name, type, path, method
-		FROM %s AS r INNER JOIN %s AS m ON m.role_id=r.id WHERE is_show=true AND type=$1 ORDER BY r.id`,
-		RoleTable, MenuTable,
-	)
-	var data []RoleWithMenu
+// func (r *RoleRepo) GetAll(ctx context.Context) (roles []models.Role, err error) {
+// 	query := fmt.Sprintf(`SELECT r.id, r.name, type, path, method
+// 		FROM %s AS r INNER JOIN %s AS m ON m.role_id=r.id WHERE is_show=true AND type=$1 ORDER BY r.id`,
+// 		RoleTable, MenuTable,
+// 	)
+// 	var data []RoleWithMenu
 
-	if err := r.db.Select(&data, query, "API"); err != nil {
+// 	if err := r.db.Select(&data, query, "API"); err != nil {
+// 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
+// 	}
+
+// 	for i, rwm := range data {
+// 		menu := models.Menu{
+// 			Type:   rwm.Name,
+// 			Path:   rwm.Path,
+// 			Method: rwm.Method,
+// 		}
+
+// 		if i == 0 || roles[len(roles)-1].Id != rwm.Id {
+// 			roles = append(roles, models.Role{
+// 				Id:    rwm.Id,
+// 				Name:  rwm.Name,
+// 				Menus: []models.Menu{menu},
+// 			})
+// 		} else {
+// 			roles[len(roles)-1].Menus = append(roles[len(roles)-1].Menus, menu)
+// 		}
+// 	}
+
+// 	return roles, nil
+// }
+
+func (r *RoleRepo) GetWithApiPaths(ctx context.Context) (roles []models.RoleWithApi, err error) {
+	query := fmt.Sprintf(`SELECT m.id, r.name, a.path, a.method FROM %s AS m
+		LEFT JOIN %s AS r ON r.id=role
+		LEFT JOIN %s AS i ON i.menu_item=m.menu_item
+		LEFT JOIN %s AS a ON a.id=i.api
+		ORDER BY r.name`,
+		MenuByRoleTable, RoleTable, MenuApiTable, ApiTable,
+	)
+
+	if err := r.db.Select(&roles, query); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
-
-	for i, rwm := range data {
-		menu := models.Menu{
-			Type:   rwm.Name,
-			Path:   rwm.Path,
-			Method: rwm.Method,
-		}
-
-		if i == 0 || roles[len(roles)-1].Id != rwm.Id {
-			roles = append(roles, models.Role{
-				Id:    rwm.Id,
-				Name:  rwm.Name,
-				Menus: []models.Menu{menu},
-			})
-		} else {
-			roles[len(roles)-1].Menus = append(roles[len(roles)-1].Menus, menu)
-		}
-	}
-
 	return roles, nil
 }
 

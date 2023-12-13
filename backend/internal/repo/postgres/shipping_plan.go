@@ -44,7 +44,7 @@ func (r *ShippingPlanRepo) GetByPeriod(ctx context.Context, period models.Period
 			return nil, fmt.Errorf("failed to parse date. error: %w", err)
 		}
 		args = append(args, fmt.Sprintf("%d", to.Unix()))
-		condition = "date>=$1 AND date<=$2"
+		condition = "day>=$1 AND day<=$2"
 	}
 
 	query := fmt.Sprintf(`SELECT id, day, number_of_orders, sum_money, quantity FROM %s WHERE %s ORDER BY day`, ShippingPlanTable, condition)

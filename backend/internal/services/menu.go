@@ -19,13 +19,22 @@ func NewMenuService(repo repo.Menu) *MenuService {
 }
 
 type Menu interface {
-	GetByRole(context.Context, string) ([]models.Menu, error)
+	// GetByRole(context.Context, string) ([]models.Menu, error)
+	GetByRole(context.Context, string) ([]models.MenuByRoleDTO, error)
 }
 
-func (s *MenuService) GetByRole(ctx context.Context, role string) ([]models.Menu, error) {
-	menus, err := s.repo.GetByRole(ctx, role)
+// func (s *MenuService) GetByRole(ctx context.Context, role string) ([]models.Menu, error) {
+// 	menus, err := s.repo.GetByRole(ctx, role)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to get menus by role. error: %w", err)
+// 	}
+// 	return menus, nil
+// }
+
+func (s *MenuService) GetByRole(ctx context.Context, role string) ([]models.MenuByRoleDTO, error) {
+	menu, err := s.repo.GetByRole(ctx, role)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get menus by role. error: %w", err)
+		return nil, fmt.Errorf("failed to get menu by role. error: %w", err)
 	}
-	return menus, nil
+	return menu, nil
 }

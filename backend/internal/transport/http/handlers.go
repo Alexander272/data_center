@@ -32,9 +32,9 @@ func NewHandler(services *services.Services, permissions casbin.Casbin, keycloak
 func (h *Handler) Init(conf *config.Config) *gin.Engine {
 	router := gin.Default()
 
-	router.Use(
-		limiter.Limit(conf.Limiter.RPS, conf.Limiter.Burst, conf.Limiter.TTL),
-	)
+	// router.Use(
+	// 	limiter.Limit(conf.Limiter.RPS, conf.Limiter.Burst, conf.Limiter.TTL),
+	// )
 
 	router.Use(
 		static.Serve("/", static.LocalFile("../frontend/dist/", true)),

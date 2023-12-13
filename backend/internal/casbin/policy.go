@@ -42,25 +42,42 @@ func (s *PolicyAdapter) LoadPolicy(model model.Model) error {
 }
 
 func (s *PolicyAdapter) loadRolePolicy(model model.Model) error {
-	roles, err := s.role.GetAll(context.Background())
+	roles, err := s.role.GetWithApiPaths(context.Background())
 	if err != nil {
 		return err
 	}
 
 	for _, r := range roles {
-		for _, m := range r.Menus {
-			if m.Path == "" || m.Method == "" {
-				continue
-			}
-
-			line := fmt.Sprintf("p, %s, %s, %s", r.Name, m.Path, m.Method)
-			if err := persist.LoadPolicyLine(line, model); err != nil {
-				return fmt.Errorf("failed to load role policy. error: %w", err)
-			}
+		line := fmt.Sprintf("p, %s, %s, %s", r.Name, r.Path, r.Method)
+		if err := persist.LoadPolicyLine(line, model); err != nil {
+			return fmt.Errorf("failed to load role policy. error: %w", err)
 		}
 	}
 	return nil
 }
+
+// func (s *PolicyAdapter) loadRolePolicy(model model.Model) error {
+// 	roles, err := s.role.GetAll(context.Background())
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	for _, r := range roles {
+// 		for _, m := range r.Menus {
+// 			if m.Path == "" || m.Method == "" {
+// 				continue
+// 			}
+
+// 			// persist.LoadPolicyArray()
+
+// 			line := fmt.Sprintf("p, %s, %s, %s", r.Name, m.Path, m.Method)
+// 			if err := persist.LoadPolicyLine(line, model); err != nil {
+// 				return fmt.Errorf("failed to load role policy. error: %w", err)
+// 			}
+// 		}
+// 	}
+// 	return nil
+// }
 
 // func (s *PolicyAdapter) loadUserPolicy(model model.Model) error {
 // 	users, err := s.user.GetAll(context.Background())

@@ -19,16 +19,25 @@ func NewRoleService(repo repo.Role) *RoleService {
 }
 
 type Role interface {
-	GetAll(context.Context) ([]models.Role, error)
+	// GetAll(context.Context) ([]models.Role, error)
+	GetWithApiPaths(context.Context) ([]models.RoleWithApi, error)
 	Create(context.Context, models.RoleDTO) error
 	Update(context.Context, models.RoleDTO) error
 	Delete(context.Context, string) error
 }
 
-func (s *RoleService) GetAll(ctx context.Context) ([]models.Role, error) {
-	roles, err := s.repo.GetAll(ctx)
+// func (s *RoleService) GetAll(ctx context.Context) ([]models.Role, error) {
+// 	roles, err := s.repo.GetAll(ctx)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to get all roles. error: %w", err)
+// 	}
+// 	return roles, nil
+// }
+
+func (s *RoleService) GetWithApiPaths(ctx context.Context) ([]models.RoleWithApi, error) {
+	roles, err := s.repo.GetWithApiPaths(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get all roles. error: %w", err)
+		return nil, fmt.Errorf("failed to get roles with api path. error: %w", err)
 	}
 	return roles, nil
 }

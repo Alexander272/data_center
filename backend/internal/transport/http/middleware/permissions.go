@@ -5,7 +5,6 @@ import (
 
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
-	"github.com/Alexander272/data_center/backend/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,7 +22,7 @@ func (m *Middleware) CheckPermissions(c *gin.Context) {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		return
 	}
-	logger.Debug("permissions path - ", c.FullPath(), " method - ", c.Request.Method, ". permission access - ", access)
+	// logger.Debug("permissions path - ", c.FullPath(), " method - ", c.Request.Method, ". permission access - ", access)
 
 	if !access {
 		response.NewErrorResponse(c, http.StatusForbidden, "access denied", "нет доступа к данному разделу")

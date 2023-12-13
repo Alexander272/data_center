@@ -1,112 +1,116 @@
 package auth
 
-// type AuthHandlers_old struct {
-// 	service    services.Session
-// 	auth       config.AuthConfig
-// 	botApi     api.MostBotApi
-// 	cookieName string
-// }
+import (
+	"net/http"
+	"strings"
 
-// func NewAuthHandlers_old(service services.Session, auth config.AuthConfig, botApi api.MostBotApi, cookieName string) *AuthHandlers {
-// 	return &AuthHandlers{
-// 		service:    service,
-// 		auth:       auth,
-// 		botApi:     botApi,
-// 		cookieName: cookieName,
-// 	}
-// }
+	"github.com/Alexander272/data_center/backend/internal/config"
+	"github.com/Alexander272/data_center/backend/internal/models"
+	"github.com/Alexander272/data_center/backend/internal/models/response"
+	"github.com/Alexander272/data_center/backend/internal/services"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/api"
+	"github.com/gin-gonic/gin"
+)
 
-// func Register(api *gin.RouterGroup, service services.Session, auth config.AuthConfig, botApi api.MostBotApi, cookieName string) {
-// 	handlers := NewAuthHandlers(service, auth, botApi, cookieName)
+type AuthHandlers struct {
+	service    services.Session
+	auth       config.AuthConfig
+	botApi     api.MostBotApi
+	cookieName string
+}
 
-// 	authRoute := api.Group("/auth")
-// 	{
-// 		authRoute.POST("/sign-in", handlers.signIn)
-// 		authRoute.POST("/sign-out", handlers.signOut)
-// 		authRoute.POST("/refresh", handlers.refresh)
-// 	}
-// }
+func NewAuthHandlers(service services.Session, auth config.AuthConfig, botApi api.MostBotApi, cookieName string) *AuthHandlers {
+	return &AuthHandlers{
+		service:    service,
+		auth:       auth,
+		botApi:     botApi,
+		cookieName: cookieName,
+	}
+}
 
-// func (h *AuthHandlers_old) signIn(c *gin.Context) {
-// 	var req models.SignIn
-// 	if err := c.BindJSON(&req); err != nil {
-// 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Введены некорректные данные")
-// 		return
-// 	}
+func Register(api *gin.RouterGroup, service services.Session, auth config.AuthConfig, botApi api.MostBotApi, cookieName string) {
+	handlers := NewAuthHandlers(service, auth, botApi, cookieName)
 
-// 	user, token, err := h.service.SignIn(c, req)
-// 	if err != nil {
-// 		if errors.Is(err, models.ErrPassword) {
-// 			response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Введены некорректные данные")
-// 			return
-// 		}
-// 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
-// 		h.botApi.SendError(c, err.Error(), req)
-// 		return
-// 	}
+	authRoute := api.Group("/auth")
+	{
+		authRoute.POST("/sign-in", handlers.signIn)
+		authRoute.POST("/sign-out", handlers.signOut)
+		authRoute.POST("/refresh", handlers.refresh)
+	}
+}
 
-// 	c.SetCookie(h.cookieName, token, int(h.auth.RefreshTokenTTL.Seconds()), "/", c.Request.Host, h.auth.Secure, true)
-// 	c.JSON(http.StatusOK, response.DataResponse{Data: user})
+func (h *AuthHandlers) signIn(c *gin.Context) {
+	var dto models.SignIn
+	if err := c.BindJSON(&dto); err != nil {
+		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Введены некорректные данные")
+		return
+	}
 
-// 	// response.NewErrorResponse(c, http.StatusInternalServerError, "not implemented", "not implemented")
-// }
+	user, err := h.service.SignIn(c, dto)
+	if err != nil {
+		if strings.Contains(err.Error(), "invalid_grant") {
+			response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Введены некорректные данные")
+			return
+		}
+		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), dto)
+		return
+	}
 
-// func (h *AuthHandlers_old) signOut(c *gin.Context) {
-// 	tokenInHeader := c.GetHeader("Authorization")
-// 	tokenInCookie, _ := c.Cookie(h.cookieName)
+	domain := h.auth.Domain
+	if !strings.Contains(c.Request.Host, domain) {
+		domain = c.Request.Host
+	}
 
-// 	if tokenInHeader == "" && tokenInCookie == "" {
-// 		response.NewErrorResponse(c, http.StatusUnauthorized, "empty token", "сессия не найдена")
-// 		return
-// 	}
+	c.SetCookie(h.cookieName, user.RefreshToken, int(h.auth.RefreshTokenTTL.Seconds()), "/", domain, h.auth.Secure, true)
+	c.JSON(http.StatusOK, response.DataResponse{Data: user})
+}
 
-// 	token := tokenInCookie
-// 	if tokenInHeader != "" {
-// 		token = strings.Replace(tokenInHeader, "Bearer ", "", 1)
-// 	}
+func (h *AuthHandlers) signOut(c *gin.Context) {
+	refreshToken, err := c.Cookie(h.cookieName)
+	if err != nil {
+		response.NewErrorResponse(c, http.StatusUnauthorized, err.Error(), "Сессия не найдена")
+		return
+	}
 
-// 	if err := h.service.SingOut(c, token); err != nil {
-// 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
-// 		h.botApi.SendError(c, err.Error(), nil)
-// 		return
-// 	}
+	if err := h.service.SignOut(c, refreshToken); err != nil {
+		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), nil)
+		return
+	}
 
-// 	if tokenInCookie != "" {
-// 		c.SetCookie(h.cookieName, "", -1, "/", c.Request.Host, h.auth.Secure, true)
-// 	}
+	domain := h.auth.Domain
+	if !strings.Contains(c.Request.Host, domain) {
+		domain = c.Request.Host
+	}
 
-// 	c.JSON(http.StatusNoContent, response.StatusResponse{})
+	c.SetCookie(h.cookieName, "", -1, "/", domain, h.auth.Secure, true)
+	c.JSON(http.StatusNoContent, response.StatusResponse{})
+}
 
-// 	// response.NewErrorResponse(c, http.StatusInternalServerError, "not implemented", "not implemented")
-// }
+func (h *AuthHandlers) refresh(c *gin.Context) {
+	refreshToken, err := c.Cookie(h.cookieName)
+	if err != nil {
+		response.NewErrorResponse(c, http.StatusUnauthorized, err.Error(), "Сессия не найдена")
+		return
+	}
 
-// func (h *AuthHandlers_old) refresh(c *gin.Context) {
-// 	//? у меня будет файл куки с токеном по нему я могу доставать из редиса id пользователя и проверять сессию в keycloak
+	user, err := h.service.Refresh(c, refreshToken)
+	if err != nil {
+		if strings.Contains(err.Error(), models.ErrSessionEmpty.Error()) {
+			response.NewErrorResponse(c, http.StatusUnauthorized, "token is expired", "сессия не найдена")
+			return
+		}
+		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		h.botApi.SendError(c, err.Error(), nil)
+		return
+	}
 
-// 	tokenInHeader := c.GetHeader("Authorization")
-// 	tokenInCookie, _ := c.Cookie(h.cookieName)
+	domain := h.auth.Domain
+	if !strings.Contains(c.Request.Host, domain) {
+		domain = c.Request.Host
+	}
 
-// 	if tokenInHeader == "" && tokenInCookie == "" {
-// 		response.NewErrorResponse(c, http.StatusUnauthorized, "empty token", "сессия не найдена")
-// 		return
-// 	}
-
-// 	token := tokenInCookie
-// 	if tokenInHeader != "" {
-// 		token = strings.Replace(tokenInHeader, "Bearer ", "", 1)
-// 	}
-
-// 	user, token, err := h.service.Refresh(c, token)
-// 	if err != nil {
-// 		if strings.Contains(err.Error(), models.ErrSessionEmpty.Error()) {
-// 			response.NewErrorResponse(c, http.StatusUnauthorized, "token is expired", "сессия не найдена")
-// 			return
-// 		}
-// 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
-// 		h.botApi.SendError(c, err.Error(), nil)
-// 		return
-// 	}
-
-// 	c.SetCookie(h.cookieName, token, int(h.auth.RefreshTokenTTL.Seconds()), "/", c.Request.Host, h.auth.Secure, true)
-// 	c.JSON(http.StatusOK, response.DataResponse{Data: user})
-// }
+	c.SetCookie(h.cookieName, user.RefreshToken, int(h.auth.RefreshTokenTTL.Seconds()), "/", domain, h.auth.Secure, true)
+	c.JSON(http.StatusOK, response.DataResponse{Data: user})
+}

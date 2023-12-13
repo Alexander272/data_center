@@ -26,8 +26,12 @@ func (m *Middleware) VerifyToken(c *gin.Context) {
 
 	result, err := m.Keycloak.Client.RetrospectToken(c, token, m.Keycloak.ClientId, m.Keycloak.ClientSecret, m.Keycloak.Realm)
 	if err != nil {
-		//TODO переписать хост на домен
-		c.SetCookie(m.CookieName, "", -1, "/", c.Request.Host, m.auth.Secure, true)
+		domain := m.auth.Domain
+		if !strings.Contains(c.Request.Host, domain) {
+			domain = c.Request.Host
+		}
+
+		c.SetCookie(m.CookieName, "", -1, "/", domain, m.auth.Secure, true)
 		response.NewErrorResponse(c, http.StatusUnauthorized, err.Error(), "сессия не найдена")
 		return
 	}

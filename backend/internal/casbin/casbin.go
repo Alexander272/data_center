@@ -42,3 +42,8 @@ func (s *CasbinService) Register(role services.Role, user services.User, path st
 func (s *CasbinService) Enforce(params ...interface{}) (bool, error) {
 	return s.enforcer.Enforce(params...)
 }
+
+func (s *CasbinService) ReloadPolicy() error {
+	//* для перезагрузки вроде как нужно просто вызвать функцию s.enforcer.LoadPolicy()
+	return fmt.Errorf("not implemented")
+}
