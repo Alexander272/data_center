@@ -68,3 +68,13 @@ export interface ISeriesData {
 	mark?: number
 	color?: string
 }
+
+export interface ISQDCData {
+	type: 'good' | 'bad' | 'middle'
+	values?: string[]
+}
+
+export interface ISQDC {
+	date: string
+	data: ISQDCData[]
+}

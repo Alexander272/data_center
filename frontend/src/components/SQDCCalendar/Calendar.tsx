@@ -1,17 +1,18 @@
 import { FC } from 'react'
 import { Box, Tooltip, Typography, Zoom, tooltipClasses } from '@mui/material'
 import dayjs from 'dayjs'
+import type { ISQDC, ISQDCData } from '@/types/sheet'
 import { TooltipData } from './TooltipData'
 
-export interface IData {
-	type: 'good' | 'bad' | 'middle'
-	values?: string[]
-}
+// export interface IData {
+// 	type: 'good' | 'bad' | 'middle'
+// 	values?: string[]
+// }
 
-export interface IDays {
-	date: string
-	data: IData[]
-}
+// export interface IDays {
+// 	date: string
+// 	data: IData[]
+// }
 
 const DaysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
@@ -22,7 +23,7 @@ const backgrounds = {
 }
 
 type Props = {
-	data: IDays[]
+	data: ISQDC[]
 }
 
 export const Calendar: FC<Props> = ({ data }) => {
@@ -33,12 +34,15 @@ export const Calendar: FC<Props> = ({ data }) => {
 		let j = 0
 
 		for (let i = 0; i < start.endOf('M').date(); i++) {
-			let d: IData[] = []
+			let d: ISQDCData[] = []
 			const day = start.add(i, 'd')
 			if (data[j]?.date == day.format('DD.MM.YYYY')) {
 				d = data[j].data
 				j++
 			}
+
+			const curDay = day.format('DD.MM.YYYY')
+			const today = dayjs().format('DD.MM.YYYY')
 
 			days.push(
 				<Box
@@ -56,9 +60,8 @@ export const Calendar: FC<Props> = ({ data }) => {
 						position={'absolute'}
 						top={'50%'}
 						left={'50%'}
-						fontWeight={day.format('DD.MM.YYYY') == dayjs().format('DD.MM.YYYY') ? 'bold' : 'normal'}
-						// fontSize={'1.2rem'}
-						fontSize={day.format('DD.MM.YYYY') == dayjs().format('DD.MM.YYYY') ? '24px' : '1.2rem'}
+						fontWeight={curDay == today ? 'bold' : 'normal'}
+						fontSize={curDay == today ? '1.5rem' : '1.2rem'}
 						sx={{ transform: 'translate(-50%, -50%)', pointerEvents: 'none' }}
 					>
 						{i + 1}
@@ -69,7 +72,7 @@ export const Calendar: FC<Props> = ({ data }) => {
 							key={i}
 							title={<TooltipData values={d.values} />}
 							TransitionComponent={Zoom}
-							enterDelay={2000}
+							enterDelay={1500}
 							slotProps={{
 								popper: {
 									sx: {
@@ -79,6 +82,7 @@ export const Calendar: FC<Props> = ({ data }) => {
 											border: '1px solid #dadde9',
 											paddingX: 2.5,
 											paddingY: 1.5,
+											borderRadius: 3,
 										},
 									},
 								},
@@ -91,7 +95,6 @@ export const Calendar: FC<Props> = ({ data }) => {
 							/>
 						</Tooltip>
 					))}
-					{/* //TODO добавить каждому элементу tooltip с кастомным выводом данных */}
 				</Box>
 			)
 		}

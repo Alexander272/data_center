@@ -34,7 +34,7 @@ export const Week: FC<Props> = ({ startWeek, selected, currentMonth, picker }) =
 					width={38}
 					margin={'1px'}
 					fontWeight={day.format('DD.MM.YYYY') == dayjs().format('DD.MM.YYYY') ? 'bold' : 'normal'}
-					fontSize={day.format('DD.MM.YYYY') == dayjs().format('DD.MM.YYYY') ? '20px' : '1rem'}
+					fontSize={day.format('DD.MM.YYYY') == dayjs().format('DD.MM.YYYY') ? '1.25rem' : '1rem'}
 					sx={{
 						opacity: currentMonth != day.month() ? 0.5 : 1,
 						// pointerEvents: currentMonth != day.month() ? 'none' : 'all',
