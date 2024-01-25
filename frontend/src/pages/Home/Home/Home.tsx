@@ -36,7 +36,7 @@ const steps = [
 	{ id: '3', key: 'output', label: 'Объем выпуска продукции' },
 	{ id: '4', key: 'orders', label: 'Объем заказов переданных в производство' },
 	{ id: '5', key: 'load', label: 'Загруженность производства' },
-	{ id: '6', key: 'sqdc', label: 'SQDC' },
+	// { id: '6', key: 'sqdc', label: 'SQDC' },
 ]
 
 const pickerType = {

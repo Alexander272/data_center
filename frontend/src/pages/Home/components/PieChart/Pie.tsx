@@ -1,5 +1,4 @@
 import { FC } from 'react'
-// import ReactECharts from 'echarts-for-react'
 import ReactECharts from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts/core'
 import { PieChart } from 'echarts/charts'

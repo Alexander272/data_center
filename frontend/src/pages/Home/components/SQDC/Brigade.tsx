@@ -1,4 +1,5 @@
 // import { Calendar } from '@/components/SQDCCalendar/Calendar'
+import { Calendar } from '@/components/SQDCCalendar/Calendar'
 import { Box, Typography } from '@mui/material'
 
 export const Brigade = () => {
@@ -7,6 +8,8 @@ export const Brigade = () => {
 			<Typography variant='h5' textAlign={'center'} mb={1}>
 				Численность
 			</Typography>
+
+			<Calendar data={[]} />
 
 			{/* <Calendar
 				data={[

@@ -31,7 +31,7 @@ export default function Day({ data }: Props) {
 									План, Руб
 								</TableCell>
 								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
-									Разница, Руб (План - Факт)
+									Разница, Руб (Факт - План)
 								</TableCell>
 							</TableRow>
 						</TableHead>
@@ -72,7 +72,7 @@ export default function Day({ data }: Props) {
 										{new Intl.NumberFormat('ru-Ru').format(+(d.planMoney || 0))}
 									</TableCell>
 									<TableCell align='right'>
-										{new Intl.NumberFormat('ru-Ru').format(+(d.planMoney || 0) - +(d.money || 0))}
+										{new Intl.NumberFormat('ru-Ru').format(+(d.money || 0) - +(d.planMoney || 0))}
 									</TableCell>
 								</TableRow>
 							))}
@@ -108,8 +108,8 @@ export default function Day({ data }: Props) {
 								</TableCell>
 								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
 									{new Intl.NumberFormat('ru-Ru').format(
-										data.reduce((acc, c) => acc + +(c.planMoney || 0), 0) -
-											data.reduce((acc, c) => acc + +(c.money || 0), 0)
+										data.reduce((acc, c) => acc + +(c.money || 0), 0) -
+											data.reduce((acc, c) => acc + +(c.planMoney || 0), 0)
 									)}
 								</TableCell>
 							</TableRow>

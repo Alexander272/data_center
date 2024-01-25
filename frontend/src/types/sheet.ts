@@ -50,6 +50,11 @@ export interface IPieData {
 	value: number
 }
 
+export interface IBarData {
+	name: string
+	value: number
+}
+
 export interface ILineData {
 	series: ISeriesData[]
 	axis: string[]

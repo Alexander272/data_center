@@ -1,6 +1,6 @@
 import { Box, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
 import type { IPlan } from '@/types/productionPlan'
-import { Pie } from '../components/PieChart/Pie'
+import { SingleBar } from '../components/BarChart/SingleBar'
 
 type Props = {
 	data: IPlan[]
@@ -25,7 +25,7 @@ export default function Day({ data }: Props) {
 									План, Руб
 								</TableCell>
 								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
-									Разница, Руб (План - Факт)
+									Разница, Руб (Факт - План)
 								</TableCell>
 							</TableRow>
 						</TableHead>
@@ -50,7 +50,7 @@ export default function Day({ data }: Props) {
 										{new Intl.NumberFormat('ru-Ru').format(+(d.planMoney || 0))}
 									</TableCell>
 									<TableCell align='right'>
-										{new Intl.NumberFormat('ru-Ru').format(+(d.planMoney || 0) - +(d.money || 0))}
+										{new Intl.NumberFormat('ru-Ru').format(+(d.money || 0) - +(d.planMoney || 0))}
 									</TableCell>
 								</TableRow>
 							))}
@@ -74,8 +74,8 @@ export default function Day({ data }: Props) {
 								</TableCell>
 								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
 									{new Intl.NumberFormat('ru-Ru').format(
-										data.reduce((acc, c) => acc + +(c.planMoney || 0), 0) -
-											data.reduce((acc, c) => acc + +(c.money || 0), 0)
+										data.reduce((acc, c) => acc + +(c.money || 0), 0) -
+											data.reduce((acc, c) => acc + +(c.planMoney || 0), 0)
 									)}
 								</TableCell>
 							</TableRow>
@@ -90,11 +90,9 @@ export default function Day({ data }: Props) {
 					<Typography align='center' fontWeight={'bold'}>
 						Отгружено штук
 					</Typography>
-					<Box width={'100%'} height={320}>
-						<Pie
-							data={data.map(d => ({ value: +(d.count || 0), name: d.product || '' }))}
-							name='Отгружено штук'
-						/>
+
+					<Box width={'100%'} height={400}>
+						<SingleBar data={data.map(d => ({ value: +(d.count || 0), name: d.product || '' }))} />
 					</Box>
 				</Stack>
 
@@ -102,11 +100,9 @@ export default function Day({ data }: Props) {
 					<Typography align='center' fontWeight={'bold'}>
 						Отгружено в руб
 					</Typography>
-					<Box width={'100%'} height={320}>
-						<Pie
-							data={data.map(d => ({ value: +(d.money || 0), name: d.product || '' }))}
-							name='Отгружено в руб'
-						/>
+
+					<Box width={'100%'} height={400}>
+						<SingleBar data={data.map(d => ({ value: +(d.money || 0), name: d.product || '' }))} />
 					</Box>
 				</Stack>
 				{/* </Stack> */}

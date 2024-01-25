@@ -1,6 +1,6 @@
 import { Box, Divider, Stack, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
 import type { IOutput } from '@/types/outputVolume'
-import { Pie } from '../components/PieChart/Pie'
+import { SingleBar } from '../components/BarChart/SingleBar'
 
 type Props = {
 	data: IOutput[]
@@ -72,7 +72,7 @@ export default function Day({ data }: Props) {
 									План, Руб
 								</TableCell>
 								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
-									Разница, Руб (План - Факт)
+									Разница, Руб (Факт - План)
 								</TableCell>
 							</TableRow>
 						</TableHead>
@@ -95,7 +95,7 @@ export default function Day({ data }: Props) {
 									</TableCell>
 									<TableCell align='right'>
 										{new Intl.NumberFormat('ru-Ru').format(
-											+(d.planQuantity || 0) - +(d.count || 0)
+											+(d.count || 0) - +(d.planQuantity || 0)
 										)}
 									</TableCell>
 
@@ -113,7 +113,7 @@ export default function Day({ data }: Props) {
 										{new Intl.NumberFormat('ru-Ru').format(+(d.planMoney || 0))}
 									</TableCell>
 									<TableCell align='right'>
-										{new Intl.NumberFormat('ru-Ru').format(+(d.planMoney || 0) - +(d.money || 0))}
+										{new Intl.NumberFormat('ru-Ru').format(+(d.money || 0) - +(d.planMoney || 0))}
 									</TableCell>
 								</TableRow>
 							))}
@@ -132,8 +132,8 @@ export default function Day({ data }: Props) {
 								</TableCell>
 								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
 									{new Intl.NumberFormat('ru-Ru').format(
-										orders.reduce((acc, c) => acc + +(c.planQuantity || 0), 0) -
-											orders.reduce((acc, c) => acc + +(c.count || 0), 0)
+										orders.reduce((acc, c) => acc + +(c.count || 0), 0) -
+											orders.reduce((acc, c) => acc + +(c.planQuantity || 0), 0)
 									)}
 								</TableCell>
 
@@ -149,8 +149,8 @@ export default function Day({ data }: Props) {
 								</TableCell>
 								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
 									{new Intl.NumberFormat('ru-Ru').format(
-										orders.reduce((acc, c) => acc + +(c.planMoney || 0), 0) -
-											orders.reduce((acc, c) => acc + +(c.money || 0), 0)
+										orders.reduce((acc, c) => acc + +(c.money || 0), 0) -
+											orders.reduce((acc, c) => acc + +(c.planMoney || 0), 0)
 									)}
 								</TableCell>
 							</TableRow>
@@ -169,11 +169,8 @@ export default function Day({ data }: Props) {
 					<Typography align='center' fontWeight={'bold'}>
 						На склад, штук
 					</Typography>
-					<Box width={'100%'} height={320}>
-						<Pie
-							data={(stock || []).map(d => ({ value: +(d.count || 0), name: d.product || '' }))}
-							name='На склад, штук'
-						/>
+					<Box width={'100%'} height={400}>
+						<SingleBar data={(stock || []).map(d => ({ value: +(d.count || 0), name: d.product || '' }))} />
 					</Box>
 				</Stack>
 
@@ -181,20 +178,18 @@ export default function Day({ data }: Props) {
 					<Typography align='center' fontWeight={'bold'}>
 						В заказы, штук
 					</Typography>
-					<Box width={'100%'} height={320}>
-						<Pie
+					<Box width={'100%'} height={400}>
+						<SingleBar
 							data={(orders || []).map(d => ({ value: +(d.count || 0), name: d.product || '' }))}
-							name='В заказы, штук'
 						/>
 					</Box>
 
 					<Typography align='center' fontWeight={'bold'}>
 						В заказы, руб
 					</Typography>
-					<Box width={'100%'} height={320}>
-						<Pie
+					<Box width={'100%'} height={400}>
+						<SingleBar
 							data={(orders || []).map(d => ({ value: +(d.money || 0), name: d.product || '' }))}
-							name='В заказы, руб'
 						/>
 					</Box>
 				</Stack>
