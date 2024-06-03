@@ -48,7 +48,7 @@ func (r *CompleteCriterionRepo) Get(ctx context.Context, filter models.ReportFil
 		return nil, fmt.Errorf("failed to parse date. error: %w", err)
 	}
 
-	if err := r.db.Select(&complete, query, filter.Type, filter.Role, fmt.Sprintf("%d", date.Unix())); err != nil {
+	if err := r.db.Select(&complete, query, filter.Type, filter.Role, date.Unix()); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
 

@@ -58,11 +58,11 @@ func (h *MostApi) SendError(c *gin.Context, e string, request interface{}) {
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(message)
 	if err != nil {
-		logger.Error("failed to read struct. error: %w", err)
+		logger.Errorf("failed to read struct. error: %s", err.Error())
 	}
 
 	_, err = http.Post(fmt.Sprintf("%s/api/v1/mattermost/send", h.URL), "application/json", &buf)
 	if err != nil {
-		logger.Error("failed to send error to bot. error: %w", err)
+		logger.Errorf("failed to send error to bot. error: %s", err.Error())
 	}
 }

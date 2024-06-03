@@ -9,27 +9,18 @@ import (
 )
 
 type Middleware struct {
-	CookieName string
 	// enforcer   casbin.IEnforcer
 	permissions casbin.Casbin
-	// TODO сделать Keycloak приватным
-	Keycloak *auth.KeycloakClient
-	// TODO стоит наверное получать не все сервисы, а только те что используются
-	services *services.Services
-	auth     config.AuthConfig
-	CtxUser  string
-	// CtxRole              string
+	keycloak    *auth.KeycloakClient
+	services    *services.Services
+	auth        config.AuthConfig
 }
 
 func NewMiddleware(services *services.Services, auth config.AuthConfig, permissions casbin.Casbin, keycloak *auth.KeycloakClient) *Middleware {
 	return &Middleware{
-		// enforcer: enforcer,
 		permissions: permissions,
-		Keycloak:    keycloak,
+		keycloak:    keycloak,
 		services:    services,
 		auth:        auth,
-		CtxUser:     "user_context",
-		// UserIdCtx:            "userId",
-		// RoleCtx:              "role",
 	}
 }

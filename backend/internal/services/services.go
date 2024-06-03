@@ -17,6 +17,8 @@ type Services struct {
 	ProductionLoad
 	ProductionPlan
 	ShippingPlan
+	SemiFinished
+	Tooling
 
 	Session
 	Role
@@ -45,6 +47,8 @@ func NewServices(deps Deps) *Services {
 	productionLoad := NewProductionLoadService(deps.Repos.ProductionLoad)
 	productionPlan := NewProductionPlanService(deps.Repos.ProductionPlan)
 	shippingPlan := NewShippingService(deps.Repos.ShippingPlan)
+	semiFinished := NewSemiFinishedService(deps.Repos.SemiFinished)
+	tooling := NewToolingService(deps.Repos.Tooling)
 
 	criterionDeps := CriterionDeps{
 		// shipment: shipmentPlan,
@@ -57,12 +61,15 @@ func NewServices(deps Deps) *Services {
 	completeCriterion := NewCompleteCriterionService(deps.Repos.CompleteCriterion)
 
 	return &Services{
-		Shipment:          shipment,
-		OrdersVolume:      ordersVolume,
-		OutputVolume:      outputVolume,
-		ProductionLoad:    productionLoad,
-		ProductionPlan:    productionPlan,
-		ShippingPlan:      shippingPlan,
+		Shipment:       shipment,
+		OrdersVolume:   ordersVolume,
+		OutputVolume:   outputVolume,
+		ProductionLoad: productionLoad,
+		ProductionPlan: productionPlan,
+		ShippingPlan:   shippingPlan,
+		SemiFinished:   semiFinished,
+		Tooling:        tooling,
+
 		Criterions:        criterions,
 		CompleteCriterion: completeCriterion,
 

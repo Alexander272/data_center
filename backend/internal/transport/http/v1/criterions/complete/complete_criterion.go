@@ -3,27 +3,27 @@ package complete
 import (
 	"net/http"
 
+	"github.com/Alexander272/data_center/backend/internal/constants"
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
-	"github.com/Alexander272/data_center/backend/internal/transport/http/api"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/middleware"
+	"github.com/Alexander272/data_center/backend/pkg/error_bot"
 	"github.com/gin-gonic/gin"
 )
 
 type CriterionsHandlers struct {
 	service services.CompleteCriterion
-	botApi  api.MostBotApi
 }
 
-func NewCriterionsHandlers(service services.CompleteCriterion, botApi api.MostBotApi) *CriterionsHandlers {
+func NewCriterionsHandlers(service services.CompleteCriterion) *CriterionsHandlers {
 	return &CriterionsHandlers{
 		service: service,
-		botApi:  botApi,
 	}
 }
 
-func Register(api *gin.RouterGroup, service services.CompleteCriterion, botApi api.MostBotApi) {
-	handlers := NewCriterionsHandlers(service, botApi)
+func Register(api *gin.RouterGroup, service services.CompleteCriterion, middleware *middleware.Middleware) {
+	handlers := NewCriterionsHandlers(service)
 
 	complete := api.Group("/complete")
 	{
@@ -49,8 +49,7 @@ func (h *CriterionsHandlers) get(c *gin.Context) {
 		return
 	}
 
-	//TODO убрать hardcode
-	user, exists := c.Get("user_context")
+	user, exists := c.Get(constants.CtxUser)
 	if !exists {
 		response.NewErrorResponse(c, http.StatusUnauthorized, "empty user", "пользователь не найден")
 		return
@@ -62,7 +61,7 @@ func (h *CriterionsHandlers) get(c *gin.Context) {
 	complete, err := h.service.Get(c, dto)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
-		h.botApi.SendError(c, err.Error(), dto)
+		error_bot.Send(c, err.Error(), dto)
 		return
 	}
 
@@ -82,8 +81,7 @@ func (h *CriterionsHandlers) complete(c *gin.Context) {
 		return
 	}
 
-	//TODO убрать hardcode
-	user, exists := c.Get("user_context")
+	user, exists := c.Get(constants.CtxUser)
 	if !exists {
 		response.NewErrorResponse(c, http.StatusUnauthorized, "empty user", "пользователь не найден")
 		return
@@ -93,7 +91,7 @@ func (h *CriterionsHandlers) complete(c *gin.Context) {
 
 	if err := h.service.Create(c, dto); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
-		h.botApi.SendError(c, err.Error(), dto)
+		error_bot.Send(c, err.Error(), dto)
 		return
 	}
 	c.JSON(http.StatusCreated, response.IdResponse{Message: "Критерий заполнен"})

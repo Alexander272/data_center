@@ -1,8 +1,7 @@
-package shipment
+package semi_finished
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
@@ -12,55 +11,54 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ShipmentHandlers struct {
-	service services.Shipment
+type SemiFinishedHandlers struct {
+	service services.SemiFinished
 }
 
-func NewShipmentHandlers(service services.Shipment) *ShipmentHandlers {
-	return &ShipmentHandlers{
+func NewSemiFinishedHandlers(service services.SemiFinished) *SemiFinishedHandlers {
+	return &SemiFinishedHandlers{
 		service: service,
 	}
 }
 
-func Register(api *gin.RouterGroup, service services.Shipment, middleware *middleware.Middleware) {
-	handlers := NewShipmentHandlers(service)
+func Register(api *gin.RouterGroup, service services.SemiFinished, middleware *middleware.Middleware) {
+	handlers := NewSemiFinishedHandlers(service)
 
-	shipment := api.Group("/shipment")
+	semiFinished := api.Group("semi-finished")
 	{
-		shipment.GET("/:period", handlers.getByDay)
-		shipment.POST("/", handlers.create)
-		shipment.POST("/several", handlers.createSeveral)
-		shipment.PUT("/several", handlers.update)
-		shipment.DELETE("/:day", handlers.delete)
+		semiFinished.GET("/", handlers.getByPeriod)
+		semiFinished.POST("/", handlers.create)
+		semiFinished.POST("/several", handlers.createSeveral)
+		semiFinished.PUT("/several", handlers.updateSeveral)
+		semiFinished.DELETE("/:day", handlers.delete)
 	}
 }
 
-func (h *ShipmentHandlers) getByDay(c *gin.Context) {
-	p := c.Param("period")
-	if p == "" {
+func (h *SemiFinishedHandlers) getByPeriod(c *gin.Context) {
+	//? если мне нужно будет получать данные за период ограниченный с одной стороны, я могу ввести period[day] для получения данных в текущем варианте (за день)
+	period := c.QueryMap("period")
+	if len(period) == 0 {
 		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "Период не задан")
 		return
 	}
 
-	period := models.Period{From: p}
-	if strings.Contains(p, "-") {
-		parts := strings.Split(p, "-")
-		period.From = parts[0]
-		period.To = parts[1]
+	req := &models.Period{
+		From: period["from"],
+		To:   period["to"],
 	}
 
-	shipment, err := h.service.GetByPeriod(c, period)
+	data, err := h.service.GetByPeriod(c, req)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		error_bot.Send(c, err.Error(), period)
 		return
 	}
-	c.JSON(http.StatusOK, response.DataResponse{Data: shipment})
+	c.JSON(http.StatusOK, response.DataResponse{Data: data})
 }
 
-func (h *ShipmentHandlers) create(c *gin.Context) {
-	var dto models.Shipment
-	if err := c.BindJSON(&dto); err != nil {
+func (h *SemiFinishedHandlers) create(c *gin.Context) {
+	dto := &models.SemiFinished{}
+	if err := c.BindJSON(dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
 	}
@@ -70,11 +68,11 @@ func (h *ShipmentHandlers) create(c *gin.Context) {
 		error_bot.Send(c, err.Error(), dto)
 		return
 	}
-	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные об отгрузке успешно добавлены"})
+	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные успешно добавлены"})
 }
 
-func (h *ShipmentHandlers) createSeveral(c *gin.Context) {
-	var dto []models.Shipment
+func (h *SemiFinishedHandlers) createSeveral(c *gin.Context) {
+	dto := []*models.SemiFinished{}
 	if err := c.BindJSON(&dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
@@ -85,11 +83,11 @@ func (h *ShipmentHandlers) createSeveral(c *gin.Context) {
 		error_bot.Send(c, err.Error(), dto)
 		return
 	}
-	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные об отгрузке успешно добавлены"})
+	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные успешно добавлены"})
 }
 
-func (h *ShipmentHandlers) update(c *gin.Context) {
-	var dto []models.Shipment
+func (h *SemiFinishedHandlers) updateSeveral(c *gin.Context) {
+	dto := []*models.SemiFinished{}
 	if err := c.BindJSON(&dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
@@ -100,10 +98,10 @@ func (h *ShipmentHandlers) update(c *gin.Context) {
 		error_bot.Send(c, err.Error(), dto)
 		return
 	}
-	c.JSON(http.StatusOK, response.IdResponse{Message: "Данные об отгрузке успешно обновлены"})
+	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные успешно обновлены"})
 }
 
-func (h *ShipmentHandlers) delete(c *gin.Context) {
+func (h *SemiFinishedHandlers) delete(c *gin.Context) {
 	day := c.Param("day")
 	if day == "" {
 		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "день не задан")

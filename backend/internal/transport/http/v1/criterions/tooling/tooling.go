@@ -1,8 +1,7 @@
-package shipping_plan
+package tooling
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
@@ -12,54 +11,52 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ShippingPlanHandlers struct {
-	service services.ShippingPlan
+type ToolingHandlers struct {
+	service services.Tooling
 }
 
-func NewShippingPlanHandlers(service services.ShippingPlan) *ShippingPlanHandlers {
-	return &ShippingPlanHandlers{
+func NewToolingHandlers(service services.Tooling) *ToolingHandlers {
+	return &ToolingHandlers{
 		service: service,
 	}
 }
 
-func Register(api *gin.RouterGroup, service services.ShippingPlan, middleware *middleware.Middleware) {
-	handlers := NewShippingPlanHandlers(service)
+func Register(api *gin.RouterGroup, service services.Tooling, middleware *middleware.Middleware) {
+	handlers := NewToolingHandlers(service)
 
-	shipping := api.Group("shipping-plan")
+	tooling := api.Group("tooling")
 	{
-		shipping.GET("/:period", handlers.getByPeriod)
-		shipping.POST("", handlers.create)
-		shipping.PUT("/:day", handlers.updateByDay)
-		shipping.DELETE("/:day", handlers.deleteByDay)
+		tooling.GET("/", handlers.getByPeriod)
+		tooling.POST("/", handlers.create)
+		tooling.PUT("/:day", handlers.update)
+		tooling.DELETE("/:day", handlers.delete)
 	}
 }
 
-func (h *ShippingPlanHandlers) getByPeriod(c *gin.Context) {
-	p := c.Param("period")
-	if p == "" {
+func (h *ToolingHandlers) getByPeriod(c *gin.Context) {
+	period := c.QueryMap("period")
+	if len(period) == 0 {
 		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "Период не задан")
 		return
 	}
 
-	period := models.Period{From: p}
-	if strings.Contains(p, "-") {
-		parts := strings.Split(p, "-")
-		period.From = parts[0]
-		period.To = parts[1]
+	req := &models.Period{
+		From: period["from"],
+		To:   period["to"],
 	}
 
-	shipping, err := h.service.GetByPeriod(c, period)
+	data, err := h.service.GetByPeriod(c, req)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		error_bot.Send(c, err.Error(), period)
 		return
 	}
-	c.JSON(http.StatusOK, response.DataResponse{Data: shipping})
+	c.JSON(http.StatusOK, response.DataResponse{Data: data})
 }
 
-func (h *ShippingPlanHandlers) create(c *gin.Context) {
-	var dto models.ShippingPlan
-	if err := c.BindJSON(&dto); err != nil {
+func (h *ToolingHandlers) create(c *gin.Context) {
+	dto := &models.Tooling{}
+	if err := c.BindJSON(dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
 	}
@@ -69,27 +66,32 @@ func (h *ShippingPlanHandlers) create(c *gin.Context) {
 		error_bot.Send(c, err.Error(), dto)
 		return
 	}
-
-	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные о плане отгрузки успешно добавлены"})
+	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные успешно добавлены"})
 }
 
-func (h *ShippingPlanHandlers) updateByDay(c *gin.Context) {
-	var dto models.ShippingPlan
-	if err := c.BindJSON(&dto); err != nil {
+func (h *ToolingHandlers) update(c *gin.Context) {
+	// id := c.Param("id")
+	// if id == "" {
+	// 	response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "Id не задан")
+	// 	return
+	// }
+
+	dto := &models.Tooling{}
+	if err := c.BindJSON(dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
 	}
+	// dto.Id = id
 
 	if err := h.service.UpdateByDay(c, dto); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		error_bot.Send(c, err.Error(), dto)
 		return
 	}
-
-	c.JSON(http.StatusOK, response.IdResponse{Message: "Данные о плане отгрузки успешно обновлены"})
+	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные успешно обновлены"})
 }
 
-func (h *ShippingPlanHandlers) deleteByDay(c *gin.Context) {
+func (h *ToolingHandlers) delete(c *gin.Context) {
 	day := c.Param("day")
 	if day == "" {
 		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "День не задан")
@@ -101,6 +103,5 @@ func (h *ShippingPlanHandlers) deleteByDay(c *gin.Context) {
 		error_bot.Send(c, err.Error(), day)
 		return
 	}
-
 	c.JSON(http.StatusNoContent, response.IdResponse{})
 }

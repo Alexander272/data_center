@@ -3,7 +3,6 @@ package v1
 import (
 	"github.com/Alexander272/data_center/backend/internal/config"
 	"github.com/Alexander272/data_center/backend/internal/services"
-	"github.com/Alexander272/data_center/backend/internal/transport/http/api"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/middleware"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/auth"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions"
@@ -14,49 +13,39 @@ import (
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/production_plan"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/shipment"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/pdd/shipping_plan"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/semi_finished"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/tooling"
 	"github.com/gin-gonic/gin"
 )
-
-const CookieName = "sealur_internal_session"
 
 type Handler struct {
 	services   *services.Services
 	auth       config.AuthConfig
-	bot        config.BotConfig
 	middleware *middleware.Middleware
-	cookieName string
 }
 
-func NewHandler(services *services.Services, auth config.AuthConfig, bot config.BotConfig, middleware *middleware.Middleware) *Handler {
-	middleware.CookieName = CookieName
-
+func NewHandler(services *services.Services, auth config.AuthConfig, middleware *middleware.Middleware) *Handler {
 	return &Handler{
 		services:   services,
 		auth:       auth,
-		bot:        bot,
 		middleware: middleware,
-		cookieName: CookieName,
 	}
 }
 
 func (h *Handler) Init(group *gin.RouterGroup) {
-	botApi := api.NewMostApi(h.bot.Url)
-
 	v1 := group.Group("/v1")
-	auth.Register(v1, h.services.Session, h.auth, botApi, h.cookieName)
+	auth.Register(v1, h.services.Session, h.auth)
 
 	criterionsGroup := v1.Group("/criterions", h.middleware.VerifyToken, h.middleware.CheckPermissions)
-	criterions.Register(criterionsGroup, h.services.Criterions, botApi)
-	complete.Register(criterionsGroup, h.services.CompleteCriterion, botApi)
+	criterions.Register(criterionsGroup, h.services.Criterions, h.middleware)
+	complete.Register(criterionsGroup, h.services.CompleteCriterion, h.middleware)
 
-	output_volume.Register(criterionsGroup, h.services.OutputVolume, botApi)
-	shipment.Register(criterionsGroup, h.services.Shipment, botApi)
-	orders_volume.Register(criterionsGroup, h.services.OrdersVolume, botApi)
-	production_load.Register(criterionsGroup, h.services.ProductionLoad, botApi)
-	production_plan.Register(criterionsGroup, h.services.ProductionPlan, botApi)
-	shipping_plan.Register(criterionsGroup, h.services.ShippingPlan, botApi)
+	output_volume.Register(criterionsGroup, h.services.OutputVolume, h.middleware)
+	shipment.Register(criterionsGroup, h.services.Shipment, h.middleware)
+	orders_volume.Register(criterionsGroup, h.services.OrdersVolume, h.middleware)
+	production_load.Register(criterionsGroup, h.services.ProductionLoad, h.middleware)
+	production_plan.Register(criterionsGroup, h.services.ProductionPlan, h.middleware)
+	shipping_plan.Register(criterionsGroup, h.services.ShippingPlan, h.middleware)
+	semi_finished.Register(criterionsGroup, h.services.SemiFinished, h.middleware)
+	tooling.Register(criterionsGroup, h.services.Tooling, h.middleware)
 }
-
-// func (h *Handler) notImplemented(c *gin.Context) {
-// 	response.NewErrorResponse(c, http.StatusInternalServerError, "not implemented", "not implemented")
-// }

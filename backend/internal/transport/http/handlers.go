@@ -46,13 +46,13 @@ func (h *Handler) Init(conf *config.Config) *gin.Engine {
 		c.String(http.StatusOK, "pong")
 	})
 
-	h.initAPI(router, conf.Auth, conf.Bot)
+	h.initAPI(router, conf.Auth)
 
 	return router
 }
 
-func (h *Handler) initAPI(router *gin.Engine, auth config.AuthConfig, bot config.BotConfig) {
-	handlerV1 := httpV1.NewHandler(h.services, auth, bot, middleware.NewMiddleware(h.services, auth, h.permissions, h.keycloak))
+func (h *Handler) initAPI(router *gin.Engine, auth config.AuthConfig) {
+	handlerV1 := httpV1.NewHandler(h.services, auth, middleware.NewMiddleware(h.services, auth, h.permissions, h.keycloak))
 	api := router.Group("/api")
 	{
 		handlerV1.Init(api)

@@ -48,7 +48,7 @@ func (r *CriterionsRepo) GetAll(ctx context.Context) (criterions []models.Criter
 //		return criterions, nil
 //	}
 func (r *CriterionsRepo) GetByRole(ctx context.Context, role, day string) (criterions []models.CriterionsWithData, err error) {
-	query := fmt.Sprintf(`SELECT c.id, key, label, c.type, COALESCE(cc.date, '') as day, NOT(cc.id IS NULL) as complete
+	query := fmt.Sprintf(`SELECT c.id, key, label, c.type, COALESCE(cc.date, 0) as day, NOT(cc.id IS NULL) as complete
 		FROM %s AS c 
 		LEFT JOIN %s as m ON name like key||':POST' OR name like key||':ALL' OR name='*:ALL'
 		LEFT JOIN %s as r ON r.id=role_id
@@ -64,7 +64,7 @@ func (r *CriterionsRepo) GetByRole(ctx context.Context, role, day string) (crite
 		return nil, fmt.Errorf("failed to parse date. error: %w", err)
 	}
 
-	if err := r.db.Select(&criterions, query, fmt.Sprintf("%d", date.Unix()), role); err != nil {
+	if err := r.db.Select(&criterions, query, date.Unix(), role); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
 	return criterions, nil

@@ -3,13 +3,14 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/Alexander272/data_center/backend/internal/constants"
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/gin-gonic/gin"
 )
 
 func (m *Middleware) CheckPermissions(c *gin.Context) {
-	u, exists := c.Get(m.CtxUser)
+	u, exists := c.Get(constants.CtxUser)
 	if !exists {
 		response.NewErrorResponse(c, http.StatusUnauthorized, "empty user", "сессия не найдена")
 		return

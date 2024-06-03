@@ -5,31 +5,28 @@ import (
 	"strings"
 
 	"github.com/Alexander272/data_center/backend/internal/config"
+	"github.com/Alexander272/data_center/backend/internal/constants"
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
-	"github.com/Alexander272/data_center/backend/internal/transport/http/api"
+	"github.com/Alexander272/data_center/backend/pkg/error_bot"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthHandlers struct {
-	service    services.Session
-	auth       config.AuthConfig
-	botApi     api.MostBotApi
-	cookieName string
+	service services.Session
+	auth    config.AuthConfig
 }
 
-func NewAuthHandlers(service services.Session, auth config.AuthConfig, botApi api.MostBotApi, cookieName string) *AuthHandlers {
+func NewAuthHandlers(service services.Session, auth config.AuthConfig) *AuthHandlers {
 	return &AuthHandlers{
-		service:    service,
-		auth:       auth,
-		botApi:     botApi,
-		cookieName: cookieName,
+		service: service,
+		auth:    auth,
 	}
 }
 
-func Register(api *gin.RouterGroup, service services.Session, auth config.AuthConfig, botApi api.MostBotApi, cookieName string) {
-	handlers := NewAuthHandlers(service, auth, botApi, cookieName)
+func Register(api *gin.RouterGroup, service services.Session, auth config.AuthConfig) {
+	handlers := NewAuthHandlers(service, auth)
 
 	authRoute := api.Group("/auth")
 	{
@@ -53,7 +50,7 @@ func (h *AuthHandlers) signIn(c *gin.Context) {
 			return
 		}
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
-		h.botApi.SendError(c, err.Error(), dto)
+		error_bot.Send(c, err.Error(), dto)
 		return
 	}
 
@@ -62,12 +59,19 @@ func (h *AuthHandlers) signIn(c *gin.Context) {
 		domain = c.Request.Host
 	}
 
-	c.SetCookie(h.cookieName, user.RefreshToken, int(h.auth.RefreshTokenTTL.Seconds()), "/", domain, h.auth.Secure, true)
+	// logger.Info("Пользователь успешно авторизовался",
+	// 	logger.StringAttr("section", "auth"),
+	// 	logger.StringAttr("ip", c.ClientIP()),
+	// 	logger.StringAttr("user", user.UserName),
+	// 	logger.StringAttr("user_id", user.Id),
+	// )
+
+	c.SetCookie(constants.AuthCookie, user.RefreshToken, int(h.auth.RefreshTokenTTL.Seconds()), "/", domain, h.auth.Secure, true)
 	c.JSON(http.StatusOK, response.DataResponse{Data: user})
 }
 
 func (h *AuthHandlers) signOut(c *gin.Context) {
-	refreshToken, err := c.Cookie(h.cookieName)
+	refreshToken, err := c.Cookie(constants.AuthCookie)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusUnauthorized, err.Error(), "Сессия не найдена")
 		return
@@ -75,7 +79,7 @@ func (h *AuthHandlers) signOut(c *gin.Context) {
 
 	if err := h.service.SignOut(c, refreshToken); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
-		h.botApi.SendError(c, err.Error(), nil)
+		error_bot.Send(c, err.Error(), nil)
 		return
 	}
 
@@ -84,12 +88,17 @@ func (h *AuthHandlers) signOut(c *gin.Context) {
 		domain = c.Request.Host
 	}
 
-	c.SetCookie(h.cookieName, "", -1, "/", domain, h.auth.Secure, true)
+	// logger.Info("Пользователь вышел из системы",
+	// 	logger.StringAttr("section", "auth"),
+	// 	logger.StringAttr("ip", c.ClientIP()),
+	// )
+
+	c.SetCookie(constants.AuthCookie, "", -1, "/", domain, h.auth.Secure, true)
 	c.JSON(http.StatusNoContent, response.StatusResponse{})
 }
 
 func (h *AuthHandlers) refresh(c *gin.Context) {
-	refreshToken, err := c.Cookie(h.cookieName)
+	refreshToken, err := c.Cookie(constants.AuthCookie)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusUnauthorized, err.Error(), "Сессия не найдена")
 		return
@@ -97,12 +106,12 @@ func (h *AuthHandlers) refresh(c *gin.Context) {
 
 	user, err := h.service.Refresh(c, refreshToken)
 	if err != nil {
-		if strings.Contains(err.Error(), models.ErrSessionEmpty.Error()) {
+		if strings.Contains(err.Error(), "invalid_grant") {
 			response.NewErrorResponse(c, http.StatusUnauthorized, "token is expired", "сессия не найдена")
 			return
 		}
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
-		h.botApi.SendError(c, err.Error(), nil)
+		error_bot.Send(c, err.Error(), nil)
 		return
 	}
 
@@ -111,6 +120,13 @@ func (h *AuthHandlers) refresh(c *gin.Context) {
 		domain = c.Request.Host
 	}
 
-	c.SetCookie(h.cookieName, user.RefreshToken, int(h.auth.RefreshTokenTTL.Seconds()), "/", domain, h.auth.Secure, true)
+	// logger.Info("Пользователь успешно обновил сессию",
+	// 	logger.StringAttr("section", "auth"),
+	// 	logger.StringAttr("ip", c.ClientIP()),
+	// 	logger.StringAttr("user", user.UserName),
+	// 	logger.StringAttr("user_id", user.Id),
+	// )
+
+	c.SetCookie(constants.AuthCookie, user.RefreshToken, int(h.auth.RefreshTokenTTL.Seconds()), "/", domain, h.auth.Secure, true)
 	c.JSON(http.StatusOK, response.DataResponse{Data: user})
 }
