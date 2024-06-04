@@ -41,7 +41,7 @@ const baseQueryWithReAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 			const release = await mutex.acquire()
 
 			try {
-				const refreshResult = await baseQuery({ url: API.auth.refresh, method: 'POST' }, api, extraOptions)
+				const refreshResult = await baseQuery({ url: API.Auth.Refresh, method: 'POST' }, api, extraOptions)
 				if (refreshResult.data) {
 					api.dispatch(setAuth((refreshResult.data as { data: IUser }).data))
 					result = await baseQuery(args, api, extraOptions)
@@ -67,7 +67,7 @@ const baseQueryWithReAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 export const api = createApi({
 	reducerPath: 'api',
 	baseQuery: baseQueryWithReAuth,
-	tagTypes: ['Api'],
+	tagTypes: ['Api', 'SemiFinished', 'Tooling'],
 	endpoints: () => ({}),
 })
 

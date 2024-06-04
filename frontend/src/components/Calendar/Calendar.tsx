@@ -75,6 +75,7 @@ export const Calendar: FC<Props> = ({ selected, range, onSelect, picker = 'day' 
 			width={'300px'}
 			// boxShadow={'0 0 5px #8798ad'}
 			p={1}
+			pb={0}
 			borderRadius={'8px'}
 			position={'relative'}
 			overflow={'hidden'}

@@ -6,14 +6,20 @@ import { useRefreshQuery } from '@/store/api/auth'
 export function useRefresh() {
 	const [ready, setReady] = useState(false)
 
-	const { data, isError } = useRefreshQuery(undefined)
+	const { data, isError, isSuccess } = useRefreshQuery(undefined)
 
 	const dispatch = useAppDispatch()
 
 	useEffect(() => {
-		if (!isError && data) dispatch(setAuth(data.data))
-		setReady(true)
-	}, [data, isError, dispatch])
+		if (isSuccess) {
+			dispatch(setAuth(data.data))
+			setReady(true)
+		}
+	}, [data, isSuccess, dispatch])
+
+	useEffect(() => {
+		if (isError) setReady(true)
+	}, [isError])
 
 	return { ready }
 }

@@ -1,7 +1,12 @@
 export const API = {
-	auth: {
-		signIn: 'auth/sign-in',
-		signOut: 'auth/sign-out',
-		refresh: 'auth/refresh',
+	Auth: {
+		SignIn: 'auth/sign-in',
+		SignOut: 'auth/sign-out',
+		Refresh: 'auth/refresh',
+	},
+	Criterions: {
+		Base: 'criterions',
+		SemiFinished: `criterions/semi-finished`,
+		Tooling: 'criterions/tooling',
 	},
 }

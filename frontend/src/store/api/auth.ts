@@ -8,7 +8,7 @@ export const authApi = api.injectEndpoints({
 	endpoints: builder => ({
 		signIn: builder.mutation<{ data: IUser }, ISignIn>({
 			query: data => ({
-				url: API.auth.signIn,
+				url: API.Auth.SignIn,
 				method: 'POST',
 				body: data,
 			}),
@@ -16,7 +16,7 @@ export const authApi = api.injectEndpoints({
 
 		signOut: builder.mutation<string, undefined>({
 			query: () => ({
-				url: API.auth.signOut,
+				url: API.Auth.SignOut,
 				method: 'POST',
 			}),
 			onQueryStarted: async (_arg, api) => {
@@ -32,7 +32,7 @@ export const authApi = api.injectEndpoints({
 
 		refresh: builder.query<{ data: IUser }, undefined>({
 			query: () => ({
-				url: API.auth.refresh,
+				url: API.Auth.Refresh,
 				method: 'POST',
 			}),
 		}),

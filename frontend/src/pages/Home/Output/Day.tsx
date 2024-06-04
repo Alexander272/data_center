@@ -35,16 +35,16 @@ export default function Day({ data }: Props) {
 									</TableCell>
 								</TableRow>
 							))}
-						</TableBody>
 
-						<TableRow>
-							<TableCell sx={{ fontWeight: 'bold' }}>Всего</TableCell>
-							<TableCell align='right' sx={{ fontWeight: 'bold' }}>
-								{new Intl.NumberFormat('ru-Ru').format(
-									stock.reduce((acc, c) => acc + +(c.count || 0), 0)
-								)}
-							</TableCell>
-						</TableRow>
+							<TableRow>
+								<TableCell sx={{ fontWeight: 'bold' }}>Всего</TableCell>
+								<TableCell align='right' sx={{ fontWeight: 'bold' }}>
+									{new Intl.NumberFormat('ru-Ru').format(
+										stock.reduce((acc, c) => acc + +(c.count || 0), 0)
+									)}
+								</TableCell>
+							</TableRow>
+						</TableBody>
 					</Table>
 				</Box>
 

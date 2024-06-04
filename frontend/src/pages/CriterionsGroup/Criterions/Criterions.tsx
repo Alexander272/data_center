@@ -22,7 +22,7 @@ import 'react-datasheet-grid/dist/style.css'
 // 	{ id: '', key: 'shipment-plan', label: 'Выполнение плана отгрузок в деньгах' },
 // ]
 
-export default function Home() {
+export default function Criterions() {
 	const active = useAppSelector(state => state.criterions.active)
 	const criterions = useAppSelector(state => state.criterions.criterions)
 	const skipped = useAppSelector(state => state.criterions.skipped)

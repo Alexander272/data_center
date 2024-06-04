@@ -11,7 +11,7 @@ import { Day } from './week.style'
 const DaysOfWeek = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
 
 export const Week = () => {
-	const curDate = dayjs()
+	const curDate = dayjs().startOf('d')
 
 	const date = useAppSelector(state => state.criterions.date)
 	const dispatch = useAppDispatch()

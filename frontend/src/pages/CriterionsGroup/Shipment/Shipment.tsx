@@ -8,6 +8,7 @@ import type { IShipment, IShipmentDTO } from '@/types/shipment'
 import type { IResError } from '@/types/err'
 import { IToast, Toast } from '@/components/Toast/Toast'
 
+// TODO этот список есть в базе и, наверное, стоит его получать и на его основе формировать начальные данные
 const emptyData = [
 	{ id: '1', product: 'СНП', count: null, money: null },
 	{ id: '2', product: 'ПУТГ', count: null, money: null },
@@ -109,7 +110,7 @@ export default function Shipment() {
 				await updateShipment(newShipment).unwrap()
 			}
 		} catch (error) {
-			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: false })
+			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: true })
 		}
 	}
 

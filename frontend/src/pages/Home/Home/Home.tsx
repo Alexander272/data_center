@@ -1,14 +1,13 @@
 import { MouseEvent, Suspense, lazy, useRef, useState } from 'react'
 import dayjs from 'dayjs'
-import 'dayjs/locale/ru'
-import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { Box, Button, ButtonGroup, Menu, Stack, Typography } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNewOutlined'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForwardIosOutlined'
 import CalendarIcon from '@mui/icons-material/CalendarMonthOutlined'
+
+import type { PeriodEnum } from '@/types/period'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { nextPeriod, prevPeriod, setPeriod, setPeriodType } from '@/store/dashboard'
-import type { PeriodEnum } from '@/types/period'
 import { Calendar } from '@/components/Calendar/Calendar'
 import { Fallback } from '@/components/Fallback/Fallback'
 import Stepper from '@/components/Stepper/Stepper'
@@ -21,6 +20,8 @@ const Orders = lazy(() => import('@/pages/Home/Orders/Orders'))
 const Load = lazy(() => import('@/pages/Home/Load/Load'))
 const ShippingPlan = lazy(() => import('@/pages/Home/ShippingPlan/ShippingPlan'))
 const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
+const SemiFinished = lazy(() => import('@/pages/Home/SemiFinished/SemiFinished'))
+const Tooling = lazy(() => import('@/pages/Home/Tooling/Tooling'))
 
 // const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
 // const Quality = lazy(() => import('@/pages/Home/components/Quality/Quality'))
@@ -36,6 +37,8 @@ const steps = [
 	{ id: '3', key: 'output', label: 'Объем выпуска продукции' },
 	{ id: '4', key: 'orders', label: 'Объем заказов переданных в производство' },
 	{ id: '5', key: 'load', label: 'Загруженность производства' },
+	{ id: '6', key: 'semi-finished', label: 'Производство полуфабрикатов' },
+	{ id: '7', key: 'tooling', label: 'Производство оснастки' },
 	// { id: '6', key: 'sqdc', label: 'SQDC' },
 ]
 
@@ -56,12 +59,11 @@ const components = {
 	orders: <Orders />,
 	load: <Load />,
 	sqdc: <SQDC />,
+	'semi-finished': <SemiFinished />,
+	tooling: <Tooling />,
 }
 
 export default function Home() {
-	dayjs.extend(customParseFormat)
-	dayjs.locale('ru')
-
 	const periodType = useAppSelector(state => state.dashboard.periodType)
 	const period = useAppSelector(state => state.dashboard.period)
 
