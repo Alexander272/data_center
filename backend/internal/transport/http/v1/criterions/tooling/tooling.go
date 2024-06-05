@@ -26,9 +26,9 @@ func Register(api *gin.RouterGroup, service services.Tooling, middleware *middle
 
 	tooling := api.Group("tooling")
 	{
-		tooling.GET("/", handlers.getByPeriod)
-		tooling.POST("/", handlers.create)
-		tooling.PUT("/:day", handlers.update)
+		tooling.GET("", handlers.getByPeriod)
+		tooling.POST("", handlers.create)
+		tooling.PUT("/:id", handlers.update)
 		tooling.DELETE("/:day", handlers.delete)
 	}
 }
@@ -70,20 +70,20 @@ func (h *ToolingHandlers) create(c *gin.Context) {
 }
 
 func (h *ToolingHandlers) update(c *gin.Context) {
-	// id := c.Param("id")
-	// if id == "" {
-	// 	response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "Id не задан")
-	// 	return
-	// }
+	id := c.Param("id")
+	if id == "" {
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "Id не задан")
+		return
+	}
 
 	dto := &models.Tooling{}
 	if err := c.BindJSON(dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
 	}
-	// dto.Id = id
+	dto.Id = id
 
-	if err := h.service.UpdateByDay(c, dto); err != nil {
+	if err := h.service.Update(c, dto); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		error_bot.Send(c, err.Error(), dto)
 		return

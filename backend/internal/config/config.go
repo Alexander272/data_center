@@ -10,6 +10,8 @@ import (
 type (
 	Config struct {
 		Environment string `yaml:"environment" env:"APP_ENV" env-default:"dev"`
+		LogLevel    string `yaml:"log_level" env-default:"info"`
+		LogSource   bool   `yaml:"log_source" env-default:"false"`
 		Redis       RedisConfig
 		Postgres    PostgresConfig
 		Auth        AuthConfig
@@ -80,9 +82,9 @@ func Init(path string) (*Config, error) {
 		return nil, fmt.Errorf("failed to read config file. error: %w", err)
 	}
 
-	if err := cleanenv.ReadEnv(&conf); err != nil {
-		return nil, fmt.Errorf("failed to read env file. error: %w", err)
-	}
+	// if err := cleanenv.ReadEnv(&conf); err != nil {
+	// 	return nil, fmt.Errorf("failed to read env file. error: %w", err)
+	// }
 
 	return &conf, nil
 }

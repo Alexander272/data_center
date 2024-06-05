@@ -2,7 +2,6 @@ package production_load
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
@@ -27,7 +26,7 @@ func Register(api *gin.RouterGroup, service services.ProductionLoad, middleware 
 
 	load := api.Group("/production-load")
 	{
-		load.GET("/:period", handlers.get)
+		load.GET("", handlers.get)
 		load.POST("/several", handlers.create)
 		load.PUT("/several", handlers.update)
 		load.DELETE("/:date", handlers.delete)
@@ -35,20 +34,18 @@ func Register(api *gin.RouterGroup, service services.ProductionLoad, middleware 
 }
 
 func (h *ProductionLoadHandlers) get(c *gin.Context) {
-	p := c.Param("period")
-	if p == "" {
-		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "период не задан")
+	period := c.QueryMap("period")
+	if len(period) == 0 {
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "Период не задан")
 		return
 	}
 
-	period := models.Period{From: p}
-	if strings.Contains(p, "-") {
-		parts := strings.Split(p, "-")
-		period.From = parts[0]
-		period.To = parts[1]
+	req := &models.Period{
+		From: period["from"],
+		To:   period["to"],
 	}
 
-	load, err := h.service.GetByPeriod(c, period)
+	load, err := h.service.GetByPeriod(c, req)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		error_bot.Send(c, err.Error(), period)
@@ -58,7 +55,7 @@ func (h *ProductionLoadHandlers) get(c *gin.Context) {
 }
 
 func (h *ProductionLoadHandlers) create(c *gin.Context) {
-	var dto []models.ProductionLoad
+	dto := []*models.ProductionLoad{}
 	if err := c.BindJSON(&dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
@@ -73,7 +70,7 @@ func (h *ProductionLoadHandlers) create(c *gin.Context) {
 }
 
 func (h *ProductionLoadHandlers) update(c *gin.Context) {
-	var dto []models.ProductionLoad
+	dto := []*models.ProductionLoad{}
 	if err := c.BindJSON(&dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return

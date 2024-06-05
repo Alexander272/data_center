@@ -33,7 +33,7 @@ func Register(api *gin.RouterGroup, service services.CompleteCriterion, middlewa
 }
 
 func (h *CriterionsHandlers) get(c *gin.Context) {
-	var dto models.ReportFilter
+	dto := &models.ReportFilter{}
 	// if err := c.BindJSON(&dto); err != nil {
 	// 	response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 	// 	return
@@ -75,8 +75,8 @@ func (h *CriterionsHandlers) complete(c *gin.Context) {
 		return
 	}
 
-	var dto models.CompleteCriterion
-	if err := c.BindJSON(&dto); err != nil {
+	dto := &models.CompleteCriterion{}
+	if err := c.BindJSON(dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
 	}

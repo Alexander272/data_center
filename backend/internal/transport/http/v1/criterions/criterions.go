@@ -25,8 +25,8 @@ func NewCriterionsHandlers(service services.Criterions) *CriterionsHandlers {
 func Register(api *gin.RouterGroup, service services.Criterions, middleware *middleware.Middleware) {
 	handlers := NewCriterionsHandlers(service)
 
-	api.GET("/all", handlers.getAll)
 	api.GET("/:day", handlers.getByDay)
+	api.GET("/all", handlers.getAll)
 }
 
 func (h *CriterionsHandlers) getAll(c *gin.Context) {

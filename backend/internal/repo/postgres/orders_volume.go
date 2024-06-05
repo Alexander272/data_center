@@ -3,8 +3,6 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"strconv"
-	"time"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/google/uuid"
@@ -22,92 +20,50 @@ func NewOrdersVolumeRepo(db *sqlx.DB) *OrdersVolumeRepo {
 }
 
 type OrdersVolume interface {
-	GetByDay(context.Context, string) ([]models.OrdersVolume, error)
-	GetByPeriod(context.Context, models.Period) ([]models.OrdersVolume, error)
-	Create(context.Context, models.OrdersVolume) error
-	UpdateByDay(context.Context, models.OrdersVolume) error
+	GetByDay(context.Context, string) ([]*models.OrdersVolume, error)
+	GetByPeriod(context.Context, *models.Period) ([]*models.OrdersVolume, error)
+	Create(context.Context, *models.OrdersVolume) error
+	UpdateByDay(context.Context, *models.OrdersVolume) error
 	DeleteByDay(context.Context, string) error
 }
 
-func (r *OrdersVolumeRepo) GetByDay(ctx context.Context, day string) (orders []models.OrdersVolume, err error) {
-	query := fmt.Sprintf(`SELECT id, day, number_of_orders, sum_money, quantity FROM %s WHERE day=$1`, OrdersVolumeTable)
+func (r *OrdersVolumeRepo) GetByDay(ctx context.Context, day string) ([]*models.OrdersVolume, error) {
+	query := fmt.Sprintf(`SELECT id, date, number_of_orders, sum_money, quantity FROM %s WHERE date=$1`, OrdersVolumeTable)
+	orders := []*models.OrdersVolume{}
 
-	d, err := time.Parse("02.01.2006", day)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse date. error: %w", err)
-	}
-
-	if err := r.db.Select(&orders, query, fmt.Sprintf("%d", d.Unix())); err != nil {
+	if err := r.db.SelectContext(ctx, &orders, query, day); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
-	}
-
-	for i, rc := range orders {
-		date, err := strconv.Atoi(rc.Day)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse date. error: %w", err)
-		}
-
-		dateUnix := time.Unix(int64(date), 0)
-		orders[i].Day = dateUnix.Format("02.01.2006")
 	}
 
 	return orders, nil
 }
 
-func (r *OrdersVolumeRepo) GetByPeriod(ctx context.Context, period models.Period) (orders []models.OrdersVolume, err error) {
-	from, err := time.Parse("02.01.2006", period.From)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse date. error: %w", err)
-	}
-	to, err := time.Parse("02.01.2006", period.To)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse date. error: %w", err)
-	}
+func (r *OrdersVolumeRepo) GetByPeriod(ctx context.Context, req *models.Period) ([]*models.OrdersVolume, error) {
+	query := fmt.Sprintf(`SELECT id, date, number_of_orders, sum_money, quantity FROM %s WHERE date>=$1 AND date<=$2 ORDER BY date`, OrdersVolumeTable)
+	orders := []*models.OrdersVolume{}
 
-	query := fmt.Sprintf(`SELECT id, day, number_of_orders, sum_money, quantity FROM %s WHERE day>=$1 AND day<=$2 ORDER BY day`, OrdersVolumeTable)
-
-	if err := r.db.Select(&orders, query, fmt.Sprintf("%d", from.Unix()), fmt.Sprintf("%d", to.Unix())); err != nil {
+	if err := r.db.SelectContext(ctx, &orders, query, req.From, req.To); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
-	}
-
-	for i, rc := range orders {
-		date, err := strconv.Atoi(rc.Day)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse date. error: %w", err)
-		}
-
-		dateUnix := time.Unix(int64(date), 0)
-		orders[i].Day = dateUnix.Format("02.01.2006")
 	}
 
 	return orders, nil
 }
 
-func (r *OrdersVolumeRepo) Create(ctx context.Context, order models.OrdersVolume) error {
-	query := fmt.Sprintf(`INSERT INTO %s(id, day, number_of_orders, sum_money, quantity) VALUES ($1, $2, $3, $4, $5)`, OrdersVolumeTable)
+func (r *OrdersVolumeRepo) Create(ctx context.Context, dto *models.OrdersVolume) error {
+	query := fmt.Sprintf(`INSERT INTO %s(id, date, number_of_orders, sum_money, quantity) VALUES ($1, $2, $3, $4, $5)`, OrdersVolumeTable)
 	id := uuid.New()
 
-	day, err := time.Parse("02.01.2006", order.Day)
-	if err != nil {
-		return fmt.Errorf("failed to parse date. error: %w", err)
-	}
-
-	_, err = r.db.Exec(query, id, fmt.Sprintf("%d", day.Unix()), order.NumberOfOrders, order.SumMoney, order.Quantity)
+	_, err := r.db.ExecContext(ctx, query, id, dto.Date, dto.NumberOfOrders, dto.SumMoney, dto.Quantity)
 	if err != nil {
 		return fmt.Errorf("failed to execute query. error: %w", err)
 	}
 	return nil
 }
 
-func (r *OrdersVolumeRepo) UpdateByDay(ctx context.Context, order models.OrdersVolume) error {
-	query := fmt.Sprintf(`UPDATE %s SET number_of_orders=$1, sum_money=$2, quantity=$3 WHERE day=$4`, OrdersVolumeTable)
+func (r *OrdersVolumeRepo) UpdateByDay(ctx context.Context, dto *models.OrdersVolume) error {
+	query := fmt.Sprintf(`UPDATE %s SET number_of_orders=$1, sum_money=$2, quantity=$3 WHERE date=$4`, OrdersVolumeTable)
 
-	day, err := time.Parse("02.01.2006", order.Day)
-	if err != nil {
-		return fmt.Errorf("failed to parse date. error: %w", err)
-	}
-
-	_, err = r.db.Exec(query, order.NumberOfOrders, order.SumMoney, order.Quantity, fmt.Sprintf("%d", day.Unix()))
+	_, err := r.db.ExecContext(ctx, query, dto.NumberOfOrders, dto.SumMoney, dto.Quantity, dto.Date)
 	if err != nil {
 		return fmt.Errorf("failed to execute query. error: %w", err)
 	}
@@ -115,14 +71,9 @@ func (r *OrdersVolumeRepo) UpdateByDay(ctx context.Context, order models.OrdersV
 }
 
 func (r *OrdersVolumeRepo) DeleteByDay(ctx context.Context, day string) error {
-	query := fmt.Sprintf(`DELETE FROM %s WHERE day=$1`, OrdersVolumeTable)
+	query := fmt.Sprintf(`DELETE FROM %s WHERE date=$1`, OrdersVolumeTable)
 
-	d, err := time.Parse("02.01.2006", day)
-	if err != nil {
-		return fmt.Errorf("failed to parse date. error: %w", err)
-	}
-
-	_, err = r.db.Exec(query, fmt.Sprintf("%d", d.Unix()))
+	_, err := r.db.ExecContext(ctx, query, day)
 	if err != nil {
 		return fmt.Errorf("failed to execute query. error: %w", err)
 	}

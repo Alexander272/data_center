@@ -10,6 +10,7 @@ import (
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
 	"github.com/Alexander272/data_center/backend/pkg/error_bot"
+	"github.com/Alexander272/data_center/backend/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -59,12 +60,12 @@ func (h *AuthHandlers) signIn(c *gin.Context) {
 		domain = c.Request.Host
 	}
 
-	// logger.Info("Пользователь успешно авторизовался",
-	// 	logger.StringAttr("section", "auth"),
-	// 	logger.StringAttr("ip", c.ClientIP()),
-	// 	logger.StringAttr("user", user.UserName),
-	// 	logger.StringAttr("user_id", user.Id),
-	// )
+	logger.Info("Пользователь успешно авторизовался",
+		logger.StringAttr("section", "auth"),
+		logger.StringAttr("ip", c.ClientIP()),
+		logger.StringAttr("user", user.UserName),
+		logger.StringAttr("user_id", user.Id),
+	)
 
 	c.SetCookie(constants.AuthCookie, user.RefreshToken, int(h.auth.RefreshTokenTTL.Seconds()), "/", domain, h.auth.Secure, true)
 	c.JSON(http.StatusOK, response.DataResponse{Data: user})
@@ -88,10 +89,10 @@ func (h *AuthHandlers) signOut(c *gin.Context) {
 		domain = c.Request.Host
 	}
 
-	// logger.Info("Пользователь вышел из системы",
-	// 	logger.StringAttr("section", "auth"),
-	// 	logger.StringAttr("ip", c.ClientIP()),
-	// )
+	logger.Info("Пользователь вышел из системы",
+		logger.StringAttr("section", "auth"),
+		logger.StringAttr("ip", c.ClientIP()),
+	)
 
 	c.SetCookie(constants.AuthCookie, "", -1, "/", domain, h.auth.Secure, true)
 	c.JSON(http.StatusNoContent, response.StatusResponse{})
@@ -120,12 +121,12 @@ func (h *AuthHandlers) refresh(c *gin.Context) {
 		domain = c.Request.Host
 	}
 
-	// logger.Info("Пользователь успешно обновил сессию",
-	// 	logger.StringAttr("section", "auth"),
-	// 	logger.StringAttr("ip", c.ClientIP()),
-	// 	logger.StringAttr("user", user.UserName),
-	// 	logger.StringAttr("user_id", user.Id),
-	// )
+	logger.Info("Пользователь успешно обновил сессию",
+		logger.StringAttr("section", "auth"),
+		logger.StringAttr("ip", c.ClientIP()),
+		logger.StringAttr("user", user.UserName),
+		logger.StringAttr("user_id", user.Id),
+	)
 
 	c.SetCookie(constants.AuthCookie, user.RefreshToken, int(h.auth.RefreshTokenTTL.Seconds()), "/", domain, h.auth.Secure, true)
 	c.JSON(http.StatusOK, response.DataResponse{Data: user})

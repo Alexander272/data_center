@@ -19,29 +19,29 @@ func NewShippingService(repo repo.ShippingPlan) *ShippingPlanService {
 }
 
 type ShippingPlan interface {
-	GetByPeriod(context.Context, models.Period) ([]models.ShippingPlan, error)
-	Create(context.Context, models.ShippingPlan) error
-	UpdateByDay(context.Context, models.ShippingPlan) error
+	GetByPeriod(context.Context, *models.Period) ([]*models.ShippingPlan, error)
+	Create(context.Context, *models.ShippingPlan) error
+	UpdateByDay(context.Context, *models.ShippingPlan) error
 	DeleteByDay(context.Context, string) error
 }
 
-func (s *ShippingPlanService) GetByPeriod(ctx context.Context, period models.Period) ([]models.ShippingPlan, error) {
-	plan, err := s.repo.GetByPeriod(ctx, period)
+func (s *ShippingPlanService) GetByPeriod(ctx context.Context, req *models.Period) ([]*models.ShippingPlan, error) {
+	plan, err := s.repo.GetByPeriod(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get shipping plan by period. error: %w", err)
 	}
 	return plan, nil
 }
 
-func (s *ShippingPlanService) Create(ctx context.Context, plan models.ShippingPlan) error {
-	if err := s.repo.Create(ctx, plan); err != nil {
+func (s *ShippingPlanService) Create(ctx context.Context, dto *models.ShippingPlan) error {
+	if err := s.repo.Create(ctx, dto); err != nil {
 		return fmt.Errorf("failed to create shipping plan. error: %w", err)
 	}
 	return nil
 }
 
-func (s *ShippingPlanService) UpdateByDay(ctx context.Context, plan models.ShippingPlan) error {
-	if err := s.repo.UpdateByDay(ctx, plan); err != nil {
+func (s *ShippingPlanService) UpdateByDay(ctx context.Context, dto *models.ShippingPlan) error {
+	if err := s.repo.UpdateByDay(ctx, dto); err != nil {
 		return fmt.Errorf("failed to update shipping plan. error: %w", err)
 	}
 	return nil

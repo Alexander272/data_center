@@ -2,7 +2,6 @@ package production_plan
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
@@ -27,7 +26,7 @@ func Register(api *gin.RouterGroup, service services.ProductionPlan, middleware 
 
 	plan := api.Group("/production-plan")
 	{
-		plan.GET("/:period", handlers.get)
+		plan.GET("", handlers.get)
 		plan.POST("/several", handlers.create)
 		plan.PUT("/several", handlers.update)
 		plan.DELETE("/:date", handlers.delete)
@@ -35,35 +34,33 @@ func Register(api *gin.RouterGroup, service services.ProductionPlan, middleware 
 }
 
 func (h *ProductionPlanHandlers) get(c *gin.Context) {
-	p := c.Param("period")
-	if p == "" {
-		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "период не задан")
-		return
-	}
-
 	typePlan := c.Query("type")
 	if typePlan == "" {
 		typePlan = "shipment"
 	}
 
-	period := models.Period{From: p}
-	if strings.Contains(p, "-") {
-		parts := strings.Split(p, "-")
-		period.From = parts[0]
-		period.To = parts[1]
+	period := c.QueryMap("period")
+	if len(period) == 0 {
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "Период не задан")
+		return
 	}
 
-	load, err := h.service.GetByPeriod(c, period, typePlan)
+	req := &models.Period{
+		From: period["from"],
+		To:   period["to"],
+	}
+
+	load, err := h.service.GetByPeriod(c, req, typePlan)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
-		error_bot.Send(c, err.Error(), period)
+		error_bot.Send(c, err.Error(), req)
 		return
 	}
 	c.JSON(http.StatusOK, response.DataResponse{Data: load})
 }
 
 func (h *ProductionPlanHandlers) create(c *gin.Context) {
-	var dto []models.ProductionPlan
+	dto := []*models.ProductionPlan{}
 	if err := c.BindJSON(&dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
@@ -78,7 +75,7 @@ func (h *ProductionPlanHandlers) create(c *gin.Context) {
 }
 
 func (h *ProductionPlanHandlers) update(c *gin.Context) {
-	var dto []models.ProductionPlan
+	dto := []*models.ProductionPlan{}
 	if err := c.BindJSON(&dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return

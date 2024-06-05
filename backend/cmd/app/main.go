@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,14 +26,14 @@ import (
 func main() {
 	//* Init config
 	if err := gotenv.Load("../.env"); err != nil {
-		logger.Fatalf("error loading env variables: %s", err.Error())
+		log.Fatalf("error loading env variables: %s", err.Error())
 	}
 
 	conf, err := config.Init("configs/config.yaml")
 	if err != nil {
-		logger.Fatalf("error initializing configs: %s", err.Error())
+		log.Fatalf("error initializing configs: %s", err.Error())
 	}
-	logger.Init(os.Stdout, conf.Environment)
+	logger.NewLogger(logger.WithLevel(conf.LogLevel), logger.WithAddSource(conf.LogSource))
 
 	//* Dependencies
 	db, err := postgres.NewPostgresDB(postgres.Config{
@@ -44,16 +45,16 @@ func main() {
 		SSLMode:  conf.Postgres.SSLMode,
 	})
 	if err != nil {
-		logger.Fatalf("failed to initialize db: %s", err.Error())
+		log.Fatalf("failed to initialize db: %s", err.Error())
 	}
 
-	keycloak := auth.NewKeycloakClient(
-		conf.Keycloak.Url,
-		conf.Keycloak.ClientId,
-		conf.Keycloak.Realm,
-		conf.Keycloak.Root,
-		conf.Keycloak.RootPass,
-	)
+	keycloak := auth.NewKeycloakClient(auth.Deps{
+		Url:       conf.Keycloak.Url,
+		ClientId:  conf.Keycloak.ClientId,
+		Realm:     conf.Keycloak.Realm,
+		AdminName: conf.Keycloak.Root,
+		AdminPass: conf.Keycloak.RootPass,
+	})
 
 	//* Services, Repos & API Handlers
 	repos := repo.NewRepo(db)
@@ -73,10 +74,10 @@ func main() {
 	srv := server.NewServer(conf, handlers.Init(conf))
 	go func() {
 		if err := srv.Run(); !errors.Is(err, http.ErrServerClosed) {
-			logger.Fatalf("error occurred while running http server: %s\n", err.Error())
+			log.Fatalf("error occurred while running http server: %s\n", err.Error())
 		}
 	}()
-	logger.Infof("Application started on port: %s", conf.Http.Port)
+	logger.Info("Application started on port: " + conf.Http.Port)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
@@ -89,7 +90,7 @@ func main() {
 	defer shutdown()
 
 	if err := srv.Stop(ctx); err != nil {
-		logger.Errorf("failed to stop server: %v", err)
+		logger.Error("failed to stop server:", logger.ErrAttr(err))
 	}
 
 }

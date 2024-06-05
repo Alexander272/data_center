@@ -2,7 +2,6 @@ package shipment
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
@@ -27,8 +26,8 @@ func Register(api *gin.RouterGroup, service services.Shipment, middleware *middl
 
 	shipment := api.Group("/shipment")
 	{
-		shipment.GET("/:period", handlers.getByDay)
-		shipment.POST("/", handlers.create)
+		shipment.GET("", handlers.getByDay)
+		shipment.POST("", handlers.create)
 		shipment.POST("/several", handlers.createSeveral)
 		shipment.PUT("/several", handlers.update)
 		shipment.DELETE("/:day", handlers.delete)
@@ -36,20 +35,18 @@ func Register(api *gin.RouterGroup, service services.Shipment, middleware *middl
 }
 
 func (h *ShipmentHandlers) getByDay(c *gin.Context) {
-	p := c.Param("period")
-	if p == "" {
+	period := c.QueryMap("period")
+	if len(period) == 0 {
 		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "Период не задан")
 		return
 	}
 
-	period := models.Period{From: p}
-	if strings.Contains(p, "-") {
-		parts := strings.Split(p, "-")
-		period.From = parts[0]
-		period.To = parts[1]
+	req := &models.Period{
+		From: period["from"],
+		To:   period["to"],
 	}
 
-	shipment, err := h.service.GetByPeriod(c, period)
+	shipment, err := h.service.GetByPeriod(c, req)
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		error_bot.Send(c, err.Error(), period)
@@ -59,8 +56,8 @@ func (h *ShipmentHandlers) getByDay(c *gin.Context) {
 }
 
 func (h *ShipmentHandlers) create(c *gin.Context) {
-	var dto models.Shipment
-	if err := c.BindJSON(&dto); err != nil {
+	dto := &models.Shipment{}
+	if err := c.BindJSON(dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
 	}
@@ -74,7 +71,7 @@ func (h *ShipmentHandlers) create(c *gin.Context) {
 }
 
 func (h *ShipmentHandlers) createSeveral(c *gin.Context) {
-	var dto []models.Shipment
+	dto := []*models.Shipment{}
 	if err := c.BindJSON(&dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
@@ -89,7 +86,7 @@ func (h *ShipmentHandlers) createSeveral(c *gin.Context) {
 }
 
 func (h *ShipmentHandlers) update(c *gin.Context) {
-	var dto []models.Shipment
+	dto := []*models.Shipment{}
 	if err := c.BindJSON(&dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return

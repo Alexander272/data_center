@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/jmoiron/sqlx"
@@ -48,7 +47,7 @@ func (r *CriterionsRepo) GetAll(ctx context.Context) (criterions []models.Criter
 //		return criterions, nil
 //	}
 func (r *CriterionsRepo) GetByRole(ctx context.Context, role, day string) (criterions []models.CriterionsWithData, err error) {
-	query := fmt.Sprintf(`SELECT c.id, key, label, c.type, COALESCE(cc.date, 0) as day, NOT(cc.id IS NULL) as complete
+	query := fmt.Sprintf(`SELECT c.id, key, label, c.type, COALESCE(cc.date, 0) as date, NOT(cc.id IS NULL) as complete
 		FROM %s AS c 
 		LEFT JOIN %s as m ON name like key||':POST' OR name like key||':ALL' OR name='*:ALL'
 		LEFT JOIN %s as r ON r.id=role_id
@@ -57,14 +56,7 @@ func (r *CriterionsRepo) GetByRole(ctx context.Context, role, day string) (crite
 		CriterionsTable, MenuTable, RoleTable, CompleteCriterionTable,
 	)
 
-	//TODO если период равен месяцу можно парсить его по примеру time.Parse("01.2006", "09.2023")
-
-	date, err := time.Parse("02.01.2006", day)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse date. error: %w", err)
-	}
-
-	if err := r.db.Select(&criterions, query, date.Unix(), role); err != nil {
+	if err := r.db.Select(&criterions, query, day, role); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
 	return criterions, nil

@@ -26,8 +26,8 @@ func Register(api *gin.RouterGroup, service services.SemiFinished, middleware *m
 
 	semiFinished := api.Group("semi-finished")
 	{
-		semiFinished.GET("/", handlers.getByPeriod)
-		semiFinished.POST("/", handlers.create)
+		semiFinished.GET("", handlers.getByPeriod)
+		semiFinished.POST("", handlers.create)
 		semiFinished.POST("/several", handlers.createSeveral)
 		semiFinished.PUT("/several", handlers.updateSeveral)
 		semiFinished.DELETE("/:day", handlers.delete)

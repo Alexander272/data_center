@@ -12,14 +12,14 @@ type CriterionsWithData struct {
 	Key      string `json:"key" db:"key"`
 	Label    string `json:"label" db:"label"`
 	Type     string `json:"type" db:"type"`
-	Day      string `json:"day" db:"day"`
+	Date     int64  `json:"date" db:"date"`
 	Complete bool   `json:"complete" db:"complete"`
 }
 
 type CompleteCriterion struct {
 	Role        string
 	Type        string `json:"type"`
-	Date        string `json:"date"`
+	Date        int64  `json:"date"`
 	CriterionId string
 }
 
@@ -30,6 +30,6 @@ type ReportFilter struct {
 }
 
 type ReportComplete struct {
-	Date     string `json:"date" db:"date"`
-	Complete bool   `json:"complete" db:"complete"`
+	Date     int64 `json:"date" db:"date"`
+	Complete bool  `json:"complete" db:"complete"`
 }
