@@ -1,34 +1,38 @@
-import { IShippingPlan, IShippingPlanDTO } from '@/types/shippingPlan'
+import type { IShippingPlan, IShippingPlanDTO } from '@/types/shippingPlan'
+import type { IPeriod } from '@/types/period'
+import { API } from '@/constants/api'
 import { api } from './base'
-import { IPeriod } from '@/types/period'
 
 export const shippingPlanApi = api.injectEndpoints({
 	overrideExisting: false,
 	endpoints: builder => ({
 		// получение данных о плане отгрузок
 		getShippingPlanByPeriod: builder.query<{ data: IShippingPlan[] }, IPeriod>({
-			query: period => `criterions/shipping-plan/${period.from}${period.to ? '-' + period.to : ''}`,
-			providesTags: [{ type: 'Api', id: 'shipping-plan' }],
+			query: period => ({
+				url: API.Criterions.ShippingPlan,
+				params: new URLSearchParams({ 'period[from]': period.from, 'period[to]': period.to || '' }),
+			}),
+			providesTags: (_res, _err, arg) => [{ type: 'ShippingPlan', id: `${arg.from}-${arg.to || ''}` }],
 		}),
 
 		// сохранение данных о плане отгрузок
 		createShippingPlan: builder.mutation<void, IShippingPlanDTO>({
 			query: data => ({
-				url: `criterions/shipping-plan/`,
+				url: API.Criterions.ShippingPlan,
 				method: 'POST',
 				body: data,
 			}),
-			invalidatesTags: [{ type: 'Api', id: 'shipping-plan' }],
+			invalidatesTags: (_res, _err, arg) => [{ type: 'ShippingPlan', id: `${arg.date}-` }],
 		}),
 
 		// обновление данных о плане отгрузок
 		updateShippingPlan: builder.mutation<void, IShippingPlanDTO>({
 			query: data => ({
-				url: `criterions/shipping-plan/${data.day}`,
+				url: `${API.Criterions.ShippingPlan}/${data.date}`,
 				method: 'PUT',
 				body: data,
 			}),
-			invalidatesTags: [{ type: 'Api', id: 'shipping-plan' }],
+			invalidatesTags: (_res, _err, arg) => [{ type: 'ShippingPlan', id: `${arg.date}-` }],
 		}),
 	}),
 })

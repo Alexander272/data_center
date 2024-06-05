@@ -1,6 +1,6 @@
 export interface IShipment {
 	id: string | null
-	day?: string
+	date?: string
 	product: string | null
 	count: number | null
 	money: number | null
@@ -8,7 +8,7 @@ export interface IShipment {
 
 export interface IShipmentDTO {
 	id: string
-	day: string
+	date: number
 	product: string
 	count: string
 	money: string

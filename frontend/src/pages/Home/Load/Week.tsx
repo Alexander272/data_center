@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Box, Stack } from '@mui/material'
+import dayjs from 'dayjs'
+
 import type { IProductionLoad } from '@/types/productionLoad'
 import type { ISeriesData } from '@/types/sheet'
+import { FormatDate } from '@/constants/format'
 import { Line } from '../components/LineChart/Line'
 
 type Props = {
@@ -17,7 +20,7 @@ export default function Week({ data }: Props) {
 		const days = new Map<string, number[]>()
 
 		data.forEach(d => {
-			axisLine.add(d.date || '')
+			axisLine.add(dayjs(+(d.date || 0) * 1000).format(FormatDate) || '')
 
 			const data = days.get(d.sector || '')
 			if (!data) {

@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Box, Stack, Typography } from '@mui/material'
+import dayjs from 'dayjs'
+
 import type { IOutput } from '@/types/outputVolume'
 import type { ISeriesData } from '@/types/sheet'
+import { FormatDate } from '@/constants/format'
 import { Line } from '../components/LineChart/Line'
 
 type Props = {
@@ -38,7 +41,8 @@ export default function Week({ data }: Props) {
 		const planQuantity = new Map<string, number>()
 
 		stock.forEach(d => {
-			axisLine.add(d.day || '')
+			const date = dayjs(+(d.date || 0) * 1000).format(FormatDate) || ''
+			axisLine.add(date)
 
 			const data = countStockLines.get(d.product || '')
 			if (!data) {
@@ -48,12 +52,14 @@ export default function Week({ data }: Props) {
 				countStockLines.set(d.product || '', data)
 			}
 
-			const s = sumCountStock.get(d.day || '')
-			if (!s) sumCountStock.set(d.day || '', +(d.count || 0))
-			else sumCountStock.set(d.day || '', s + +(d.count || 0))
+			const s = sumCountStock.get(date)
+			if (!s) sumCountStock.set(date, +(d.count || 0))
+			else sumCountStock.set(date, s + +(d.count || 0))
 		})
 
 		orders.forEach(d => {
+			const date = dayjs(+(d.date || 0) * 1000).format(FormatDate) || ''
+
 			let data = moneyOrderLines.get(d.product || '')
 			if (!data) {
 				moneyOrderLines.set(d.product || '', [d.money || 0])
@@ -69,13 +75,13 @@ export default function Week({ data }: Props) {
 				countOrderLines.set(d.product || '', data)
 			}
 
-			let s = sumMoneyOrder.get(d.day || '')
-			if (!s) sumMoneyOrder.set(d.day || '', +(d.money || 0))
-			else sumMoneyOrder.set(d.day || '', s + +(d.money || 0))
+			let s = sumMoneyOrder.get(date)
+			if (!s) sumMoneyOrder.set(date, +(d.money || 0))
+			else sumMoneyOrder.set(date, s + +(d.money || 0))
 
-			s = sumCountOrder.get(d.day || '')
-			if (!s) sumCountOrder.set(d.day || '', +(d.count || 0))
-			else sumCountOrder.set(d.day || '', s + +(d.count || 0))
+			s = sumCountOrder.get(date)
+			if (!s) sumCountOrder.set(date, +(d.count || 0))
+			else sumCountOrder.set(date, s + +(d.count || 0))
 
 			planMoney.set(d.product, d.planMoney)
 			planQuantity.set(d.product, d.planQuantity)

@@ -1,9 +1,11 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
-import { CircularProgress, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
+
+import type { IShipmentFull } from '@/types/shipment'
 import { useAppSelector } from '@/hooks/useStore'
 import { useGetShipmentByPeriodQuery } from '@/store/api/shipment'
 import { useGetProductionPlanByPeriodQuery } from '@/store/api/productionPlan'
-import type { IShipmentFull } from '@/types/shipment'
+import { TableFallBack } from '../components/Fallback/FallBack'
 
 const Day = lazy(() => import('@/pages/Home/Shipment/Day'))
 const Week = lazy(() => import('@/pages/Home/Shipment/Week'))
@@ -16,22 +18,22 @@ export default function Shipment() {
 
 	const {
 		data: shipment,
-		isLoading: isLoadingShipment,
+		isFetching: isFetchShipment,
 		isError: isErrShipment,
 	} = useGetShipmentByPeriodQuery(period, { skip: period.from == '' })
 	const {
 		data: plan,
-		isLoading: isLoadingPlan,
+		isFetching: isFetchPlan,
 		isError: isErrPlan,
 	} = useGetProductionPlanByPeriodQuery({ period, type: 'shipment' }, { skip: period.from == '' })
 
 	useEffect(() => {
-		if (shipment?.data || plan?.data) {
+		if (shipment?.data.length || plan?.data.length) {
 			const d = shipment?.data?.map(s => {
 				const p = plan?.data?.find(p => p.product == s.product)
 				return {
 					id: s.id || '',
-					date: s.day || '',
+					date: s.date || '',
 					product: s.product || '',
 					count: s.count || 0,
 					money: s.money || 0,
@@ -40,56 +42,21 @@ export default function Shipment() {
 				}
 			})
 			setData(d || [])
-		}
+		} else setData([])
 	}, [shipment, plan])
 
 	return (
 		<>
-			{/* <Box padding={2} borderRadius={'16px'} sx={{ backgroundColor: '#fff' }} width={'100%'}> */}
-			{/* <Stack direction={'row'} mb={3}>
-					<Button disabled sx={{ borderRadius: '12px', minWidth: 48 }}>
-						<ArrowBackIcon />
-					</Button>
-
-					<Typography fontWeight={'bold'} fontSize={'1.6rem'} ml={'auto'} mr={'auto'}>
-						Выполнение плана отгрузок ({period.from}
-						{period.to ? '-' + period.to : ''})
-					</Typography>
-
-					<Button disabled sx={{ borderRadius: '12px', minWidth: 48 }}>
-						<ArrowForwardIcon />
-					</Button>
-				</Stack> */}
-
-			{/* {shipment?.data && plan?.data ? (
-				<Suspense fallback={<CircularProgress />}>
-					{periodType == 'day' && <Day data={data} />}
-					{periodType != 'day' && <Week data={data} />}
-				</Suspense>
-			) : (
-				<Box mt={2}>
-					{!isErrShipment && !isErrPlan ? (
-						<Typography fontSize={'1.2rem'} textAlign={'center'}>
-							Для выбранного периода данные не найдены
-						</Typography>
-					) : (
-						<Typography fontSize={'1.2rem'} textAlign={'center'}>
-							Не удалось получить данные
-						</Typography>
-					)}
-				</Box>
-			)} */}
-
-			{shipment?.data || plan?.data ? (
-				<Suspense fallback={<CircularProgress />}>
+			{shipment?.data.length || plan?.data.length ? (
+				<Suspense fallback={<TableFallBack />}>
 					{periodType == 'day' && <Day data={data} />}
 					{periodType != 'day' && <Week data={data} />}
 				</Suspense>
 			) : null}
 
-			{(!shipment?.data || !plan?.data) && (isLoadingPlan || isLoadingShipment) ? <CircularProgress /> : null}
+			{isFetchShipment || isFetchPlan ? <TableFallBack /> : null}
 
-			{(!shipment?.data || !plan?.data) && !isLoadingPlan && !isLoadingShipment ? (
+			{(!shipment?.data.length || !plan?.data.length) && !isFetchPlan && !isFetchShipment ? (
 				!isErrShipment && !isErrPlan ? (
 					<Typography fontSize={'1.2rem'} textAlign={'center'}>
 						Для выбранного периода данные не найдены
@@ -100,7 +67,6 @@ export default function Shipment() {
 					</Typography>
 				)
 			) : null}
-			{/* </Box> */}
 		</>
 	)
 }

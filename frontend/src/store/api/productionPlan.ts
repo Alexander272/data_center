@@ -1,5 +1,6 @@
 import type { IProductionPlan, IProductionPlanDTO, PlanType } from '@/types/productionPlan'
 import type { IPeriod } from '@/types/period'
+import { API } from '@/constants/api'
 import { api } from './base'
 
 export const planApi = api.injectEndpoints({
@@ -7,32 +8,32 @@ export const planApi = api.injectEndpoints({
 		// получение данных о плане за период
 		getProductionPlanByPeriod: builder.query<{ data: IProductionPlan[] }, { period: IPeriod; type: PlanType }>({
 			query: ({ period, type }) => ({
-				url: `criterions/production-plan/${period.from}${period.to ? '-' + period.to : ''}`,
-				method: 'GET',
-				params: new URLSearchParams([['type', type]]),
+				url: API.Criterions.ProductionPlan,
+				params: new URLSearchParams({ 'period[from]': period.from, 'period[to]': period.to || '', type: type }),
 			}),
-			// TODO возможно стоит добавить тип к id
-			providesTags: [{ type: 'Api', id: `production-plan` }],
+			providesTags: (_res, _err, arg) => [
+				{ type: 'ProductionPlan', id: `${arg.period.from}-${arg.period.to || ''}` },
+			],
 		}),
 
 		// сохранение данных о плане
 		saveProductionPlan: builder.mutation<string, IProductionPlanDTO[]>({
 			query: data => ({
-				url: 'criterions/production-plan/several',
+				url: `${API.Criterions.ProductionPlan}/several`,
 				method: 'POST',
 				body: data,
 			}),
-			invalidatesTags: [{ type: 'Api', id: `production-plan` }],
+			invalidatesTags: (_res, _err, arg) => [{ type: 'ProductionPlan', id: `${arg[0].date}-` }],
 		}),
 
 		// обновление данных о плане
 		updateProductionPlan: builder.mutation<string, IProductionPlanDTO[]>({
 			query: data => ({
-				url: 'criterions/production-plan/several',
+				url: `${API.Criterions.ProductionPlan}/several`,
 				method: 'PUT',
 				body: data,
 			}),
-			invalidatesTags: [{ type: 'Api', id: `production-plan` }],
+			invalidatesTags: (_res, _err, arg) => [{ type: 'ProductionPlan', id: `${arg[0].date}-` }],
 		}),
 	}),
 	overrideExisting: false,

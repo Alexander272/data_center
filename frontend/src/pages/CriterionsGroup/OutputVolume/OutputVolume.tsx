@@ -67,7 +67,7 @@ export default function OutputVolume() {
 	const [updateOutput, { isLoading: updateLoading }] = useUpdateOutputVolumeMutation()
 
 	useEffect(() => {
-		if (output && output.data) {
+		if (output && output.data.length) {
 			setStockTable(prev => {
 				const temp = [...prev]
 				for (let i = 0; i < temp.length; i++) {
@@ -122,7 +122,7 @@ export default function OutputVolume() {
 			const e = stockTable[i]
 			newOutput.push({
 				id: '',
-				day: date,
+				date: +date,
 				forStock: true,
 				product: e.product || '',
 				count: e.count?.toString() || '',
@@ -133,7 +133,7 @@ export default function OutputVolume() {
 			const e = orderTable[i]
 			newOutput.push({
 				id: '',
-				day: date,
+				date: +date,
 				forStock: false,
 				product: e.product || '',
 				count: e.count?.toString() || '',
@@ -142,16 +142,17 @@ export default function OutputVolume() {
 		}
 
 		try {
-			if (!output?.data) {
+			if (!output?.data.length) {
 				await saveOutput(newOutput).unwrap()
 				dispatch(setComplete())
 				setToast({ type: 'success', message: 'Данные сохранены', open: true })
 				// dispatch(setComplete(active))
 			} else {
 				await updateOutput(newOutput).unwrap()
+				setToast({ type: 'success', message: 'Данные обновлены', open: true })
 			}
 		} catch (error) {
-			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: true })
+			setToast({ type: 'error', message: (error as IResError).data.message, open: true })
 		}
 	}
 

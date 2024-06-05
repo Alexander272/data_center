@@ -1,6 +1,6 @@
 export interface IOutputVolume {
 	id: string | null
-	day?: string
+	date?: string
 	forStock?: boolean
 	product: string | null
 	count: number | null
@@ -10,7 +10,7 @@ export interface IOutputVolume {
 export interface IOutputVolumeDTO {
 	id: string
 	forStock: boolean
-	day: string
+	date: number
 	product: string
 	count: string
 	money: string
@@ -18,7 +18,7 @@ export interface IOutputVolumeDTO {
 
 export interface IOutput {
 	id: string
-	day: string
+	date: string
 	forStock: boolean
 	product: string
 	count: number

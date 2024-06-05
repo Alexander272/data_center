@@ -1,16 +1,17 @@
 import { MouseEvent, Suspense, lazy, useRef, useState } from 'react'
-import dayjs from 'dayjs'
 import { Box, Button, ButtonGroup, Menu, Stack, Typography } from '@mui/material'
+import dayjs, { Dayjs } from 'dayjs'
 import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNewOutlined'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForwardIosOutlined'
 import CalendarIcon from '@mui/icons-material/CalendarMonthOutlined'
 
 import type { PeriodEnum } from '@/types/period'
+import { FormatDate } from '@/constants/format'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { nextPeriod, prevPeriod, setPeriod, setPeriodType } from '@/store/dashboard'
 import { Calendar } from '@/components/Calendar/Calendar'
-import { Fallback } from '@/components/Fallback/Fallback'
 import Stepper from '@/components/Stepper/Stepper'
+import { TableFallBack } from '../components/Fallback/FallBack'
 import { Container } from './home.style'
 
 const ProductionPlan = lazy(() => import('@/pages/Home/ProductionPlan/ProductionPlan'))
@@ -97,8 +98,8 @@ export default function Home() {
 	const nextHandler = () => {
 		dispatch(nextPeriod())
 	}
-	const periodHandler = (date: [from: string, to?: string]) => {
-		dispatch(setPeriod({ from: date[0], to: date[1] }))
+	const periodHandler = (date: [from: Dayjs, to?: Dayjs]) => {
+		dispatch(setPeriod({ from: date[0].unix().toString(), to: date[1]?.unix().toString() }))
 		setOpen(false)
 	}
 
@@ -187,6 +188,7 @@ export default function Home() {
 					borderRadius={'16px'}
 					width={'100%'}
 					boxShadow={'rgba(54, 54, 54, 0.17) 0px 0px 4px 0px'}
+					position={'relative'}
 					sx={{ backgroundColor: '#fff' }}
 				>
 					<Stack direction={'row'} mb={3}>
@@ -195,8 +197,8 @@ export default function Home() {
 						</Button>
 
 						<Typography fontWeight={'bold'} fontSize={'1.6rem'} ml={'auto'}>
-							{steps.find(s => s.key == selected)?.label} ({period.from}
-							{period.to ? '-' + period.to : ''})
+							{steps.find(s => s.key == selected)?.label} ({dayjs(+period.from * 1000).format(FormatDate)}
+							{period.to ? '-' + dayjs(+period.to * 1000).format(FormatDate) : ''})
 						</Typography>
 						<Button
 							onClick={toggleCalendar}
@@ -210,8 +212,12 @@ export default function Home() {
 
 						<Button
 							disabled={
-								dayjs().subtract(1, 'd').diff(dayjs(period.from, 'DD.MM.YYYY'), 'd') <= 0 ||
-								dayjs().subtract(1, 'd').diff(dayjs(period.to, 'DD.MM.YYYY'), 'd') <= 0
+								dayjs()
+									.subtract(1, 'd')
+									.diff(dayjs(+period.from * 1000), 'd') <= 0 ||
+								dayjs()
+									.subtract(1, 'd')
+									.diff(dayjs(+(period.to || 0) * 1000), 'd') <= 0
 							}
 							onClick={nextHandler}
 							sx={{ borderRadius: '12px', minWidth: 48 }}
@@ -255,14 +261,14 @@ export default function Home() {
 						}}
 					>
 						<Calendar
-							selected={period.from}
-							range={[period.from, period.to]}
+							selected={dayjs(+period.from * 1000)}
+							range={[dayjs(+period.from * 1000), dayjs(+(period.to || 0) * 1000)]}
 							picker={pickerType[periodType]}
 							onSelect={periodHandler}
 						/>
 					</Menu>
 
-					<Suspense fallback={<Fallback />}>
+					<Suspense fallback={<TableFallBack />}>
 						{/* {selected == 'production_plan' && <ProductionPlan />}
 						{selected == 'shipment' && <Shipment />}
 						{selected == 'output' && <Output />}

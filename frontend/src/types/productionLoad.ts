@@ -8,7 +8,7 @@ export interface IProductionLoad {
 
 export interface IProductionLoadDTO {
 	id: string
-	date: string
+	date: number
 	sector: string
 	days: number
 	quantity: number

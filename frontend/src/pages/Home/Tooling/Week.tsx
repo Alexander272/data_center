@@ -20,8 +20,8 @@ export default function Week({ data }: Props) {
 		const quantity = new Map<string, number>()
 
 		data.forEach(d => {
-			axisLine.add(dayjs(+(d.day || 0) * 1000).format(FormatDate) || '')
-			quantity.set(d.day || '', +(d.progress || 0))
+			axisLine.add(dayjs(+(d.date || 0) * 1000).format(FormatDate) || '')
+			quantity.set(d.date || '', +(d.progress || 0))
 		})
 
 		setAxis(Array.from(axisLine))

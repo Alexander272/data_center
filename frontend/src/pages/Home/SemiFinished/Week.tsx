@@ -20,7 +20,7 @@ export default function Week({ data }: Props) {
 		const days = new Map<string, number[]>()
 
 		data.forEach(d => {
-			axisLine.add(dayjs(+(d.day || 0) * 1000).format(FormatDate) || '')
+			axisLine.add(dayjs(+(d.date || 0) * 1000).format(FormatDate) || '')
 
 			const data = days.get(d.product || '')
 			if (!data) {

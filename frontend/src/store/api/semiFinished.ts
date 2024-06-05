@@ -20,7 +20,7 @@ export const semiFinishedApi = api.injectEndpoints({
 				method: 'POST',
 				body: data,
 			}),
-			invalidatesTags: (_res, _err, arg) => [{ type: 'SemiFinished', id: `${arg[0].day}-` }],
+			invalidatesTags: (_res, _err, arg) => [{ type: 'SemiFinished', id: `${arg[0].date}-` }],
 		}),
 
 		updateSemiFinished: builder.mutation<null, ISemiFinishedDTO[]>({
@@ -29,7 +29,7 @@ export const semiFinishedApi = api.injectEndpoints({
 				method: 'PUT',
 				body: data,
 			}),
-			invalidatesTags: (_res, _err, arg) => [{ type: 'SemiFinished', id: `${arg[0].day}-` }],
+			invalidatesTags: (_res, _err, arg) => [{ type: 'SemiFinished', id: `${arg[0].date}-` }],
 		}),
 	}),
 })

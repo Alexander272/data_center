@@ -54,15 +54,14 @@ export default function OrdersVolume() {
 	const [updateOrders, { isLoading: updateLoading }] = useUpdateOrdersVolumeMutation()
 
 	useEffect(() => {
-		if (orders && orders.data) {
-			setTable([
-				{
-					id: orders.data[0].id,
-					numberOfOrders: orders.data[0].numberOfOrders,
-					sumMoney: +(orders.data[0].sumMoney || '0'),
-					quantity: orders.data[0].quantity,
-				},
-			])
+		if (orders && orders.data.length) {
+			const d = {
+				id: orders.data[0]?.id,
+				numberOfOrders: orders.data[0].numberOfOrders,
+				sumMoney: +(orders.data[0].sumMoney || '0'),
+				quantity: orders.data[0].quantity,
+			}
+			setTable([d])
 		} else {
 			setTable(emptyData)
 		}
@@ -81,21 +80,21 @@ export default function OrdersVolume() {
 	}
 
 	const saveHandler = async () => {
-		const order: IOrdersVolumeDTO = {
-			id: '',
-			day: date,
-			numberOfOrders: table[0].numberOfOrders || 0,
-			sumMoney: table[0].sumMoney?.toString() || '0',
-			quantity: table[0].quantity || 0,
-		}
-
 		if (table[0].numberOfOrders == null || table[0].sumMoney == null || table[0].quantity == null) {
 			setToast({ type: 'error', message: 'Пустые поля недопустимы. Проверьте заполнение полей', open: true })
 			return
 		}
 
+		const order: IOrdersVolumeDTO = {
+			id: '',
+			date: +date,
+			numberOfOrders: table[0].numberOfOrders || 0,
+			sumMoney: table[0].sumMoney?.toString() || '0',
+			quantity: table[0].quantity || 0,
+		}
+
 		try {
-			if (!orders?.data) {
+			if (!orders?.data.length) {
 				await saveOrders(order).unwrap()
 				dispatch(setComplete())
 				setToast({ type: 'success', message: 'Данные сохранены', open: true })

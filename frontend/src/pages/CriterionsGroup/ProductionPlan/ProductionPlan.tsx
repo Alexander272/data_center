@@ -53,7 +53,7 @@ export default function ProductionPlan() {
 	const [updatePlan, { isLoading: updateLoading }] = useUpdateProductionPlanMutation()
 
 	useEffect(() => {
-		if (plan && plan.data) {
+		if (plan && plan.data.length) {
 			setTable(prev => {
 				const temp = [...prev]
 				for (let i = 0; i < temp.length; i++) {
@@ -92,23 +92,24 @@ export default function ProductionPlan() {
 			newPlan.push({
 				id: '',
 				type: 'annual',
-				date: date,
+				date: +date,
 				product: e.product || '',
 				money: e.money?.toString() || '',
 			})
 		}
 
 		try {
-			if (!plan?.data) {
+			if (!plan?.data.length) {
 				await savePlan(newPlan).unwrap()
 				dispatch(setComplete())
 				setToast({ type: 'success', message: 'Данные сохранены', open: true })
 				// dispatch(setComplete(active))
 			} else {
 				await updatePlan(newPlan).unwrap()
+				setToast({ type: 'success', message: 'Данные обновлены', open: true })
 			}
 		} catch (error) {
-			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: true })
+			setToast({ type: 'error', message: (error as IResError).data.message, open: true })
 		}
 	}
 

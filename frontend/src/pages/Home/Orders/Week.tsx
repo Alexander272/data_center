@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Box, Stack, Typography } from '@mui/material'
+import dayjs from 'dayjs'
+
 import type { IOrdersVolume } from '@/types/orderVolume'
 import type { ISeriesData } from '@/types/sheet'
+import { FormatDate } from '@/constants/format'
 import { Line } from '../components/LineChart/Line'
 
 type Props = {
@@ -21,11 +24,12 @@ export default function Week({ data }: Props) {
 		const quantity = new Map<string, number>()
 
 		data.forEach(d => {
-			axisLine.add(d.day || '')
+			const date = dayjs(+(d.date || 0) * 1000).format(FormatDate) || ''
+			axisLine.add(date)
 
-			number.set(d.day || '', +(d.numberOfOrders || 0))
-			money.set(d.day || '', +(d.sumMoney || 0))
-			quantity.set(d.day || '', +(d.quantity || 0))
+			number.set(date, +(d.numberOfOrders || 0))
+			money.set(date, +(d.sumMoney || 0))
+			quantity.set(date, +(d.quantity || 0))
 		})
 
 		setAxis(Array.from(axisLine))

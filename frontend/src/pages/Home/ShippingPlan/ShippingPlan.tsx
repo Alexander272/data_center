@@ -1,10 +1,12 @@
-import { Suspense } from 'react'
+import { Suspense, lazy } from 'react'
 import { Typography } from '@mui/material'
+
 import { useAppSelector } from '@/hooks/useStore'
 import { useGetShippingPlanByPeriodQuery } from '@/store/api/shippingPlan'
-import { Fallback } from '@/components/Fallback/Fallback'
-import Day from './Day'
-import Week from './Week'
+import { TableFallBack } from '../components/Fallback/FallBack'
+
+const Day = lazy(() => import('@/pages/Home/ShippingPlan/Day'))
+const Week = lazy(() => import('@/pages/Home/ShippingPlan/Week'))
 
 export default function ShippingPlan() {
 	const periodType = useAppSelector(state => state.dashboard.periodType)
@@ -14,16 +16,16 @@ export default function ShippingPlan() {
 
 	return (
 		<>
-			{data?.data && (
-				<Suspense fallback={<Fallback />}>
+			{data?.data.length && (
+				<Suspense fallback={<TableFallBack />}>
 					{periodType == 'day' && <Day data={data.data} />}
 					{periodType != 'day' && <Week data={data.data} />}
 				</Suspense>
 			)}
 
-			{isFetching && <Fallback />}
+			{isFetching ? <TableFallBack /> : null}
 
-			{!data?.data && !isFetching ? (
+			{!data?.data.length && !isFetching ? (
 				isError ? (
 					<Typography mt={2} fontSize={'1.2rem'} textAlign='center'>
 						Не удалось получить данные

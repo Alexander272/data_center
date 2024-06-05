@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Box, Stack, Typography } from '@mui/material'
+import dayjs from 'dayjs'
+
 import type { ISeriesData } from '@/types/sheet'
 import type { IShipmentFull } from '@/types/shipment'
+import { FormatDate } from '@/constants/format'
 import { Line } from '../components/LineChart/Line'
 
 type Props = {
@@ -36,7 +39,8 @@ export default function Week({ data }: Props) {
 		const sumCount = new Map<string, number>()
 
 		data.forEach(d => {
-			axisLine.add(d.date)
+			const date = dayjs(+(d.date || 0) * 1000).format(FormatDate) || ''
+			axisLine.add(date)
 
 			let data = moneyLines.get(d.product)
 			if (!data) {
@@ -53,13 +57,13 @@ export default function Week({ data }: Props) {
 				countLines.set(d.product, data)
 			}
 
-			let s = sumMoney.get(d.date)
-			if (!s) sumMoney.set(d.date, +d.money)
-			else sumMoney.set(d.date, s + +d.money)
+			let s = sumMoney.get(date)
+			if (!s) sumMoney.set(date, +d.money)
+			else sumMoney.set(date, s + +d.money)
 
-			s = sumCount.get(d.date)
-			if (!s) sumCount.set(d.date, +d.count)
-			else sumCount.set(d.date, s + +d.count)
+			s = sumCount.get(date)
+			if (!s) sumCount.set(date, +d.count)
+			else sumCount.set(date, s + +d.count)
 
 			planMoney.set(d.product, d.planMoney)
 			planQuantity.set(d.product, d.planQuantity)

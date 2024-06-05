@@ -20,7 +20,7 @@ export const ToolingApi = api.injectEndpoints({
 				method: 'POST',
 				body: data,
 			}),
-			invalidatesTags: (_res, _err, arg) => [{ type: 'Tooling', id: `${arg.day}-` }],
+			invalidatesTags: (_res, _err, arg) => [{ type: 'Tooling', id: `${arg.date}-` }],
 		}),
 
 		updateTooling: builder.mutation<null, IToolingDTO>({
@@ -29,7 +29,7 @@ export const ToolingApi = api.injectEndpoints({
 				method: 'PUT',
 				body: data,
 			}),
-			invalidatesTags: (_res, _err, arg) => [{ type: 'Tooling', id: `${arg.day}-` }],
+			invalidatesTags: (_res, _err, arg) => [{ type: 'Tooling', id: `${arg.date}-` }],
 		}),
 	}),
 })

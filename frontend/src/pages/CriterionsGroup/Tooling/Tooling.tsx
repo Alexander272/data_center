@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Column, DataSheetGrid, intColumn, keyColumn } from 'react-datasheet-grid'
 import { Button, CircularProgress, Typography } from '@mui/material'
-import dayjs from 'dayjs'
 
 import type { ITooling, IToolingDTO } from '@/types/tooling'
 import type { IResError } from '@/types/err'
@@ -37,10 +36,7 @@ export default function Tooling() {
 		},
 	]
 
-	const { data: tooling } = useGetToolingByPeriodQuery(
-		{ from: dayjs(date, 'DD.MM.YYYY').unix().toString() },
-		{ skip: !date }
-	)
+	const { data: tooling } = useGetToolingByPeriodQuery({ from: date }, { skip: !date })
 	const [save, { isLoading: saveLoading }] = useCreateToolingMutation()
 	const [update, { isLoading: updateLoading }] = useUpdateToolingMutation()
 
@@ -79,7 +75,7 @@ export default function Tooling() {
 
 		const newData: IToolingDTO = {
 			id: table[0].id || '',
-			day: dayjs(date, 'DD.MM.YYYY').unix(),
+			date: +date,
 			request: +table[0].request,
 			done: +table[0].done,
 		}

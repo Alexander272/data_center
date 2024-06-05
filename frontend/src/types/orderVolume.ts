@@ -1,6 +1,6 @@
 export interface IOrdersVolume {
 	id: string | null
-	day?: string
+	date?: string
 	numberOfOrders: number | null
 	sumMoney: number | null
 	quantity: number | null
@@ -8,7 +8,7 @@ export interface IOrdersVolume {
 
 export interface IOrdersVolumeDTO {
 	id: string
-	day: string
+	date: number
 	numberOfOrders: number
 	sumMoney: string
 	quantity: number

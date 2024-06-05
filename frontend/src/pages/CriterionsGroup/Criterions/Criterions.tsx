@@ -1,6 +1,7 @@
 import { Suspense, useCallback, useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { Box, CircularProgress, Divider, Stack } from '@mui/material'
+
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setActive, setCriterions } from '@/store/criterions'
 import { useCompleteCriterionMutation, useGetCriterionsQuery } from '@/store/api/criterions'

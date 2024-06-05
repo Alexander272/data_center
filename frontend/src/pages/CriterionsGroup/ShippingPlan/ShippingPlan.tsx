@@ -52,7 +52,7 @@ export default function ShippingPlan() {
 	const [updatePlan, { isLoading: updateLoading }] = useUpdateShippingPlanMutation()
 
 	useEffect(() => {
-		if (plan && plan.data) {
+		if (plan && plan.data.length) {
 			setTable([
 				{
 					id: plan.data[0].id,
@@ -86,14 +86,14 @@ export default function ShippingPlan() {
 
 		const newPlan: IShippingPlanDTO = {
 			id: table[0].id || '',
-			day: date,
+			date: +date,
 			numberOfOrders: table[0].numberOfOrders || 0,
 			sumMoney: table[0].sumMoney?.toString() || '0',
 			quantity: table[0].quantity || 0,
 		}
 
 		try {
-			if (!plan?.data) {
+			if (!plan?.data.length) {
 				await savePlan(newPlan).unwrap()
 				dispatch(setComplete())
 				setToast({ type: 'success', message: 'Данные сохранены', open: true })

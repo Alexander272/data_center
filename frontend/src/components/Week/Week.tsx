@@ -18,7 +18,7 @@ export const Week = () => {
 
 	const { data: completedDays } = useGetCompletedPeriodQuery({
 		type: 'day',
-		date: curDate.subtract(6, 'd').format('DD.MM.YYYY'),
+		date: curDate.subtract(6, 'd').unix(),
 	})
 
 	const changeDateHandler = (event: MouseEvent<HTMLDivElement>) => {
@@ -30,14 +30,14 @@ export const Week = () => {
 	const renderDays = () => {
 		const days: JSX.Element[] = []
 
-		if (date == '') dispatch(setDate(curDate.format('DD.MM.YYYY')))
+		if (date == '') dispatch(setDate(curDate.unix().toString()))
 
 		for (let i = 6; i >= 0; i--) {
 			const d = curDate.subtract(i, 'd')
-			const formatDate = d.format('DD.MM.YYYY')
+			const formatDate = d.unix().toString()
 
 			let complete = false
-			const cDay = completedDays?.data?.find(d => d.date == formatDate)
+			const cDay = completedDays?.data?.find(d => d.date.toString() == formatDate)
 			if (cDay && cDay.complete) complete = true
 
 			days.push(

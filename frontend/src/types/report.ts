@@ -13,7 +13,7 @@ export interface IReport {
 
 export interface IReportFilter {
 	type: PeriodEnum
-	date: string
+	date: number
 }
 
 // export type Criterion = {

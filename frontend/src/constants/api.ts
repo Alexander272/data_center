@@ -6,6 +6,12 @@ export const API = {
 	},
 	Criterions: {
 		Base: 'criterions',
+		OrdersVolume: 'criterions/orders-volume',
+		OutputVolume: 'criterions/output-volume',
+		ProductionLoad: 'criterions/production-load',
+		ProductionPlan: 'criterions/production-plan',
+		Shipment: 'criterions/shipment',
+		ShippingPlan: 'criterions/shipping-plan',
 		SemiFinished: `criterions/semi-finished`,
 		Tooling: 'criterions/tooling',
 	},

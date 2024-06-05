@@ -55,7 +55,7 @@ export default function Shipment() {
 	const [updateShipment, { isLoading: updateLoading }] = useUpdateShipmentMutation()
 
 	useEffect(() => {
-		if (shipment && shipment.data) {
+		if (shipment && shipment.data.length) {
 			setTable(prev => {
 				const temp = [...prev]
 				for (let i = 0; i < temp.length; i++) {
@@ -93,7 +93,7 @@ export default function Shipment() {
 			const e = table[i]
 			newShipment.push({
 				id: '',
-				day: date,
+				date: +date,
 				product: e.product || '',
 				count: e.count?.toString() || '',
 				money: e.money?.toString() || '',
@@ -101,16 +101,17 @@ export default function Shipment() {
 		}
 
 		try {
-			if (!shipment?.data) {
+			if (!shipment?.data.length) {
 				await saveShipment(newShipment).unwrap()
 				// dispatch(setComplete(active))
 				dispatch(setComplete())
 				setToast({ type: 'success', message: 'Данные сохранены', open: true })
 			} else {
 				await updateShipment(newShipment).unwrap()
+				setToast({ type: 'success', message: 'Данные обновлены', open: true })
 			}
 		} catch (error) {
-			setToast({ type: 'error', message: `Произошла ошибка: ${(error as IResError).data.message}`, open: true })
+			setToast({ type: 'error', message: (error as IResError).data.message, open: true })
 		}
 	}
 

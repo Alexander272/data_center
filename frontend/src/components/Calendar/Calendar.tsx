@@ -8,12 +8,12 @@ import { DateGrid } from './DateGrid'
 // import { IPeriod } from '@/types/period'
 
 type Props = {
-	selected?: string
-	startDate?: string
-	endDate?: string
-	range?: [from: string, to?: string]
+	selected?: Dayjs
+	startDate?: Dayjs
+	endDate?: Dayjs
+	range?: [from: Dayjs, to?: Dayjs]
 	// selected: string | IPeriod
-	onSelect?: (date: [from: string, to?: string]) => void
+	onSelect?: (date: [from: Dayjs, to?: Dayjs]) => void
 	// mode?: 'single' | 'range'
 	picker?: 'day' | 'week' | 'month' | 'year'
 	// selectSize?: number
@@ -23,10 +23,8 @@ type Props = {
 }
 
 export const Calendar: FC<Props> = ({ selected, range, onSelect, picker = 'day' }) => {
-	const [date, setDate] = useState(selected ? dayjs(selected, 'DD.MM.YYYY') : dayjs())
-	const [period, setPeriod] = useState(
-		range ? [dayjs(range[0], 'DD.MM.YYYY'), range[1] ? dayjs(range[1], 'DD.MM.YYYY') : undefined] : []
-	)
+	const [date, setDate] = useState(selected ? selected : dayjs())
+	const [period, setPeriod] = useState(range ? [range[0], range[1] ? range[1] : undefined] : [])
 
 	const [openMonth, setOpenMonth] = useState(picker == 'month')
 	const [openYears, setOpenYears] = useState(picker == 'year')
@@ -37,13 +35,12 @@ export const Calendar: FC<Props> = ({ selected, range, onSelect, picker = 'day' 
 	const changeMonthHandler = (date: Dayjs) => {
 		setDate(date)
 		setOpenMonth(false)
-		if (picker == 'month' && onSelect)
-			onSelect([date.format('DD.MM.YYYY'), date.endOf(picker).format('DD.MM.YYYY')])
+		if (picker == 'month' && onSelect) onSelect([date, date.endOf(picker)])
 	}
 	const changeYearHandler = (date: Dayjs) => {
 		setDate(date)
 		setOpenYears(false)
-		if (picker == 'year' && onSelect) onSelect([date.format('DD.MM.YYYY'), date.endOf(picker).format('DD.MM.YYYY')])
+		if (picker == 'year' && onSelect) onSelect([date, date.endOf(picker)])
 	}
 
 	const toggleMonth = () => {
@@ -63,10 +60,10 @@ export const Calendar: FC<Props> = ({ selected, range, onSelect, picker = 'day' 
 			const to = newDate.endOf(picker)
 
 			setPeriod([from, to])
-			onSelect && onSelect([from.format('DD.MM.YYYY'), to.format('DD.MM.YYYY')])
+			onSelect && onSelect([from, to])
 			return
 		}
-		onSelect && onSelect([day])
+		onSelect && onSelect([newDate])
 	}
 
 	return (

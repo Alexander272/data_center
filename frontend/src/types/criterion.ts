@@ -13,6 +13,6 @@ export interface ICompleteCriterion {
 }
 
 export interface ICompleteReport {
-	date: string
+	date: number
 	complete: boolean
 }

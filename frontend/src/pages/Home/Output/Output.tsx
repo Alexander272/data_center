@@ -1,9 +1,11 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
-import { CircularProgress, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
+
+import type { IOutput } from '@/types/outputVolume'
 import { useAppSelector } from '@/hooks/useStore'
 import { useGetOutputVolumeByPeriodQuery } from '@/store/api/outputVolume'
 import { useGetProductionPlanByPeriodQuery } from '@/store/api/productionPlan'
-import type { IOutput } from '@/types/outputVolume'
+import { TableFallBack } from '../components/Fallback/FallBack'
 
 const Day = lazy(() => import('@/pages/Home/Output/Day'))
 const Week = lazy(() => import('@/pages/Home/Output/Week'))
@@ -16,22 +18,22 @@ export default function Output() {
 
 	const {
 		data: output,
-		isLoading: isLoadingOutput,
+		isFetching: isFetchOutput,
 		isError: isErrOutput,
 	} = useGetOutputVolumeByPeriodQuery(period, { skip: period.from == '' })
 	const {
 		data: plan,
-		isLoading: isLoadingPlan,
+		isFetching: isFetchPlan,
 		isError: isErrPlan,
 	} = useGetProductionPlanByPeriodQuery({ period, type: 'output' }, { skip: period.from == '' })
 
 	useEffect(() => {
-		if (output?.data || plan?.data) {
+		if (output?.data.length || plan?.data.length) {
 			const d = output?.data?.map(s => {
 				const p = plan?.data?.find(p => p.product == s.product)
 				return {
 					id: s.id || '',
-					day: s.day || '',
+					date: s.date || '',
 					forStock: s.forStock || false,
 					product: s.product || '',
 					count: s.count || 0,
@@ -41,21 +43,21 @@ export default function Output() {
 				}
 			})
 			setData(d || [])
-		}
+		} else setData([])
 	}, [output, plan])
 
 	return (
 		<>
-			{output?.data || plan?.data ? (
-				<Suspense fallback={<CircularProgress />}>
+			{output?.data.length || plan?.data.length ? (
+				<Suspense fallback={<TableFallBack />}>
 					{periodType == 'day' && <Day data={data} />}
 					{periodType != 'day' && <Week data={data} />}
 				</Suspense>
 			) : null}
 
-			{(!output?.data || !plan?.data) && (isLoadingPlan || isLoadingOutput) ? <CircularProgress /> : null}
+			{isFetchOutput || isFetchPlan ? <TableFallBack /> : null}
 
-			{!output?.data && !plan?.data && !isLoadingPlan && !isLoadingOutput ? (
+			{!output?.data.length && !plan?.data.length && !isFetchPlan && !isFetchOutput ? (
 				!isErrOutput && !isErrPlan ? (
 					<Typography mt={2} fontSize={'1.2rem'} textAlign={'center'}>
 						Для выбранного периода данные не найдены

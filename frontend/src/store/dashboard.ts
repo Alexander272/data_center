@@ -12,7 +12,7 @@ export interface IDashboardState {
 const initialState: IDashboardState = {
 	periodType: 'day',
 	// period: { from: FormatDate(new Date(Date.now() - 86400000)) },
-	period: { from: dayjs().subtract(1, 'd').format('DD.MM.YYYY') },
+	period: { from: dayjs().startOf('d').subtract(1, 'd').unix().toString() },
 	hasNextPeriod: false,
 }
 
@@ -23,11 +23,11 @@ export const dashboardSlice = createSlice({
 		setPeriodType: (state, action: PayloadAction<PeriodEnum>) => {
 			state.periodType = action.payload
 
-			const date = dayjs().subtract(1, 'd')
+			const date = dayjs().startOf('d').subtract(1, 'd')
 
 			if (action.payload == 'day') {
 				// state.period.from = FormatDate(new Date(Date.now() - 86400000))
-				state.period.from = date.format('DD.MM.YYYY')
+				state.period.from = date.unix().toString()
 				state.period.to = ''
 			}
 			if (action.payload == 'week') {
@@ -35,17 +35,17 @@ export const dashboardSlice = createSlice({
 				// state.period.from = week.monday
 				// state.period.to = week.sunday
 				if (date.day() > 3) {
-					state.period.from = date.startOf('w').format('DD.MM.YYYY')
-					state.period.to = date.endOf('w').format('DD.MM.YYYY')
+					state.period.from = date.startOf('w').unix().toString()
+					state.period.to = date.endOf('w').unix().toString()
 				} else {
 					const d = date.subtract(5, 'd')
-					state.period.from = d.startOf('w').format('DD.MM.YYYY')
-					state.period.to = d.endOf('w').format('DD.MM.YYYY')
+					state.period.from = d.startOf('w').unix().toString()
+					state.period.to = d.endOf('w').unix().toString()
 				}
 			}
 			if (action.payload == 'month') {
-				state.period.from = date.startOf('M').format('DD.MM.YYYY')
-				state.period.to = date.endOf('M').format('DD.MM.YYYY')
+				state.period.from = date.startOf('M').unix().toString()
+				state.period.to = date.endOf('M').unix().toString()
 			}
 		},
 		prevPeriod: state => {
@@ -55,17 +55,17 @@ export const dashboardSlice = createSlice({
 			// parts = state.period.to?.split('.') || ['0', '0', '0']
 			// const to = new Date(+parts[2], +parts[1] - 1, +parts[0])
 
-			const date = dayjs(state.period.from, 'DD.MM.YYYY')
+			const date = dayjs(+state.period.from * 1000)
 
 			if (state.periodType == 'day') {
 				// from.setDate(+parts[0] - 1)
 				// state.period.from = FormatDate(from)
-				state.period.from = date.subtract(1, 'd').format('DD.MM.YYYY')
+				state.period.from = date.subtract(1, 'd').unix().toString()
 			}
 			if (state.periodType == 'week') {
 				const d = date.subtract(7, 'd')
-				state.period.from = d.startOf('w').format('DD.MM.YYYY')
-				state.period.to = d.endOf('w').format('DD.MM.YYYY')
+				state.period.from = d.startOf('w').unix().toString()
+				state.period.to = d.endOf('w').unix().toString()
 				// from.setDate(+parts[0] - 1)
 				// const week = GetWeek(from)
 				// state.period.from = week.monday
@@ -73,8 +73,8 @@ export const dashboardSlice = createSlice({
 			}
 			if (state.periodType == 'month') {
 				const d = date.subtract(1, 'M')
-				state.period.from = d.startOf('M').format('DD.MM.YYYY')
-				state.period.to = d.endOf('M').format('DD.MM.YYYY')
+				state.period.from = d.unix().toString()
+				state.period.to = d.unix().toString()
 			}
 
 			// parts = state.period.from.split('.')
@@ -89,22 +89,22 @@ export const dashboardSlice = createSlice({
 			// const parts = state.period.from.split('.')
 			// const from = new Date(+parts[2], +parts[1] - 1, +parts[0])
 
-			const date = dayjs(state.period.from, 'DD.MM.YYYY')
+			const date = dayjs(+state.period.from * 1000)
 
 			if (state.periodType == 'day') {
 				// from.setDate(+parts[0] + 1)
 				// state.period.from = FormatDate(from)
-				state.period.from = date.add(1, 'd').format('DD.MM.YYYY')
+				state.period.from = date.add(1, 'd').unix().toString()
 			}
 			if (state.periodType == 'week') {
 				const d = date.add(7, 'd')
-				state.period.from = d.startOf('w').format('DD.MM.YYYY')
-				state.period.to = d.endOf('w').format('DD.MM.YYYY')
+				state.period.from = d.startOf('w').unix().toString()
+				state.period.to = d.endOf('w').unix().toString()
 			}
 			if (state.periodType == 'month') {
 				const d = date.add(1, 'M')
-				state.period.from = d.startOf('M').format('DD.MM.YYYY')
-				state.period.to = d.endOf('M').format('DD.MM.YYYY')
+				state.period.from = d.startOf('M').unix().toString()
+				state.period.to = d.endOf('M').unix().toString()
 			}
 
 			// parts = state.period.to?.split('.') || ['0', '0', '0']

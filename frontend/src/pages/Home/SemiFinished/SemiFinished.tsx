@@ -1,9 +1,9 @@
 import { Suspense, lazy } from 'react'
-import { CircularProgress, Typography } from '@mui/material'
-import dayjs from 'dayjs'
+import { Typography } from '@mui/material'
 
 import { useAppSelector } from '@/hooks/useStore'
 import { useGetSemiFinishedByPeriodQuery } from '@/store/api/semiFinished'
+import { TableFallBack } from '../components/Fallback/FallBack'
 
 const Day = lazy(() => import('@/pages/Home/SemiFinished/Day'))
 const Week = lazy(() => import('@/pages/Home/SemiFinished/Week'))
@@ -12,30 +12,20 @@ export const SemiFinished = () => {
 	const periodType = useAppSelector(state => state.dashboard.periodType)
 	const period = useAppSelector(state => state.dashboard.period)
 
-	const {
-		data: semiFinished,
-		isLoading,
-		isError,
-	} = useGetSemiFinishedByPeriodQuery(
-		{
-			from: dayjs(period.from, 'DD.MM.YYYY').unix().toString(),
-			to: period.to ? dayjs(period.to, 'DD.MM.YYYY').unix().toString() : '',
-		},
-		{ skip: !period.from }
-	)
+	const { data: semiFinished, isFetching, isError } = useGetSemiFinishedByPeriodQuery(period, { skip: !period.from })
 
 	return (
 		<>
 			{semiFinished?.data.length ? (
-				<Suspense fallback={<CircularProgress />}>
+				<Suspense fallback={<TableFallBack />}>
 					{periodType == 'day' && <Day data={semiFinished.data} />}
 					{periodType != 'day' && <Week data={semiFinished.data} />}
 				</Suspense>
 			) : null}
 
-			{isLoading && <CircularProgress />}
+			{isFetching ? <TableFallBack /> : null}
 
-			{!semiFinished?.data.length && !isLoading ? (
+			{!semiFinished?.data.length && !isFetching ? (
 				!isError ? (
 					<Typography fontSize={'1.2rem'} textAlign={'center'}>
 						Для выбранного периода данные не найдены

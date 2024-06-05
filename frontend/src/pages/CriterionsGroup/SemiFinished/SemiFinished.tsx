@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Column, DataSheetGrid, intColumn, keyColumn, textColumn } from 'react-datasheet-grid'
 import { Button, CircularProgress, Typography } from '@mui/material'
-import dayjs from 'dayjs'
 
 import type { ISemiFinished, ISemiFinishedDTO } from '@/types/semiFinished'
 import type { IResError } from '@/types/err'
@@ -40,15 +39,12 @@ export default function SemiFinished() {
 		},
 	]
 
-	const { data: semiFinished } = useGetSemiFinishedByPeriodQuery(
-		{ from: dayjs(date, 'DD.MM.YYYY').unix().toString() },
-		{ skip: !date }
-	)
+	const { data: semiFinished } = useGetSemiFinishedByPeriodQuery({ from: date }, { skip: !date })
 	const [save, { isLoading: saveLoading }] = useCreateSemiFinishedMutation()
 	const [update, { isLoading: updateLoading }] = useUpdateSemiFinishedMutation()
 
 	useEffect(() => {
-		if (semiFinished && semiFinished.data) {
+		if (semiFinished && semiFinished.data.length) {
 			setTable(prev => {
 				const temp = [...prev]
 				for (let i = 0; i < temp.length; i++) {
@@ -86,12 +82,11 @@ export default function SemiFinished() {
 		}
 
 		const newData: ISemiFinishedDTO[] = []
-		const day = dayjs(date, 'DD.MM.YYYY').unix()
 		for (let i = 0; i < table.length; i++) {
 			const e = table[i]
 			newData.push({
 				id: e.id || '',
-				day: day,
+				date: +date,
 				product: e.product || '',
 				count: +(e.count || 0),
 			})
@@ -105,6 +100,7 @@ export default function SemiFinished() {
 				setToast({ type: 'success', message: 'Данные сохранены', open: true })
 			} else {
 				await update(newData).unwrap()
+				setToast({ type: 'success', message: 'Данные обновлены', open: true })
 			}
 		} catch (error) {
 			setToast({ type: 'error', message: (error as IResError).data.message, open: true })

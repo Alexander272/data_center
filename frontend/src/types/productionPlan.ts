@@ -10,7 +10,7 @@ export type PlanType = 'annual' | 'shipment' | 'output'
 export interface IProductionPlanDTO {
 	id: string
 	type: PlanType
-	date: string
+	date: number
 	product: string
 	quantity?: number
 	money: string

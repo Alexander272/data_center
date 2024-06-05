@@ -17,7 +17,7 @@ export const criterionsApi = api.injectEndpoints({
 				method: 'GET',
 				params: new URLSearchParams([
 					['type', data.type],
-					['date', data.date],
+					['date', data.date.toString()],
 				]),
 			}),
 			providesTags: [{ type: 'Api', id: 'criterions/complete' }],
