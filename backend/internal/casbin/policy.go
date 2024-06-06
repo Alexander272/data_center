@@ -1,12 +1,8 @@
 package casbin
 
 import (
-	"context"
-	"fmt"
-
 	"github.com/Alexander272/data_center/backend/internal/services"
 	"github.com/casbin/casbin/v2/model"
-	"github.com/casbin/casbin/v2/persist"
 )
 
 type PolicyAdapter struct {
@@ -42,17 +38,17 @@ func (s *PolicyAdapter) LoadPolicy(model model.Model) error {
 }
 
 func (s *PolicyAdapter) loadRolePolicy(model model.Model) error {
-	roles, err := s.role.GetWithApiPaths(context.Background())
-	if err != nil {
-		return err
-	}
+	// roles, err := s.role.GetWithApiPaths(context.Background())
+	// if err != nil {
+	// 	return err
+	// }
 
-	for _, r := range roles {
-		line := fmt.Sprintf("p, %s, %s, %s", r.Name, r.Path, r.Method)
-		if err := persist.LoadPolicyLine(line, model); err != nil {
-			return fmt.Errorf("failed to load role policy. error: %w", err)
-		}
-	}
+	// for _, r := range roles {
+	// 	line := fmt.Sprintf("p, %s, %s, %s", r.Name, r.Path, r.Method)
+	// 	if err := persist.LoadPolicyLine(line, model); err != nil {
+	// 		return fmt.Errorf("failed to load role policy. error: %w", err)
+	// 	}
+	// }
 	return nil
 }
 

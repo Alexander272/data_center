@@ -3,7 +3,6 @@ package http
 import (
 	"net/http"
 
-	"github.com/Alexander272/data_center/backend/internal/casbin"
 	"github.com/Alexander272/data_center/backend/internal/config"
 	"github.com/Alexander272/data_center/backend/internal/services"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/middleware"
@@ -15,17 +14,14 @@ import (
 )
 
 type Handler struct {
-	// enforcer casbin.IEnforcer
-	permissions casbin.Casbin
-	keycloak    *auth.KeycloakClient
-	services    *services.Services
+	keycloak *auth.KeycloakClient
+	services *services.Services
 }
 
-func NewHandler(services *services.Services, permissions casbin.Casbin, keycloak *auth.KeycloakClient) *Handler {
+func NewHandler(services *services.Services, keycloak *auth.KeycloakClient) *Handler {
 	return &Handler{
-		services:    services,
-		permissions: permissions,
-		keycloak:    keycloak,
+		services: services,
+		keycloak: keycloak,
 	}
 }
 
@@ -52,7 +48,7 @@ func (h *Handler) Init(conf *config.Config) *gin.Engine {
 }
 
 func (h *Handler) initAPI(router *gin.Engine, auth config.AuthConfig) {
-	handlerV1 := httpV1.NewHandler(h.services, auth, middleware.NewMiddleware(h.services, auth, h.permissions, h.keycloak))
+	handlerV1 := httpV1.NewHandler(h.services, auth, middleware.NewMiddleware(h.services, auth, h.keycloak))
 	api := router.Group("/api")
 	{
 		handlerV1.Init(api)

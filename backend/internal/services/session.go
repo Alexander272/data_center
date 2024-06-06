@@ -10,14 +10,13 @@ import (
 )
 
 type SessionService struct {
-	// repo     repo.Session
-	menu     Menu
+	role     Role
 	keycloak *auth.KeycloakClient
 }
 
-func NewSessionService(menu Menu, keycloak *auth.KeycloakClient) *SessionService {
+func NewSessionService(role Role, keycloak *auth.KeycloakClient) *SessionService {
 	return &SessionService{
-		menu:     menu,
+		role:     role,
 		keycloak: keycloak,
 	}
 }
@@ -40,14 +39,15 @@ func (s *SessionService) SignIn(ctx context.Context, u models.SignIn) (*models.U
 		return nil, err
 	}
 
-	menu, err := s.menu.GetByRole(ctx, user.Role)
+	// get menu
+	role, err := s.role.Get(ctx, user.Role)
 	if err != nil {
 		return nil, err
 	}
 
 	user.AccessToken = res.AccessToken
 	user.RefreshToken = res.RefreshToken
-	user.Menu = menu
+	user.Menu = role.Menu
 
 	return user, nil
 }
@@ -70,14 +70,15 @@ func (s *SessionService) Refresh(ctx context.Context, refreshToken string) (*mod
 		return nil, err
 	}
 
-	menu, err := s.menu.GetByRole(ctx, user.Role)
+	// get menu
+	role, err := s.role.Get(ctx, user.Role)
 	if err != nil {
 		return nil, err
 	}
 
 	user.AccessToken = res.AccessToken
 	user.RefreshToken = res.RefreshToken
-	user.Menu = menu
+	user.Menu = role.Menu
 
 	return user, nil
 }
@@ -114,9 +115,9 @@ func (s *SessionService) DecodeToken(ctx context.Context, token string) (user *m
 	}
 
 	u := &models.User{
-		Id:       userId,
-		UserName: username,
-		Role:     role,
+		Id:   userId,
+		Name: username,
+		Role: role,
 	}
 
 	return u, nil

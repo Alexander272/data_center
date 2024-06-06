@@ -10,7 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Alexander272/data_center/backend/internal/casbin"
 	"github.com/Alexander272/data_center/backend/internal/config"
 	"github.com/Alexander272/data_center/backend/internal/repo"
 	"github.com/Alexander272/data_center/backend/internal/server"
@@ -65,9 +64,9 @@ func main() {
 		RefreshTokenTTL: conf.Auth.RefreshTokenTTL,
 	})
 
-	casbin := casbin.NewCasbinService(services.Role, services.User, "configs/privacy.conf")
+	// casbin := casbin.NewCasbinService(services.Role, services.User, "configs/privacy.conf")
 
-	handlers := transport.NewHandler(services, casbin, keycloak)
+	handlers := transport.NewHandler(services, keycloak)
 
 	//* HTTP Server
 

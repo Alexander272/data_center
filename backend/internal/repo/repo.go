@@ -36,15 +36,19 @@ type Tooling interface {
 	postgres.Tooling
 }
 
+type MenuItem interface {
+	postgres.MenuItem
+}
 type Menu interface {
 	postgres.Menu
 }
 type Role interface {
 	postgres.Role
 }
-type User interface {
-	postgres.User
-}
+
+// type User interface {
+// 	postgres.User
+// }
 
 type Repo struct {
 	Criterions
@@ -58,9 +62,10 @@ type Repo struct {
 	SemiFinished
 	Tooling
 
+	MenuItem
 	Menu
 	Role
-	User
+	// User
 }
 
 func NewRepo(db *sqlx.DB) *Repo {
@@ -76,8 +81,9 @@ func NewRepo(db *sqlx.DB) *Repo {
 		SemiFinished:      postgres.NewSemiFinishedRepo(db),
 		Tooling:           postgres.NewTooling(db),
 
-		Menu: postgres.NewMenuRepo(db),
-		Role: postgres.NewRoleRepo(db),
-		User: postgres.NewUserRepo(db),
+		MenuItem: postgres.NewMenuItemRepo(db),
+		Menu:     postgres.NewMenuRepo(db),
+		Role:     postgres.NewRoleRepo(db),
+		// User:     postgres.NewUserRepo(db),
 	}
 }

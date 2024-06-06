@@ -10,31 +10,93 @@ import (
 
 type MenuService struct {
 	repo repo.Menu
+	item MenuItem
 }
 
-func NewMenuService(repo repo.Menu) *MenuService {
+func NewMenuService(repo repo.Menu, item MenuItem) *MenuService {
 	return &MenuService{
 		repo: repo,
+		item: item,
 	}
 }
 
 type Menu interface {
-	// GetByRole(context.Context, string) ([]models.Menu, error)
-	GetByRole(context.Context, string) ([]models.MenuByRoleDTO, error)
+	// GetAll(context.Context) ([]*models.MenuFull, error)
+	GetAll(context.Context) ([]*models.Menu, error)
+	Create(context.Context, *models.MenuDTO) error
+	Update(context.Context, *models.MenuDTO) error
+	Delete(context.Context, string) error
 }
 
-// func (s *MenuService) GetByRole(ctx context.Context, role string) ([]models.Menu, error) {
-// 	menus, err := s.repo.GetByRole(ctx, role)
+// func (s *MenuService) GetAll(ctx context.Context) ([]*models.MenuFull, error) {
+// 	menu, err := s.repo.GetAll(ctx)
 // 	if err != nil {
-// 		return nil, fmt.Errorf("failed to get menus by role. error: %w", err)
+// 		return nil, fmt.Errorf("failed to get all menu. error: %w", err)
 // 	}
-// 	return menus, nil
+
+// 	items, err := s.item.GetAll(ctx)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	menuFull := []*models.MenuFull{}
+
+// 	for i, m := range menu {
+// 		menuItem := &models.MenuItem{}
+// 		for _, item := range items {
+// 			if m.MenuItemId == item.Id {
+// 				menuItem = item
+// 				break
+// 			}
+// 		}
+
+// 		logger.Debug("get menu", logger.AnyAttr("menu", m))
+
+// 		if i == 0 || menuFull[len(menuFull)-1].Id != m.RoleId {
+// 			menuFull = append(menuFull, &models.MenuFull{
+// 				Id: m.RoleId,
+// 				Role: &models.RoleFull{
+// 					Id:      m.RoleId,
+// 					Name:    m.RoleName,
+// 					Level:   m.RoleLevel,
+// 					Extends: m.RoleExtends,
+// 				},
+// 				MenuItems: []*models.MenuItem{menuItem},
+// 			})
+// 		} else {
+// 			menuFull[len(menuFull)-1].MenuItems = append(menuFull[len(menuFull)-1].MenuItems, menuItem)
+// 		}
+
+// 	}
+
+// 	return menuFull, nil
 // }
 
-func (s *MenuService) GetByRole(ctx context.Context, role string) ([]models.MenuByRoleDTO, error) {
-	menu, err := s.repo.GetByRole(ctx, role)
+func (s *MenuService) GetAll(ctx context.Context) ([]*models.Menu, error) {
+	menu, err := s.repo.GetAll(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get menu by role. error: %w", err)
+		return nil, fmt.Errorf("failed to get all menu. error: %w", err)
 	}
 	return menu, nil
+}
+
+func (s *MenuService) Create(ctx context.Context, menu *models.MenuDTO) error {
+	if err := s.repo.Create(ctx, menu); err != nil {
+		return fmt.Errorf("failed to create menu. error: %w", err)
+	}
+	return nil
+}
+
+func (s *MenuService) Update(ctx context.Context, menu *models.MenuDTO) error {
+	if err := s.repo.Update(ctx, menu); err != nil {
+		return fmt.Errorf("failed to update menu. error: %w", err)
+	}
+	return nil
+}
+
+func (s *MenuService) Delete(ctx context.Context, id string) error {
+	if err := s.repo.Delete(ctx, id); err != nil {
+		return fmt.Errorf("failed to delete menu. error: %w", err)
+	}
+	return nil
 }

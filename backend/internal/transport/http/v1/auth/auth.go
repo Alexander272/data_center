@@ -63,7 +63,7 @@ func (h *AuthHandlers) signIn(c *gin.Context) {
 	logger.Info("Пользователь успешно авторизовался",
 		logger.StringAttr("section", "auth"),
 		logger.StringAttr("ip", c.ClientIP()),
-		logger.StringAttr("user", user.UserName),
+		logger.StringAttr("user", user.Name),
 		logger.StringAttr("user_id", user.Id),
 	)
 
@@ -124,7 +124,7 @@ func (h *AuthHandlers) refresh(c *gin.Context) {
 	logger.Info("Пользователь успешно обновил сессию",
 		logger.StringAttr("section", "auth"),
 		logger.StringAttr("ip", c.ClientIP()),
-		logger.StringAttr("user", user.UserName),
+		logger.StringAttr("user", user.Name),
 		logger.StringAttr("user_id", user.Id),
 	)
 

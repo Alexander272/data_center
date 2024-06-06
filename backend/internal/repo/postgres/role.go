@@ -7,6 +7,7 @@ import (
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 type RoleRepo struct {
@@ -14,87 +15,156 @@ type RoleRepo struct {
 }
 
 func NewRoleRepo(db *sqlx.DB) *RoleRepo {
-	return &RoleRepo{db: db}
+	return &RoleRepo{
+		db: db,
+	}
 }
 
 type Role interface {
-	// GetAll(context.Context) ([]models.Role, error)
-	GetWithApiPaths(context.Context) ([]models.RoleWithApi, error)
-	Create(context.Context, models.RoleDTO) error
-	Update(context.Context, models.RoleDTO) error
+	GetAll(context.Context, *models.GetRolesDTO) ([]*models.RoleFull, error)
+	GetAllWithNames(context.Context, *models.GetRolesDTO) ([]*models.RoleFull, error)
+	Get(context.Context, string) (*models.Role, error)
+	Create(context.Context, *models.RoleDTO) error
+	Update(context.Context, *models.RoleDTO) error
 	Delete(context.Context, string) error
 }
 
-type RoleWithMenu struct {
-	Id     string `db:"id"`
-	Name   string `db:"name"`
-	Type   string `db:"type"`
-	Path   string `db:"path"`
-	Method string `db:"method"`
-}
-
-// func (r *RoleRepo) GetAll(ctx context.Context) (roles []models.Role, err error) {
-// 	query := fmt.Sprintf(`SELECT r.id, r.name, type, path, method
-// 		FROM %s AS r INNER JOIN %s AS m ON m.role_id=r.id WHERE is_show=true AND type=$1 ORDER BY r.id`,
-// 		RoleTable, MenuTable,
-// 	)
-// 	var data []RoleWithMenu
-
-// 	if err := r.db.Select(&data, query, "API"); err != nil {
-// 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
-// 	}
-
-// 	for i, rwm := range data {
-// 		menu := models.Menu{
-// 			Type:   rwm.Name,
-// 			Path:   rwm.Path,
-// 			Method: rwm.Method,
-// 		}
-
-// 		if i == 0 || roles[len(roles)-1].Id != rwm.Id {
-// 			roles = append(roles, models.Role{
-// 				Id:    rwm.Id,
-// 				Name:  rwm.Name,
-// 				Menus: []models.Menu{menu},
-// 			})
-// 		} else {
-// 			roles[len(roles)-1].Menus = append(roles[len(roles)-1].Menus, menu)
-// 		}
-// 	}
-
-// 	return roles, nil
-// }
-
-func (r *RoleRepo) GetWithApiPaths(ctx context.Context) (roles []models.RoleWithApi, err error) {
-	query := fmt.Sprintf(`SELECT m.id, r.name, a.path, a.method FROM %s AS m
-		LEFT JOIN %s AS r ON r.id=role
-		LEFT JOIN %s AS i ON i.menu_item=m.menu_item
-		LEFT JOIN %s AS a ON a.id=i.api
-		ORDER BY r.name`,
-		MenuByRoleTable, RoleTable, MenuApiTable, ApiTable,
+func (r *RoleRepo) GetAll(ctx context.Context, req *models.GetRolesDTO) ([]*models.RoleFull, error) {
+	var data []*models.RoleFullDTO
+	query := fmt.Sprintf(`SELECT id, name, level, description, COALESCE(extends, '{}') AS extends 
+		FROM %s WHERE is_show=true ORDER BY level, name`,
+		RoleTable,
 	)
 
-	if err := r.db.Select(&roles, query); err != nil {
+	if err := r.db.SelectContext(ctx, &data, query); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
+
+	roles := []*models.RoleFull{}
+	for _, rfd := range data {
+		roles = append(roles, &models.RoleFull{
+			Id:          rfd.Id,
+			Name:        rfd.Name,
+			Level:       rfd.Level,
+			Extends:     rfd.Extends,
+			Description: rfd.Description,
+		})
+	}
+
 	return roles, nil
 }
 
-func (r *RoleRepo) Create(ctx context.Context, role models.RoleDTO) error {
-	query := fmt.Sprintf(`INSERT INTO %s(id, name) VALUES ($1, $2)`, RoleTable)
+func (r *RoleRepo) GetAllWithNames(ctx context.Context, req *models.GetRolesDTO) ([]*models.RoleFull, error) {
+	var data []*models.RoleFullDTO
+	query := fmt.Sprintf(`SELECT r.id, name, level, CASE WHEN extends IS NOT NULL THEN
+		ARRAY(SELECT name FROM roles WHERE ARRAY[id] <@ r.extends) ELSE '{}' END AS extends
+		FROM %s AS r ORDER BY level, name`,
+		RoleTable,
+	)
+
+	if err := r.db.SelectContext(ctx, &data, query); err != nil {
+		return nil, fmt.Errorf("failed to execute query. error: %w", err)
+	}
+
+	roles := []*models.RoleFull{}
+	for _, rfd := range data {
+		roles = append(roles, &models.RoleFull{
+			Id:          rfd.Id,
+			Name:        rfd.Name,
+			Level:       rfd.Level,
+			Extends:     rfd.Extends,
+			Description: rfd.Description,
+		})
+	}
+
+	return roles, nil
+}
+
+func (r *RoleRepo) Get(ctx context.Context, roleName string) (*models.Role, error) {
+	var data []models.RoleWithMenuDTO
+	// query := fmt.Sprintf(`SELECT r.id, r.name, COALESCE(extends, '{}') AS extends, i.name AS menu
+	// 	FROM %s AS r
+	// 	LEFT JOIN %s AS m ON r.id=role_id
+	// 	LEFT JOIN %s AS i ON menu_item_id=i.id
+	// 	WHERE i.is_show=true ORDER BY level`,
+	// 	RoleTable, MenuTable, MenuItemTable,
+	// )
+	query := fmt.Sprintf(`SELECT r.id, name, COALESCE(extends, '{}') AS extends,
+		ARRAY(SELECT DISTINCT(i.name || ':' || i.method) FROM %s AS m INNER JOIN %s AS i ON m.menu_item_id=i.id WHERE role_id=r.id) AS menu
+		FROM %s AS r
+		ORDER BY level, name`,
+		MenuTable, MenuItemTable, RoleTable,
+	)
+
+	if err := r.db.SelectContext(ctx, &data, query); err != nil {
+		return nil, fmt.Errorf("failed to get roles with menu. error: %w", err)
+	}
+
+	role := &models.Role{}
+	menu := make(map[string][]string, 0)
+	extends := make(map[string]struct{})
+
+	//EDIT Возможно можно это как-то покрасивее написать
+	for _, r := range data {
+		m, exist := menu[r.Id]
+		if !exist {
+			menu[r.Id] = r.Menu
+
+			if r.Name == roleName {
+				role.Id = r.Id
+				role.Name = r.Name
+				extends[r.Id] = struct{}{}
+				for _, v := range r.Extends {
+					extends[v] = struct{}{}
+				}
+			}
+		} else {
+			m = append(m, r.Menu...)
+			menu[r.Id] = m
+		}
+	}
+
+	for i := 1; i < len(extends); i++ {
+		for _, r := range data {
+			_, exist := extends[r.Id]
+			if exist {
+				for _, v := range r.Extends {
+					extends[v] = struct{}{}
+				}
+				break
+			}
+		}
+	}
+
+	roleMenu := map[string]struct{}{}
+	for k := range extends {
+		for _, v := range menu[k] {
+			roleMenu[v] = struct{}{}
+		}
+		// role.Menu = append(role.Menu, menu[k]...)
+	}
+	for k := range roleMenu {
+		role.Menu = append(role.Menu, k)
+	}
+
+	return role, nil
+}
+
+func (r *RoleRepo) Create(ctx context.Context, role *models.RoleDTO) error {
+	query := fmt.Sprintf(`INSERT INTO %s(id, name, level, extends, description) VALUES ($1, $2, $3, $4, $5)`, RoleTable)
 	id := uuid.New()
 
-	_, err := r.db.Exec(query, id, role.Name)
+	_, err := r.db.ExecContext(ctx, query, id, role.Name, role.Level, pq.Array(role.Extends))
 	if err != nil {
 		return fmt.Errorf("failed to execute query. error: %w", err)
 	}
 	return nil
 }
 
-func (r *RoleRepo) Update(ctx context.Context, role models.RoleDTO) error {
-	query := fmt.Sprintf(`UPDATE %s SET name=$1 WHERE id=$2`, RoleTable)
+func (r *RoleRepo) Update(ctx context.Context, role *models.RoleDTO) error {
+	query := fmt.Sprintf(`UPDATE %s SET name=$1, level=$2, extends=$3, description=$4 WHERE id=$5`, RoleTable)
 
-	_, err := r.db.Exec(query, role.Name, role.Id)
+	_, err := r.db.ExecContext(ctx, query, role.Name, role.Level, pq.Array(role.Extends), role.Description, role.Id)
 	if err != nil {
 		return fmt.Errorf("failed to execute query. error: %w", err)
 	}
@@ -104,7 +174,7 @@ func (r *RoleRepo) Update(ctx context.Context, role models.RoleDTO) error {
 func (r *RoleRepo) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf(`DELETE FROM %s WHERE id=$1`, RoleTable)
 
-	_, err := r.db.Exec(query, id)
+	_, err := r.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("failed to execute query. error: %w", err)
 	}

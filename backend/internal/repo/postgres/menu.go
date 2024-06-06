@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -19,56 +20,79 @@ func NewMenuRepo(db *sqlx.DB) *MenuRepo {
 }
 
 type Menu interface {
-	// GetAll(ctx context.Context) ([]models.Menu, error)
-	// GetByRole(context.Context, string) ([]models.Menu, error)
-	GetByRole(context.Context, string) ([]models.MenuByRoleDTO, error)
+	GetAll(context.Context) ([]*models.Menu, error)
+	Create(context.Context, *models.MenuDTO) error
+	Update(context.Context, *models.MenuDTO) error
+	Delete(context.Context, string) error
 }
 
-//TODO
-/*
-	? можно попробовать сгруппировать все API и части APP по модулям, можно сделать так чтобы один модуль мог содержать другой
-	эти модули в первую очередь будут определять доступные разделы на клиенте
-
-	criterions -> day/month -> criterion
-	graphics ->
-*/
-
-// func (r *MenuRepo) GetAll(ctx context.Context) (menus []models.Menu, err error) {
-// 	query := fmt.Sprintf(`SELECT id, name, type, path, method, is_show	FROM %s ORDER BY role_id, type`, MenuTable)
-
-// 	if err := r.db.Select(&menus, query); err != nil {
-// 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
-// 	}
-// 	return menus, nil
-// }
-
-// func (r *MenuRepo) GetByRole(ctx context.Context, role string) (menus []models.Menu, err error) {
-// 	query := fmt.Sprintf(`SELECT m.id, m.name, type, path, method, is_show, description FROM %s AS m
-// 		INNER JOIN %s AS r ON r.id=role_id WHERE r.name=$1 AND type=$2 AND is_show=true ORDER BY type`,
-// 		MenuTable, RoleTable,
+// func (r *MenuRepo) GetAll(ctx context.Context) ([]*models.Menu, error) {
+// 	var data []*pq_models.MenuDTO
+// 	query := fmt.Sprintf(`SELECT m.id, role_id, name, level, menu_item_id, CASE WHEN extends IS NOT NULL THEN
+// 		ARRAY(SELECT name FROM %s WHERE ARRAY[id] <@ r.extends) ELSE '{}' END AS extends
+// 		FROM %s AS m INNER JOIN %s AS r ON role_id=r.id ORDER BY level, name`,
+// 		RoleTable, MenuTable, RoleTable,
 // 	)
 
-// 	if err := r.db.Select(&menus, query, role, "APP"); err != nil {
+// 	if err := r.db.SelectContext(ctx, &data, query); err != nil {
 // 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 // 	}
-// 	return menus, nil
+
+// 	menu := []*models.Menu{}
+// 	for _, mpd := range data {
+// 		menu = append(menu, &models.Menu{
+// 			Id:          mpd.Id,
+// 			RoleId:      mpd.RoleId,
+// 			RoleName:    mpd.RoleName,
+// 			RoleLevel:   mpd.RoleLevel,
+// 			RoleExtends: mpd.RoleExtends,
+// 			MenuItemId:  mpd.MenuItemId,
+// 		})
+// 	}
+
+// 	return menu, nil
 // }
 
-func (r *MenuRepo) GetAll(ctx context.Context) (menu []models.Menu, err error) {
-	return nil, fmt.Errorf("not implemented")
-}
-
-func (r *MenuRepo) GetByRole(ctx context.Context, role string) (menu []models.MenuByRoleDTO, err error) {
-	query := fmt.Sprintf(`SELECT m.id, i.name, i.description FROM %s AS m
-		LEFT JOIN %s AS r ON r.id=role LEFT JOIN %s AS i ON i.id=menu_item 
-		WHERE i.is_show=true AND r.name=$1`,
-		MenuByRoleTable, RoleTable, MenuItemTable,
+func (r *MenuRepo) GetAll(ctx context.Context) ([]*models.Menu, error) {
+	query := fmt.Sprintf(`SELECT m.id, r.name, role_id, menu_item_id, i.name AS item_name, i.method
+		FROM %s AS m INNER JOIN %s AS r ON role_id=r.id INNER JOIN %s AS i ON i.id=menu_item_id ORDER BY level`,
+		MenuTable, RoleTable, MenuItemTable,
 	)
 
-	if err := r.db.Select(&menu, query, role); err != nil {
+	var menu []*models.Menu
+	if err := r.db.SelectContext(ctx, &menu, query); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
 	return menu, nil
 }
 
-// func (r *MenuRepo) Create(ctx context.Context, item models.CreateMenuDTO) error {}
+func (r *MenuRepo) Create(ctx context.Context, menu *models.MenuDTO) error {
+	query := fmt.Sprintf(`INSERT INTO %s(id, role_id, menu_item_id) VALUES ($1, $2, $3)`, MenuTable)
+	id := uuid.New()
+
+	_, err := r.db.ExecContext(ctx, query, id, menu.RoleId, menu.MenuItemId)
+	if err != nil {
+		return fmt.Errorf("failed to execute query. error: %w", err)
+	}
+	return nil
+}
+
+func (r *MenuRepo) Update(ctx context.Context, menu *models.MenuDTO) error {
+	query := fmt.Sprintf(`UPDATE %s SET role_id=$1, menu_item_id=$2 WHERE id=$3`, MenuTable)
+
+	_, err := r.db.ExecContext(ctx, query, menu.RoleId, menu.MenuItemId, menu.Id)
+	if err != nil {
+		return fmt.Errorf("failed to execute query. error: %w", err)
+	}
+	return nil
+}
+
+func (r *MenuRepo) Delete(ctx context.Context, id string) error {
+	query := fmt.Sprintf(`DELETE FROM %s WHERE id=$1`, MenuTable)
+
+	_, err := r.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("failed to execute query. error: %w", err)
+	}
+	return nil
+}

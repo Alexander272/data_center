@@ -56,6 +56,13 @@ func (r *CriterionsRepo) GetByRole(ctx context.Context, role, day string) (crite
 		CriterionsTable, MenuTable, RoleTable, CompleteCriterionTable,
 	)
 
+	/*
+		SELECT c.id, key, label, c.type, COALESCE(cc.date, 0) date, cc.id IS NOT NULL complete
+			FROM criterions AS c
+			LEFT JOIN complete_criterion AS cc ON cc.criterion_id=c.id AND cc.date=1717459200
+		WHERE c.type = ANY(ARRAY['day']) AND key=ANY(ARRAY['tooling'])
+	*/
+
 	if err := r.db.Select(&criterions, query, day, role); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}

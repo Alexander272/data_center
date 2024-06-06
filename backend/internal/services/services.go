@@ -20,9 +20,12 @@ type Services struct {
 	SemiFinished
 	Tooling
 
-	Session
 	Role
-	User
+	MenuItem
+	Menu
+	Session
+	Permission
+	// User
 }
 
 type Deps struct {
@@ -35,11 +38,13 @@ type Deps struct {
 }
 
 func NewServices(deps Deps) *Services {
-	menu := NewMenuService(deps.Repos.Menu)
+	menuItem := NewMenuItemService(deps.Repos.MenuItem)
+	menu := NewMenuService(deps.Repos.Menu, menuItem)
 	role := NewRoleService(deps.Repos.Role)
-	user := NewUserService(deps.Repos.User)
+	permission := NewPermissionService("configs/privacy.conf", menu, role)
+	// user := NewUserService(deps.Repos.User)
 
-	session := NewSessionService(menu, deps.Keycloak)
+	session := NewSessionService(role, deps.Keycloak)
 
 	ordersVolume := NewOrdersVolumeService(deps.Repos.OrdersVolume)
 	shipment := NewShipmentService(deps.Repos.Shipment)
@@ -73,8 +78,11 @@ func NewServices(deps Deps) *Services {
 		Criterions:        criterions,
 		CompleteCriterion: completeCriterion,
 
-		Session: session,
-		Role:    role,
-		User:    user,
+		MenuItem:   menuItem,
+		Menu:       menu,
+		Role:       role,
+		Session:    session,
+		Permission: permission,
+		// User:    user,
 	}
 }

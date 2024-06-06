@@ -46,6 +46,10 @@ func (h *CriterionsHandlers) getByDay(c *gin.Context) {
 		return
 	}
 
+	// TODO критерии можно поделить на daily (ежедневно), in_weekdays (в рабочие дни), monthly (ежемесячно)
+	// можно передавать массив с нужными категориями. массив формировать в зависимости от передаваемого дня
+	// либо группировать daily и in_weekdays, а monthly получать всегда, просто разделять это все на группы
+
 	user, exists := c.Get(constants.CtxUser)
 	if !exists {
 		response.NewErrorResponse(c, http.StatusUnauthorized, "empty user", "пользователь не найден")
