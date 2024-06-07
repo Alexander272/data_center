@@ -1,51 +1,46 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
-import type { IUser } from '@/types/user'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
-export interface IUserState {
-	ready: boolean
-	loading: boolean
-	token: string
-	userId: string
-	isAuth: boolean
-	role: string
-	user?: IUser
+import type { IUser } from '@/types/user'
+import type { RootState } from './store'
+
+interface IUserState {
+	id: string | null
+	name?: string
+	role: string | null
+	menu: string[]
+	token: string | null
 }
 
 const initialState: IUserState = {
-	ready: false,
-	loading: false,
-	token: '',
-	userId: '',
-	isAuth: false,
-	role: 'user',
+	id: null,
+	role: null,
+	token: null,
+	menu: [],
 }
 
-export const userSlice = createSlice({
+const userSlice = createSlice({
 	name: 'user',
 	initialState,
 	reducers: {
-		// установка авторизации пользователя
-		setAuth: (state, action: PayloadAction<IUser>) => {
-			state.token = action.payload.token
-			state.userId = action.payload.id
-			state.role = action.payload.role
-			state.isAuth = true
-			state.user = action.payload
-		},
-		// установка данных о пользователе и авторизации
 		setUser: (state, action: PayloadAction<IUser>) => {
-			state.token = action.payload.token
-			state.userId = action.payload.id
+			// state.user = action.payload
+
+			state.id = action.payload.id
+			state.name = action.payload.name
 			state.role = action.payload.role
-			state.isAuth = true
-			state.user = action.payload
+			state.menu = action.payload.menu
+			state.token = action.payload.token
 		},
-		// сброс пользователя
-		clearUser: () => initialState,
+
+		resetUser: () => initialState,
 	},
 })
 
-export const { setAuth, setUser, clearUser } = userSlice.actions
+export const getToken = (state: RootState) => state.user.token
+export const getMenu = (state: RootState) => state.user.menu
+export const getRole = (state: RootState) => state.user.role
 
-export default userSlice.reducer
+export const userPath = userSlice.name
+export const userReducer = userSlice.reducer
+
+export const { setUser, resetUser } = userSlice.actions

@@ -3,6 +3,7 @@ import { Provider } from 'react-redux'
 import dayjs from 'dayjs'
 import 'dayjs/locale/ru'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 import '@fontsource/roboto/400.css'
 
 import { AppRoutes } from '@/routes'
@@ -10,6 +11,7 @@ import { store } from '@/store/store'
 import theme from '@/theme'
 
 dayjs.extend(customParseFormat)
+dayjs.extend(quarterOfYear)
 dayjs.locale('ru') // глобальная локализация дат
 
 function App() {

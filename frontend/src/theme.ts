@@ -1,6 +1,8 @@
 import { createTheme } from '@mui/material/styles'
 import { red, grey } from '@mui/material/colors'
 
+// import { type IScrollbarParameters, generateScrollbarStyles } from '@/utils/generateScrollbarStyles'
+
 declare module '@mui/material/styles' {
 	interface Palette {
 		neutral: Palette['primary']
@@ -25,6 +27,16 @@ declare module '@mui/material/Button' {
 	}
 }
 
+// const scrollbarParameters: IScrollbarParameters = {
+// 	borderRadius: '5px',
+// 	scrollbarBgColor: 'rgba(186, 193, 205, 0.2)',
+// 	scrollbarHeight: '1rem',
+// 	scrollbarWidth: '.5rem',
+// 	thumbColor: '#00000020',
+// 	thumbColorActive: '#00000050',
+// 	thumbColorHover: '#00000030',
+// }
+
 // A custom theme for this app
 const theme = createTheme({
 	palette: {
@@ -42,6 +54,9 @@ const theme = createTheme({
 		},
 	},
 	components: {
+		// MuiCssBaseline: {
+		// 	styleOverrides: generateScrollbarStyles(scrollbarParameters),
+		// },
 		MuiTooltip: {
 			styleOverrides: {
 				tooltip: {

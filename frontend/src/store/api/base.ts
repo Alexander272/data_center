@@ -8,7 +8,7 @@ import {
 import { Mutex } from 'async-mutex'
 import type { IUser } from '@/types/user'
 import { API } from '@/constants/api'
-import { clearUser, setAuth } from '../user'
+import { resetUser, setUser } from '../user'
 import { RootState } from '../store'
 
 export const baseUrl = '/api/v1/'
@@ -43,7 +43,7 @@ const baseQueryWithReAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 			try {
 				const refreshResult = await baseQuery({ url: API.Auth.Refresh, method: 'POST' }, api, extraOptions)
 				if (refreshResult.data) {
-					api.dispatch(setAuth((refreshResult.data as { data: IUser }).data))
+					api.dispatch(setUser((refreshResult.data as { data: IUser }).data))
 					result = await baseQuery(args, api, extraOptions)
 				} else {
 					// if (refreshResult.error?.status === 401) {
@@ -51,7 +51,7 @@ const baseQueryWithReAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 					// } else if (refreshResult.error?.status === 'FETCH_ERROR') {
 					// 	enqueueSnackbar(Messages.ERROR_CONNECTION, { variant: 'error' })
 					// }
-					api.dispatch(clearUser())
+					api.dispatch(resetUser())
 				}
 			} finally {
 				release()
@@ -69,6 +69,8 @@ export const api = createApi({
 	baseQuery: baseQueryWithReAuth,
 	tagTypes: [
 		'Api',
+		'Criterion',
+		'Complete',
 		'OrdersVolume',
 		'OutputVolume',
 		'ProductionLoad',

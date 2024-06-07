@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAppDispatch } from './useStore'
-import { setAuth } from '@/store/user'
+import { setUser } from '@/store/user'
 import { useRefreshQuery } from '@/store/api/auth'
 
 export function useRefresh() {
@@ -12,7 +12,7 @@ export function useRefresh() {
 
 	useEffect(() => {
 		if (isSuccess) {
-			dispatch(setAuth(data.data))
+			dispatch(setUser(data.data))
 			setReady(true)
 		}
 	}, [data, isSuccess, dispatch])

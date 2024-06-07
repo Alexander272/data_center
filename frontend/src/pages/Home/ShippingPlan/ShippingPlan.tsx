@@ -16,12 +16,12 @@ export default function ShippingPlan() {
 
 	return (
 		<>
-			{data?.data.length && (
+			{data?.data.length ? (
 				<Suspense fallback={<TableFallBack />}>
 					{periodType == 'day' && <Day data={data.data} />}
 					{periodType != 'day' && <Week data={data.data} />}
 				</Suspense>
-			)}
+			) : null}
 
 			{isFetching ? <TableFallBack /> : null}
 

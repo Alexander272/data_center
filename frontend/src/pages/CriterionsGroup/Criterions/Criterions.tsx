@@ -1,16 +1,20 @@
-import { Suspense, useCallback, useEffect } from 'react'
+import { Suspense, useCallback, useEffect, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { Box, CircularProgress, Divider, Stack } from '@mui/material'
+import 'react-datasheet-grid/dist/style.css'
 
+import type { IResError } from '@/types/err'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { setActive, setCriterions } from '@/store/criterions'
+import { getMenu } from '@/store/user'
 import { useCompleteCriterionMutation, useGetCriterionsQuery } from '@/store/api/criterions'
+import { TableFallBack } from '@/pages/Home/components/Fallback/FallBack'
 import { Fallback } from '@/components/Fallback/Fallback'
 import Stepper from '@/components/Stepper/Stepper'
 import { StepButtons } from '@/components/Stepper/StepButtons'
 import { Week } from '@/components/Week/Week'
+import { IToast, Toast } from '@/components/Toast/Toast'
 import { Container } from './criterions.style'
-import 'react-datasheet-grid/dist/style.css'
 
 // const steps: IStep[] = [
 // 	{ id: '', key: 'injuries', label: 'Травматизм' },
@@ -29,31 +33,46 @@ export default function Criterions() {
 	const skipped = useAppSelector(state => state.criterions.skipped)
 	const complete = useAppSelector(state => state.criterions.complete)
 	const date = useAppSelector(state => state.criterions.date)
+	const menu = useAppSelector(getMenu)
 
 	const dispatch = useAppDispatch()
 	const navigate = useNavigate()
+	const [toast, setToast] = useState<IToast>({ type: 'success', message: '', open: false })
 
-	//TODO обработать ошибки
-	const { data } = useGetCriterionsQuery(date, { skip: !date })
+	const { data, error, isFetching } = useGetCriterionsQuery(date, { skip: !date })
 
 	const [completeCriterion, { isLoading }] = useCompleteCriterionMutation()
 
 	useEffect(() => {
-		if (data) dispatch(setCriterions(data.data))
-	}, [dispatch, data])
+		if (data) {
+			const newCriterions = data.data.filter(c => menu.includes(c.key + ':write'))
+			dispatch(setCriterions(newCriterions))
+		}
+	}, [dispatch, data, menu])
 
 	useEffect(() => {
 		navigate(active, { replace: true })
 	}, [navigate, active])
+
+	useEffect(() => {
+		if (error) {
+			console.error('useGetCriterionsQuery error', error)
+			setToast({ type: 'error', message: (error as IResError).data.message, open: true })
+		}
+	}, [error])
+
+	const closeHandler = () => {
+		setToast({ type: 'success', message: '', open: false })
+	}
 
 	const competeHandler = useCallback(async () => {
 		const c = criterions.find(c => c.key == active)
 		if (!c) return
 
 		try {
-			await completeCriterion({ id: c.id, type: c.type, date: date }).unwrap()
+			await completeCriterion({ criterionId: c.id, date: +date }).unwrap()
 		} catch (error) {
-			//TODO выводить ошибку
+			setToast({ type: 'error', message: (error as IResError).data.message, open: true })
 			console.error('rejected', error)
 		}
 	}, [active, completeCriterion, criterions, date])
@@ -63,10 +82,7 @@ export default function Criterions() {
 	}, [complete, competeHandler])
 
 	const stepHandler = (key: string) => {
-		// setActive(id)
 		dispatch(setActive(key))
-
-		// navigate(`${id}`)
 	}
 
 	const nextHandler = () => {
@@ -77,7 +93,6 @@ export default function Criterions() {
 			return
 		}
 
-		// if (ready) dispatch(setComplete(active))
 		dispatch(setActive(skipped[(idx + 1) % skipped.length]))
 	}
 
@@ -94,12 +109,14 @@ export default function Criterions() {
 
 	return (
 		<Container>
-			{/* //TODO вывод последних 7 дней с обозначением заполнены ли были критерии */}
+			<Toast data={toast} onClose={closeHandler} />
+			{/* вывод последних 7 дней с обозначением заполнены ли были критерии */}
 			<Week />
 
 			<Stack spacing={2} direction={'row'} width={'100%'} height={'100%'}>
 				<Stepper active={active} data={criterions} onSelect={stepHandler} width='350px' />
 
+				{isFetching ? <TableFallBack /> : null}
 				{isLoading && (
 					<Box
 						position={'absolute'}
@@ -130,13 +147,6 @@ export default function Criterions() {
 					<Suspense fallback={<Fallback />}>
 						<Outlet />
 					</Suspense>
-
-					{/* {active == '' && <Typography textAlign={'center'}>Критерий не выбран</Typography>} */}
-					{/* {!skipped.length && active == '' ? (
-						<Typography textAlign={'center'} fontSize={'1.2rem'}>
-							Все критерии заполнены
-						</Typography>
-					) : null} */}
 
 					<Divider sx={{ marginTop: 'auto' }} />
 

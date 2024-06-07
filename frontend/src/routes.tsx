@@ -54,6 +54,7 @@ export const AppRoutes = () => {
 							<Route path='defect-time' element={<DefectsTime />} />
 							<Route path='awaiting-decision' element={<AwaitingDecision />} />
 							<Route path='number-in-brigade' element={<NumberInBrigade />} />
+
 							<Route path='output-volume' element={<OutputVolume />} />
 							<Route path='orders-volume' element={<OrdersVolume />} />
 							<Route path='shipment' element={<Shipment />} />

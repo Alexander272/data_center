@@ -6,6 +6,7 @@ export const API = {
 	},
 	Criterions: {
 		Base: 'criterions',
+		Complete: 'criterions/complete',
 		OrdersVolume: 'criterions/orders-volume',
 		OutputVolume: 'criterions/output-volume',
 		ProductionLoad: 'criterions/production-load',

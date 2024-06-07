@@ -16,21 +16,22 @@ export default function Shipment() {
 
 	const [data, setData] = useState<IShipmentFull[]>([])
 
+	//TODO наверное можно все эти данные получать в одном запросе
 	const {
 		data: shipment,
 		isFetching: isFetchShipment,
 		isError: isErrShipment,
-	} = useGetShipmentByPeriodQuery(period, { skip: period.from == '' })
+	} = useGetShipmentByPeriodQuery(period, { skip: !period.from })
 	const {
 		data: plan,
 		isFetching: isFetchPlan,
 		isError: isErrPlan,
-	} = useGetProductionPlanByPeriodQuery({ period, type: 'shipment' }, { skip: period.from == '' })
+	} = useGetProductionPlanByPeriodQuery({ period, type: 'shipment' }, { skip: !period.from })
 
 	useEffect(() => {
-		if (shipment?.data.length || plan?.data.length) {
-			const d = shipment?.data?.map(s => {
-				const p = plan?.data?.find(p => p.product == s.product)
+		if (shipment?.data.length && plan?.data.length) {
+			const d = shipment.data.map(s => {
+				const p = plan.data.find(p => p.product == s.product)
 				return {
 					id: s.id || '',
 					date: s.date || '',
@@ -41,15 +42,15 @@ export default function Shipment() {
 					planMoney: p?.money || 0,
 				}
 			})
-			setData(d || [])
+			setData(d)
 		} else setData([])
 	}, [shipment, plan])
 
 	return (
 		<>
-			{shipment?.data.length || plan?.data.length ? (
+			{shipment?.data.length && plan?.data.length ? (
 				<Suspense fallback={<TableFallBack />}>
-					{periodType == 'day' && <Day data={data} />}
+					{periodType == 'day' && <Day data={data.slice(0, 7)} />}
 					{periodType != 'day' && <Week data={data} />}
 				</Suspense>
 			) : null}

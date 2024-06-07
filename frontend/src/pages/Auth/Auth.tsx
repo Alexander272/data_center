@@ -1,25 +1,25 @@
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+
 import { useAppSelector } from '@/hooks/useStore'
-import { Container, Wrapper, Base } from './auth.style'
+import { getToken } from '@/store/user'
 import { SignIn } from './components/AuthForms/SignInForm'
-// import { SignUp } from './components/AuthForms/SignUpForm'
-// import Header from './components/Header/Header'
+import { Container, Wrapper, Base } from './auth.style'
+
+type LocationState = {
+	from?: Location
+}
 
 export default function Auth() {
 	const navigate = useNavigate()
 	const location = useLocation()
 
-	const isAuth = useAppSelector(state => state.user.isAuth)
-
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-	const from: string = location.state?.from?.pathname || '/'
+	const token = useAppSelector(getToken)
 
 	useEffect(() => {
-		if (isAuth) {
-			navigate(from, { replace: true })
-		}
-	}, [isAuth, navigate, from])
+		const to: string = (location.state as LocationState)?.from?.pathname || '/'
+		if (token) navigate(to, { replace: true })
+	}, [token, navigate, location.state])
 
 	return (
 		<Base>

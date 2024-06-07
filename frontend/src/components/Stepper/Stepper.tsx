@@ -1,7 +1,8 @@
 import { MouseEvent } from 'react'
+
 import type { IStep } from './step.type'
-import { Container } from './stepper.style'
 import { Step } from './Step'
+import { Container } from './stepper.style'
 
 type Props = {
 	active: string
@@ -11,10 +12,6 @@ type Props = {
 }
 
 export default function Stepper({ active, data, width, onSelect }: Props) {
-	//TODO надо наверное это в хук засунуть
-	// const [finish, setFinish] = useState(false)
-	// const [active, setActive] = useState(data[0].id)
-
 	const selectHandler = (event: MouseEvent<HTMLDivElement>) => {
 		const { id } = (event.target as HTMLDivElement).dataset
 		if (!id) return

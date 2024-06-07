@@ -1,14 +1,18 @@
-import { useAppSelector } from '@/hooks/useStore'
 import { Navigate, useLocation } from 'react-router-dom'
+
+import { AppRoutes } from '@/constants/routes'
+import { useAppSelector } from '@/hooks/useStore'
+import { getMenu, getToken } from '@/store/user'
+import { Forbidden } from '../Forbidden/ForbiddenLazy'
 
 // проверка авторизации пользователя
 export default function RequireAuth({ children }: { children: JSX.Element }) {
-	const isAuth = useAppSelector(state => state.user.isAuth)
-	// const role = useAppSelector(state => state.user.roleCode)
-	// const roles = state.roles
+	const token = useAppSelector(getToken)
+	const menu = useAppSelector(getMenu)
 	const location = useLocation()
 
-	if (!isAuth) return <Navigate to='/auth' state={{ from: location }} />
+	if (!token) return <Navigate to={AppRoutes.AUTH} state={{ from: location }} />
+	if (!menu || !menu.length) return <Forbidden />
 
 	return children
 }

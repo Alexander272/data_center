@@ -9,6 +9,7 @@ import type { PeriodEnum } from '@/types/period'
 import { FormatDate } from '@/constants/format'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { nextPeriod, prevPeriod, setPeriod, setPeriodType } from '@/store/dashboard'
+import { getMenu } from '@/store/user'
 import { Calendar } from '@/components/Calendar/Calendar'
 import Stepper from '@/components/Stepper/Stepper'
 import { TableFallBack } from '../components/Fallback/FallBack'
@@ -24,20 +25,13 @@ const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
 const SemiFinished = lazy(() => import('@/pages/Home/SemiFinished/SemiFinished'))
 const Tooling = lazy(() => import('@/pages/Home/Tooling/Tooling'))
 
-// const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
-// const Quality = lazy(() => import('@/pages/Home/components/Quality/Quality'))
-// const Expenses = lazy(() => import('@/pages/Home/components/Expenses/Expenses'))
-// const OrderExecution = lazy(() => import('@/pages/Home/components/OrderExecution/OrderExecution'))
-
-// type Selected = 'sqdc' | 'quality' | 'expenses' | 'order'
-
 const steps = [
-	{ id: '1', key: 'production_plan', label: 'Выполнение годового плана' },
-	{ id: '2', key: 'shipping_plan', label: 'План отгрузок' },
+	{ id: '1', key: 'production-plan', label: 'Выполнение годового плана' },
+	{ id: '2', key: 'shipping-plan', label: 'План отгрузок' },
 	// { id: '2', key: 'shipment', label: 'Выполнение плана отгрузок' },
-	{ id: '3', key: 'output', label: 'Объем выпуска продукции' },
-	{ id: '4', key: 'orders', label: 'Объем заказов переданных в производство' },
-	{ id: '5', key: 'load', label: 'Загруженность производства' },
+	{ id: '3', key: 'output-volume', label: 'Объем выпуска продукции' },
+	{ id: '4', key: 'orders-volume', label: 'Объем заказов переданных в производство' },
+	{ id: '5', key: 'production-load', label: 'Загруженность производства' },
 	{ id: '6', key: 'semi-finished', label: 'Производство полуфабрикатов' },
 	{ id: '7', key: 'tooling', label: 'Производство оснастки' },
 	// { id: '6', key: 'sqdc', label: 'SQDC' },
@@ -53,22 +47,26 @@ const pickerType = {
 }
 
 const components = {
-	production_plan: <ProductionPlan />,
+	'production-plan': <ProductionPlan />,
 	shipment: <Shipment />,
-	shipping_plan: <ShippingPlan />,
-	output: <Output />,
-	orders: <Orders />,
-	load: <Load />,
-	sqdc: <SQDC />,
+	'shipping-plan': <ShippingPlan />,
+	'output-volume': <Output />,
+	'orders-volume': <Orders />,
+	'production-load': <Load />,
 	'semi-finished': <SemiFinished />,
 	tooling: <Tooling />,
+
+	sqdc: <SQDC />,
 }
 
 export default function Home() {
 	const periodType = useAppSelector(state => state.dashboard.periodType)
 	const period = useAppSelector(state => state.dashboard.period)
+	const menu = useAppSelector(getMenu)
 
-	const [selected, setSelected] = useState('production_plan')
+	const list = steps.filter(s => menu.includes(s.key + ':read'))
+
+	const [selected, setSelected] = useState(list[0].key)
 	const [open, setOpen] = useState(false)
 	const anchor = useRef<HTMLButtonElement>(null)
 
@@ -103,35 +101,8 @@ export default function Home() {
 		setOpen(false)
 	}
 
-	// console.log(dayjs(period.from, 'DD.MM.YYYY').unix() >= dayjs().subtract(1, 'd').unix())
-	// console.log(dayjs().subtract(1, 'd').diff(dayjs(period.from, 'DD.MM.YYYY'), 'd') <= 0)
-	// console.log(dayjs().subtract(1, 'd').diff(dayjs(period.to, 'DD.MM.YYYY'), 'd') <= 0)
-	// console.log(dayjs(period.from, 'DD.MM.YYYY').unix(), dayjs().subtract(1, 'd').unix())
-
 	return (
 		<Container>
-			{/* <Stack direction={'row'} spacing={2} width={'100%'} justifyContent={'center'}>
-				<Group active={selected == 'sqdc'} onClick={selectHandler('sqdc')}>
-					SQDC???
-				</Group>
-				<Group active={selected == 'quality'} onClick={selectHandler('quality')}>
-					Качество
-				</Group>
-				<Group active={selected == 'expenses'} onClick={selectHandler('expenses')}>
-					Затраты
-				</Group>
-				<Group active={selected == 'order'} onClick={selectHandler('order')}>
-					Исполнение заказа
-				</Group>
-			</Stack>
-
-			<Suspense fallback={<CircularProgress />}>
-				{selected == 'sqdc' && <SQDC />}
-				{selected == 'quality' && <Quality />}
-				{selected == 'expenses' && <Expenses />}
-				{selected == 'order' && <OrderExecution />}
-			</Suspense> */}
-
 			<Stack direction={'row'} justifyContent={'center'} mb={1}>
 				<ButtonGroup sx={{ borderRadius: '16px', backgroundColor: '#fff' }}>
 					<Button
@@ -181,12 +152,13 @@ export default function Home() {
 			</Stack>
 
 			<Stack direction={'row'} spacing={1} width={'100%'}>
-				<Stepper active={selected} data={steps} onSelect={stepHandler} width='300px' />
+				<Stepper active={selected} data={list} onSelect={stepHandler} width='300px' />
 
 				<Box
 					padding={2}
 					borderRadius={'16px'}
 					width={'100%'}
+					minHeight={200}
 					boxShadow={'rgba(54, 54, 54, 0.17) 0px 0px 4px 0px'}
 					position={'relative'}
 					sx={{ backgroundColor: '#fff' }}
@@ -268,15 +240,7 @@ export default function Home() {
 						/>
 					</Menu>
 
-					<Suspense fallback={<TableFallBack />}>
-						{/* {selected == 'production_plan' && <ProductionPlan />}
-						{selected == 'shipment' && <Shipment />}
-						{selected == 'output' && <Output />}
-						{selected == 'orders' && <Orders />}
-						{selected == 'load' && <Load />} */}
-						{components[selected as 'load']}
-						{/* {selected == 'sqdc' && <SQDC />} */}
-					</Suspense>
+					<Suspense fallback={<TableFallBack />}>{components[selected as 'tooling']}</Suspense>
 				</Box>
 			</Stack>
 		</Container>

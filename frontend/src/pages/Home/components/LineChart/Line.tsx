@@ -23,9 +23,6 @@ export const Line: FC<Props> = ({ data, minYValue }) => {
 		if (d.mark) {
 			markLine = {
 				silent: true,
-				lineStyle: {
-					color: '#333',
-				},
 				data: [
 					{
 						yAxis: d.mark,
@@ -35,6 +32,9 @@ export const Line: FC<Props> = ({ data, minYValue }) => {
 								`${param.name} (${new Intl.NumberFormat('ru', { notation: 'compact' }).format(
 									param.value
 								)})`,
+						},
+						lineStyle: {
+							color: '#333',
 						},
 					},
 				],

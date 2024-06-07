@@ -7,9 +7,11 @@ export interface ICriterion {
 }
 
 export interface ICompleteCriterion {
-	id: string
-	type: string
-	date: string
+	// id:string
+	// type: string
+	// date: string
+	criterionId: string
+	date: number
 }
 
 export interface ICompleteReport {

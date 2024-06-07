@@ -20,17 +20,21 @@ export default function ProductionPlan() {
 		data: shipment,
 		isFetching: isFetchShipment,
 		isError: isErrShipment,
-	} = useGetShipmentByPeriodQuery(period, { skip: period.from == '' })
+	} = useGetShipmentByPeriodQuery(period, { skip: !period.from })
 	const {
 		data: plan,
 		isFetching: isFetchPlan,
 		isError: isErrPlan,
-	} = useGetProductionPlanByPeriodQuery({ period, type: 'annual' }, { skip: period.from == '' })
+	} = useGetProductionPlanByPeriodQuery({ period, type: 'annual' }, { skip: !period.from })
 
 	useEffect(() => {
 		if (shipment?.data.length && plan?.data.length) {
 			const d = shipment.data.map(s => {
 				const p = plan.data.find(p => p.product == s.product)
+				// const count = dayjs(+(s.date || 0) * 1000).daysInMonth()
+				// console.log('daysInMonth', count)
+				//TODO можно делить план на число дней в месяце
+
 				return {
 					id: s.id || '',
 					date: s.date || '',
@@ -41,16 +45,14 @@ export default function ProductionPlan() {
 				}
 			})
 			setData(d)
-		} else {
-			setData([])
-		}
+		} else setData([])
 	}, [shipment, plan])
 
 	return (
 		<>
 			{shipment?.data.length && plan?.data.length ? (
 				<Suspense fallback={<TableFallBack />}>
-					{periodType == 'day' && <Day data={data} />}
+					{periodType == 'day' && <Day data={data.slice(0, 7)} />}
 					{periodType != 'day' && <Week data={data} />}
 				</Suspense>
 			) : null}

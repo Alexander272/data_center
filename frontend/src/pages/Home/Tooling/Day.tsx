@@ -14,15 +14,21 @@ export default function Day({ data }: Props) {
 					<TableBody>
 						<TableRow>
 							<TableCell sx={{ fontWeight: 'bold' }}>Поступило заявок</TableCell>
-							<TableCell>{new Intl.NumberFormat('ru-Ru').format(+(data[0].request || 0))}</TableCell>
+							<TableCell width={'30%'} align='right'>
+								{new Intl.NumberFormat('ru-Ru').format(+(data[0].request || 0))}
+							</TableCell>
 						</TableRow>
 						<TableRow>
 							<TableCell sx={{ fontWeight: 'bold' }}>Выполнено</TableCell>
-							<TableCell>{new Intl.NumberFormat('ru-Ru').format(+(data[0].done || 0))}</TableCell>
+							<TableCell width={'30%'} align='right'>
+								{new Intl.NumberFormat('ru-Ru').format(+(data[0].done || 0))}
+							</TableCell>
 						</TableRow>
 						<TableRow>
 							<TableCell sx={{ fontWeight: 'bold' }}>В работе</TableCell>
-							<TableCell>{new Intl.NumberFormat('ru-Ru').format(+(data[0].progress || 0))}</TableCell>
+							<TableCell width={'30%'} align='right'>
+								{new Intl.NumberFormat('ru-Ru').format(+(data[0].progress || 0))}
+							</TableCell>
 						</TableRow>
 					</TableBody>
 				</Table>

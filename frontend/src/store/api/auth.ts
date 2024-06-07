@@ -1,7 +1,7 @@
-import { ISignIn, IUser } from '@/types/user'
-import { api } from './base'
+import type { ISignIn, IUser } from '@/types/user'
 import { API } from '@/constants/api'
-import { clearUser } from '../user'
+import { resetUser } from '../user'
+import { api } from './base'
 
 export const authApi = api.injectEndpoints({
 	overrideExisting: false,
@@ -25,7 +25,7 @@ export const authApi = api.injectEndpoints({
 				} catch (error) {
 					console.error(error)
 				} finally {
-					api.dispatch(clearUser())
+					api.dispatch(resetUser())
 				}
 			},
 		}),

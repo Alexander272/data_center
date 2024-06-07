@@ -9,7 +9,7 @@ type Props = {
 export default function Day({ data }: Props) {
 	return (
 		<Stack spacing={4}>
-			<Stack direction={'row'} spacing={1}>
+			<Stack direction={'row'}>
 				<Box width={'80%'} ml={'auto'} mr={'auto'}>
 					<Table>
 						<TableHead>
@@ -85,7 +85,6 @@ export default function Day({ data }: Props) {
 			</Stack>
 
 			<Stack direction={'row'} spacing={1}>
-				{/* <Stack width={'47%'} minWidth={'700px'}> */}
 				<Stack width={'50%'}>
 					<Typography align='center' fontWeight={'bold'}>
 						Отгружено штук
@@ -105,7 +104,6 @@ export default function Day({ data }: Props) {
 						<SingleBar data={data.map(d => ({ value: +(d.money || 0), name: d.product || '' }))} />
 					</Box>
 				</Stack>
-				{/* </Stack> */}
 			</Stack>
 		</Stack>
 	)

@@ -1,39 +1,36 @@
 import type { ICompleteCriterion, ICompleteReport, ICriterion } from '@/types/criterion'
 import type { IReportFilter } from '@/types/report'
+import { API } from '@/constants/api'
 import { api } from './base'
 
 export const criterionsApi = api.injectEndpoints({
 	endpoints: builder => ({
 		// получение списка доступных критериев
 		getCriterions: builder.query<{ data: ICriterion[] }, string>({
-			query: day => `criterions/${day}`,
-			providesTags: (_res, _err, day) => [{ type: 'Api', id: `criterions/${day}` }],
+			query: day => `${API.Criterions.Base}/${day}`,
+			providesTags: (_res, _err, arg) => [{ type: 'Criterion', id: arg }],
 		}),
 
 		// получение списка выполненных дней (месяцев)
 		getCompletedPeriod: builder.query<{ data: ICompleteReport[] }, IReportFilter>({
 			query: data => ({
-				url: `criterions/complete`,
+				url: `${API.Criterions.Complete}/${data.date}`,
 				method: 'GET',
-				params: new URLSearchParams([
-					['type', data.type],
-					['date', data.date.toString()],
-				]),
+				// params: new URLSearchParams({ date: data.date.toString() }),
 			}),
-			providesTags: [{ type: 'Api', id: 'criterions/complete' }],
+			providesTags: [{ type: 'Complete', id: `week` }],
 		}),
 
 		// отметка о заполнении критерия
 		completeCriterion: builder.mutation<string, ICompleteCriterion>({
 			query: data => ({
-				url: `criterions/complete/${data.id}`,
+				url: API.Criterions.Complete,
 				method: 'POST',
 				body: data,
 			}),
-			// invalidatesTags: (_res, _err, data) => [{ type: 'Api', id: `criterions/${data.date}` }],
-			invalidatesTags: (_res, _err, data) => [
-				{ type: 'Api', id: `criterions/${data.date}` },
-				{ type: 'Api', id: 'criterions/complete' },
+			invalidatesTags: (_res, _err, arg) => [
+				{ type: 'Criterion', id: `${arg.date}` },
+				{ type: 'Complete', id: `week` },
 			],
 		}),
 	}),

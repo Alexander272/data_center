@@ -50,7 +50,7 @@ export default function Output() {
 		<>
 			{output?.data.length || plan?.data.length ? (
 				<Suspense fallback={<TableFallBack />}>
-					{periodType == 'day' && <Day data={data} />}
+					{periodType == 'day' && <Day data={data.slice(0, 14)} />}
 					{periodType != 'day' && <Week data={data} />}
 				</Suspense>
 			) : null}
