@@ -14,12 +14,8 @@ const (
 
 	ProductsTable = "products"
 
-	MenuTable  = "menu"
-	UsersTable = "users"
-	RoleTable  = "roles"
-
-	ApiTable        = "api_paths"
-	MenuApiTable    = "menu_items_with_api"
-	MenuItemTable   = "menu_items"
-	MenuByRoleTable = "menu_by_role"
+	MenuItemTable = "menu_item"
+	MenuTable     = "menu"
+	RoleTable     = "roles"
+	// UsersTable = "users"
 )

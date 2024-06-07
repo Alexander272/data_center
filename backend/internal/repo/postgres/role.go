@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/google/uuid"
@@ -82,17 +83,10 @@ func (r *RoleRepo) GetAllWithNames(ctx context.Context, req *models.GetRolesDTO)
 
 func (r *RoleRepo) Get(ctx context.Context, roleName string) (*models.Role, error) {
 	var data []models.RoleWithMenuDTO
-	// query := fmt.Sprintf(`SELECT r.id, r.name, COALESCE(extends, '{}') AS extends, i.name AS menu
-	// 	FROM %s AS r
-	// 	LEFT JOIN %s AS m ON r.id=role_id
-	// 	LEFT JOIN %s AS i ON menu_item_id=i.id
-	// 	WHERE i.is_show=true ORDER BY level`,
-	// 	RoleTable, MenuTable, MenuItemTable,
-	// )
 	query := fmt.Sprintf(`SELECT r.id, name, COALESCE(extends, '{}') AS extends,
-		ARRAY(SELECT DISTINCT(i.name || ':' || i.method) FROM %s AS m INNER JOIN %s AS i ON m.menu_item_id=i.id WHERE role_id=r.id) AS menu
-		FROM %s AS r
-		ORDER BY level, name`,
+		ARRAY(SELECT DISTINCT(i.name || ':' || i.method) AS name FROM %s AS m INNER JOIN %s AS i ON m.menu_item_id=i.id 
+			WHERE role_id=r.id ORDER BY name) AS menu
+		FROM %s AS r ORDER BY level, name`,
 		MenuTable, MenuItemTable, RoleTable,
 	)
 
@@ -141,11 +135,11 @@ func (r *RoleRepo) Get(ctx context.Context, roleName string) (*models.Role, erro
 		for _, v := range menu[k] {
 			roleMenu[v] = struct{}{}
 		}
-		// role.Menu = append(role.Menu, menu[k]...)
 	}
 	for k := range roleMenu {
 		role.Menu = append(role.Menu, k)
 	}
+	slices.Sort(role.Menu)
 
 	return role, nil
 }

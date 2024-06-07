@@ -3,9 +3,11 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 type CriterionsRepo struct {
@@ -19,18 +21,48 @@ func NewCriterionsRepo(db *sqlx.DB) *CriterionsRepo {
 }
 
 type Criterions interface {
-	GetAll(context.Context) ([]models.Criterions, error)
-	// GetByRole(context.Context, string) ([]models.Criterions, error)
-	GetByRole(ctx context.Context, role, day string) (criterions []models.CriterionsWithData, err error)
+	GetAll(context.Context, *models.CriterionParams) ([]*models.Criterion, error)
+	GetByDate(context.Context, *models.GetCriterionDTO) ([]*models.CompleteCriterion, error)
+	GetByRole(ctx context.Context, role, day string) (criterions []models.CompleteCriterion, err error)
 }
 
-func (r *CriterionsRepo) GetAll(ctx context.Context) (criterions []models.Criterions, err error) {
-	query := fmt.Sprintf(`SELECT id, key, label, type FROM %s ORDER BY priority`, CriterionsTable)
+func (r *CriterionsRepo) GetAll(ctx context.Context, req *models.CriterionParams) ([]*models.Criterion, error) {
+	condition := ""
+	params := []interface{}{}
+	if req != nil {
+		condition = " WHERE "
+		values := []string{}
+		if len(req.EnabledKeys) > 0 {
+			values = append(values, fmt.Sprintf("key=ANY($%d)", len(values)+1))
+			params = append(params, pq.Array(req.EnabledKeys))
+		}
+		condition += strings.Join(values, " AND ")
+	}
 
-	if err := r.db.Select(&criterions, query); err != nil {
+	query := fmt.Sprintf(`SELECT id, key, label, type, priority FROM %s%s ORDER BY type, priority`, CriterionsTable, condition)
+	data := []*models.Criterion{}
+
+	if err := r.db.SelectContext(ctx, &data, query, params...); err != nil {
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
 	}
-	return criterions, nil
+	return data, nil
+}
+
+func (r *CriterionsRepo) GetByDate(ctx context.Context, req *models.GetCriterionDTO) ([]*models.CompleteCriterion, error) {
+	query := fmt.Sprintf(`SELECT c.id, key, label, c.type, COALESCE(cc.date, 0) date, cc.id IS NOT NULL complete
+		FROM %s AS c LEFT JOIN %s AS cc ON cc.criterion_id=c.id AND cc.date=$1
+		WHERE c.type = ANY($2)  ORDER BY priority`,
+		// WHERE c.type = ANY($2)  ORDER BY c.type, priority`,
+		// AND key=ANY($3)
+		CriterionsTable, CompleteCriterionTable,
+	)
+	data := []*models.CompleteCriterion{}
+
+	if err := r.db.SelectContext(ctx, &data, query, req.Date, pq.Array(req.Types)); err != nil {
+		// , req.EnabledKeys
+		return nil, fmt.Errorf("failed to execute query. error: %w", err)
+	}
+	return data, nil
 }
 
 // func (r *CriterionsRepo) GetByRole(ctx context.Context, role string) (criterions []models.Criterions, err error) {
@@ -46,7 +78,7 @@ func (r *CriterionsRepo) GetAll(ctx context.Context) (criterions []models.Criter
 //		}
 //		return criterions, nil
 //	}
-func (r *CriterionsRepo) GetByRole(ctx context.Context, role, day string) (criterions []models.CriterionsWithData, err error) {
+func (r *CriterionsRepo) GetByRole(ctx context.Context, role, day string) (criterions []models.CompleteCriterion, err error) {
 	query := fmt.Sprintf(`SELECT c.id, key, label, c.type, COALESCE(cc.date, 0) as date, NOT(cc.id IS NULL) as complete
 		FROM %s AS c 
 		LEFT JOIN %s as m ON name like key||':POST' OR name like key||':ALL' OR name='*:ALL'

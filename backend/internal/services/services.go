@@ -55,15 +55,8 @@ func NewServices(deps Deps) *Services {
 	semiFinished := NewSemiFinishedService(deps.Repos.SemiFinished)
 	tooling := NewToolingService(deps.Repos.Tooling)
 
-	criterionDeps := CriterionDeps{
-		// shipment: shipmentPlan,
-		// orders:   ordersVolume,
-		// output:   outputVolume,
-		// load:     productionLoad,
-	}
-
-	criterions := NewCriterionsService(deps.Repos.Criterions, criterionDeps)
-	completeCriterion := NewCompleteCriterionService(deps.Repos.CompleteCriterion)
+	criterions := NewCriterionsService(deps.Repos.Criterions, role)
+	completeCriterion := NewCompleteCriterionService(deps.Repos.CompleteCriterion, role, criterions)
 
 	return &Services{
 		Shipment:       shipment,

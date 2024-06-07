@@ -2,6 +2,7 @@ package criterions
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Alexander272/data_center/backend/internal/constants"
 	"github.com/Alexander272/data_center/backend/internal/models"
@@ -25,15 +26,37 @@ func NewCriterionsHandlers(service services.Criterions) *CriterionsHandlers {
 func Register(api *gin.RouterGroup, service services.Criterions, middleware *middleware.Middleware) {
 	handlers := NewCriterionsHandlers(service)
 
-	api.GET("/:day", handlers.getByDay)
+	api.GET("/:date", handlers.getByDate)
 	api.GET("/all", handlers.getAll)
 }
 
 func (h *CriterionsHandlers) getAll(c *gin.Context) {
-	criterions, err := h.service.GetAll(c)
+	criterions, err := h.service.GetAll(c, &models.CriterionParams{})
 	if err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		error_bot.Send(c, err.Error(), nil)
+		return
+	}
+	c.JSON(http.StatusOK, response.DataResponse{Data: criterions})
+}
+
+func (h *CriterionsHandlers) getByDate(c *gin.Context) {
+	date := c.Param("date")
+	if date == "" {
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "день не задан")
+		return
+	}
+
+	d, err := strconv.Atoi(date)
+	if err != nil {
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "день не задан")
+		return
+	}
+
+	criterions, err := h.service.GetByDate(c, &models.GetCriterionDTO{Date: int64(d)})
+	if err != nil {
+		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		error_bot.Send(c, err.Error(), date)
 		return
 	}
 	c.JSON(http.StatusOK, response.DataResponse{Data: criterions})

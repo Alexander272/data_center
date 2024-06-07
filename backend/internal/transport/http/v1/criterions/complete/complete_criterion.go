@@ -28,7 +28,9 @@ func Register(api *gin.RouterGroup, service services.CompleteCriterion, middlewa
 	complete := api.Group("/complete")
 	{
 		complete.GET("", handlers.get)
-		complete.POST("/:id", handlers.complete)
+		complete.GET("/:date", handlers.getByDate)
+		complete.POST("", handlers.create)
+		// complete.POST("/:id", handlers.complete)
 	}
 }
 
@@ -68,16 +70,10 @@ func (h *CriterionsHandlers) get(c *gin.Context) {
 	c.JSON(http.StatusOK, response.DataResponse{Data: complete})
 }
 
-func (h *CriterionsHandlers) complete(c *gin.Context) {
-	id := c.Param("id")
-	if id == "" {
-		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "id критерия не задан")
-		return
-	}
-
-	dto := &models.CompleteCriterion{}
-	if err := c.BindJSON(dto); err != nil {
-		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
+func (h *CriterionsHandlers) getByDate(c *gin.Context) {
+	date := c.Param("date")
+	if date == "" {
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "день не задан")
 		return
 	}
 
@@ -86,8 +82,28 @@ func (h *CriterionsHandlers) complete(c *gin.Context) {
 		response.NewErrorResponse(c, http.StatusUnauthorized, "empty user", "пользователь не найден")
 		return
 	}
-	dto.CriterionId = id
-	dto.Role = user.(models.User).Role
+
+	req := &models.GetCompeteDTO{
+		Date: date,
+		Role: user.(models.User).Role,
+	}
+
+	complete, err := h.service.GetByDate(c, req)
+	if err != nil {
+		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+		error_bot.Send(c, err.Error(), req)
+		return
+	}
+
+	c.JSON(http.StatusOK, response.DataResponse{Data: complete})
+}
+
+func (h *CriterionsHandlers) create(c *gin.Context) {
+	dto := &models.CompleteCriterionDTO{}
+	if err := c.BindJSON(dto); err != nil {
+		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
+		return
+	}
 
 	if err := h.service.Create(c, dto); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
@@ -96,3 +112,32 @@ func (h *CriterionsHandlers) complete(c *gin.Context) {
 	}
 	c.JSON(http.StatusCreated, response.IdResponse{Message: "Критерий заполнен"})
 }
+
+// func (h *CriterionsHandlers) complete(c *gin.Context) {
+// 	id := c.Param("id")
+// 	if id == "" {
+// 		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "id критерия не задан")
+// 		return
+// 	}
+
+// 	dto := &models.CompleteCriterionDTO{}
+// 	if err := c.BindJSON(dto); err != nil {
+// 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
+// 		return
+// 	}
+
+// 	user, exists := c.Get(constants.CtxUser)
+// 	if !exists {
+// 		response.NewErrorResponse(c, http.StatusUnauthorized, "empty user", "пользователь не найден")
+// 		return
+// 	}
+// 	dto.CriterionId = id
+// 	dto.Role = user.(models.User).Role
+
+// 	if err := h.service.Create(c, dto); err != nil {
+// 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+// 		error_bot.Send(c, err.Error(), dto)
+// 		return
+// 	}
+// 	c.JSON(http.StatusCreated, response.IdResponse{Message: "Критерий заполнен"})
+// }
