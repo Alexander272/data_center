@@ -3,6 +3,7 @@ package semi_finished
 import (
 	"net/http"
 
+	"github.com/Alexander272/data_center/backend/internal/constants"
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
@@ -26,11 +27,11 @@ func Register(api *gin.RouterGroup, service services.SemiFinished, middleware *m
 
 	semiFinished := api.Group("semi-finished")
 	{
-		semiFinished.GET("", handlers.getByPeriod)
-		semiFinished.POST("", handlers.create)
-		semiFinished.POST("/several", handlers.createSeveral)
-		semiFinished.PUT("/several", handlers.updateSeveral)
-		semiFinished.DELETE("/:day", handlers.delete)
+		semiFinished.GET("", middleware.CheckPermissions(constants.SemiFinished, constants.Read), handlers.getByPeriod)
+		semiFinished.POST("", middleware.CheckPermissions(constants.SemiFinished, constants.Write), handlers.create)
+		semiFinished.POST("/several", middleware.CheckPermissions(constants.SemiFinished, constants.Write), handlers.createSeveral)
+		semiFinished.PUT("/several", middleware.CheckPermissions(constants.SemiFinished, constants.Write), handlers.updateSeveral)
+		semiFinished.DELETE("/:day", middleware.CheckPermissions(constants.SemiFinished, constants.Write), handlers.delete)
 	}
 }
 

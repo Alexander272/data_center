@@ -3,6 +3,7 @@ package shipping_plan
 import (
 	"net/http"
 
+	"github.com/Alexander272/data_center/backend/internal/constants"
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
@@ -26,10 +27,10 @@ func Register(api *gin.RouterGroup, service services.ShippingPlan, middleware *m
 
 	shipping := api.Group("shipping-plan")
 	{
-		shipping.GET("", handlers.getByPeriod)
-		shipping.POST("", handlers.create)
-		shipping.PUT("/:day", handlers.updateByDay)
-		shipping.DELETE("/:day", handlers.deleteByDay)
+		shipping.GET("", middleware.CheckPermissions(constants.ShippingPlan, constants.Read), handlers.getByPeriod)
+		shipping.POST("", middleware.CheckPermissions(constants.ShippingPlan, constants.Write), handlers.create)
+		shipping.PUT("/:day", middleware.CheckPermissions(constants.ShippingPlan, constants.Write), handlers.updateByDay)
+		shipping.DELETE("/:day", middleware.CheckPermissions(constants.ShippingPlan, constants.Write), handlers.deleteByDay)
 	}
 }
 

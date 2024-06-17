@@ -3,6 +3,7 @@ package tooling
 import (
 	"net/http"
 
+	"github.com/Alexander272/data_center/backend/internal/constants"
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
@@ -26,10 +27,10 @@ func Register(api *gin.RouterGroup, service services.Tooling, middleware *middle
 
 	tooling := api.Group("tooling")
 	{
-		tooling.GET("", handlers.getByPeriod)
-		tooling.POST("", handlers.create)
-		tooling.PUT("/:id", handlers.update)
-		tooling.DELETE("/:day", handlers.delete)
+		tooling.GET("", middleware.CheckPermissions(constants.Tooling, constants.Read), handlers.getByPeriod)
+		tooling.POST("", middleware.CheckPermissions(constants.Tooling, constants.Write), handlers.create)
+		tooling.PUT("/:id", middleware.CheckPermissions(constants.Tooling, constants.Write), handlers.update)
+		tooling.DELETE("/:day", middleware.CheckPermissions(constants.Tooling, constants.Write), handlers.delete)
 	}
 }
 

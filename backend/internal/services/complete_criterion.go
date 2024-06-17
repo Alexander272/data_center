@@ -26,22 +26,8 @@ func NewCompleteCriterionService(repo repo.CompleteCriterion, role Role, criteri
 }
 
 type CompleteCriterion interface {
-	Get(context.Context, *models.ReportFilter) ([]*models.Complete, error)
 	GetByDate(context.Context, *models.GetCompeteDTO) ([]*models.Complete, error)
 	Create(context.Context, *models.CompleteCriterionDTO) error
-}
-
-func (s *CompleteCriterionService) Get(ctx context.Context, req *models.ReportFilter) ([]*models.Complete, error) {
-	complete, err := s.repo.Get(ctx, req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get complete report. error: %w", err)
-	}
-
-	// if err = s.repo.DeleteOld(ctx, req.LastDate); err != nil {
-	// 	return nil, fmt.Errorf("failed to delete old complete. error: %w", err)
-	// }
-
-	return complete, nil
 }
 
 func (s *CompleteCriterionService) GetByDate(ctx context.Context, req *models.GetCompeteDTO) ([]*models.Complete, error) {

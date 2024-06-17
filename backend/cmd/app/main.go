@@ -63,13 +63,9 @@ func main() {
 		AccessTokenTTL:  conf.Auth.AccessTokenTTL,
 		RefreshTokenTTL: conf.Auth.RefreshTokenTTL,
 	})
-
-	// casbin := casbin.NewCasbinService(services.Role, services.User, "configs/privacy.conf")
-
 	handlers := transport.NewHandler(services, keycloak)
 
 	//* HTTP Server
-
 	srv := server.NewServer(conf, handlers.Init(conf))
 	go func() {
 		if err := srv.Run(); !errors.Is(err, http.ErrServerClosed) {

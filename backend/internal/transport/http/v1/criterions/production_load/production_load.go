@@ -3,6 +3,7 @@ package production_load
 import (
 	"net/http"
 
+	"github.com/Alexander272/data_center/backend/internal/constants"
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
@@ -26,10 +27,10 @@ func Register(api *gin.RouterGroup, service services.ProductionLoad, middleware 
 
 	load := api.Group("/production-load")
 	{
-		load.GET("", handlers.get)
-		load.POST("/several", handlers.create)
-		load.PUT("/several", handlers.update)
-		load.DELETE("/:date", handlers.delete)
+		load.GET("", middleware.CheckPermissions(constants.ProductionLoad, constants.Read), handlers.get)
+		load.POST("/several", middleware.CheckPermissions(constants.ProductionLoad, constants.Write), handlers.create)
+		load.PUT("/several", middleware.CheckPermissions(constants.ProductionLoad, constants.Write), handlers.update)
+		load.DELETE("/:date", middleware.CheckPermissions(constants.ProductionLoad, constants.Write), handlers.delete)
 	}
 }
 

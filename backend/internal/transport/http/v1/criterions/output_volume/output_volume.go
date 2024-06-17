@@ -3,6 +3,7 @@ package output_volume
 import (
 	"net/http"
 
+	"github.com/Alexander272/data_center/backend/internal/constants"
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
@@ -26,10 +27,10 @@ func Register(api *gin.RouterGroup, service services.OutputVolume, middleware *m
 
 	output := api.Group("/output-volume")
 	{
-		output.GET("", handlers.get)
-		output.POST("/several", handlers.create)
-		output.PUT("/several", handlers.update)
-		output.DELETE("/:day", handlers.delete)
+		output.GET("", middleware.CheckPermissions(constants.OutputVolume, constants.Read), handlers.get)
+		output.POST("/several", middleware.CheckPermissions(constants.OutputVolume, constants.Write), handlers.create)
+		output.PUT("/several", middleware.CheckPermissions(constants.OutputVolume, constants.Write), handlers.update)
+		output.DELETE("/:day", middleware.CheckPermissions(constants.OutputVolume, constants.Write), handlers.delete)
 	}
 }
 

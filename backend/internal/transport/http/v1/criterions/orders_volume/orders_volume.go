@@ -3,6 +3,7 @@ package orders_volume
 import (
 	"net/http"
 
+	"github.com/Alexander272/data_center/backend/internal/constants"
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
@@ -26,10 +27,10 @@ func Register(api *gin.RouterGroup, service services.OrdersVolume, middleware *m
 
 	orders := api.Group("/orders-volume")
 	{
-		orders.GET("", handlers.getByPeriod)
-		orders.POST("", handlers.create)
-		orders.PUT("/:day", handlers.update)
-		orders.DELETE("/:day", handlers.delete)
+		orders.GET("", middleware.CheckPermissions(constants.OrdersVolume, constants.Read), handlers.getByPeriod)
+		orders.POST("", middleware.CheckPermissions(constants.OrdersVolume, constants.Write), handlers.create)
+		orders.PUT("/:day", middleware.CheckPermissions(constants.OrdersVolume, constants.Write), handlers.update)
+		orders.DELETE("/:day", middleware.CheckPermissions(constants.OrdersVolume, constants.Write), handlers.delete)
 	}
 }
 

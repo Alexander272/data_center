@@ -27,47 +27,10 @@ func Register(api *gin.RouterGroup, service services.CompleteCriterion, middlewa
 
 	complete := api.Group("/complete")
 	{
-		complete.GET("", handlers.get)
-		complete.GET("/:date", handlers.getByDate)
-		complete.POST("", handlers.create)
+		complete.GET("/:date", middleware.CheckPermissions(constants.Criterion, constants.Write), handlers.getByDate)
+		complete.POST("", middleware.CheckPermissions(constants.Criterion, constants.Write), handlers.create)
 		// complete.POST("/:id", handlers.complete)
 	}
-}
-
-func (h *CriterionsHandlers) get(c *gin.Context) {
-	dto := &models.ReportFilter{}
-	// if err := c.BindJSON(&dto); err != nil {
-	// 	response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
-	// 	return
-	// }
-	critType := c.Query("type")
-	if critType == "" {
-		response.NewErrorResponse(c, http.StatusBadRequest, "empty type", "Отправлены некорректные данные")
-		return
-	}
-	lastDate := c.Query("date")
-	if lastDate == "" {
-		response.NewErrorResponse(c, http.StatusBadRequest, "empty date", "Отправлены некорректные данные")
-		return
-	}
-
-	user, exists := c.Get(constants.CtxUser)
-	if !exists {
-		response.NewErrorResponse(c, http.StatusUnauthorized, "empty user", "пользователь не найден")
-		return
-	}
-	dto.Type = critType
-	dto.LastDate = lastDate
-	dto.Role = user.(models.User).Role
-
-	complete, err := h.service.Get(c, dto)
-	if err != nil {
-		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
-		error_bot.Send(c, err.Error(), dto)
-		return
-	}
-
-	c.JSON(http.StatusOK, response.DataResponse{Data: complete})
 }
 
 func (h *CriterionsHandlers) getByDate(c *gin.Context) {

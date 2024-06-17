@@ -1,7 +1,18 @@
 package constants
 
 const (
-	Roles = "roles"
+	Roles          = "roles"
+	Dashboard      = "dashboard"
+	Criterion      = "criterions"
+	OrdersVolume   = "orders-volume"
+	OutputPlan     = "output-plan"
+	OutputVolume   = "output-volume"
+	ProductionLoad = "production-load"
+	ProductionPlan = "production-plan"
+	Shipment       = "shipment"
+	ShippingPlan   = "shipping-plan"
+	SemiFinished   = "semi-finished"
+	Tooling        = "tooling"
 )
 
 const (

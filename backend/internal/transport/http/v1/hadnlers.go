@@ -36,7 +36,6 @@ func (h *Handler) Init(group *gin.RouterGroup) {
 	v1 := group.Group("/v1")
 	auth.Register(v1, h.services.Session, h.auth)
 
-	// criterionsGroup := v1.Group("/criterions", h.middleware.VerifyToken, h.middleware.CheckPermissions)
 	criterionsGroup := v1.Group("/criterions", h.middleware.VerifyToken)
 	criterions.Register(criterionsGroup, h.services.Criterions, h.middleware)
 	complete.Register(criterionsGroup, h.services.CompleteCriterion, h.middleware)

@@ -3,6 +3,7 @@ package production_plan
 import (
 	"net/http"
 
+	"github.com/Alexander272/data_center/backend/internal/constants"
 	"github.com/Alexander272/data_center/backend/internal/models"
 	"github.com/Alexander272/data_center/backend/internal/models/response"
 	"github.com/Alexander272/data_center/backend/internal/services"
@@ -26,10 +27,10 @@ func Register(api *gin.RouterGroup, service services.ProductionPlan, middleware 
 
 	plan := api.Group("/production-plan")
 	{
-		plan.GET("", handlers.get)
-		plan.POST("/several", handlers.create)
-		plan.PUT("/several", handlers.update)
-		plan.DELETE("/:date", handlers.delete)
+		plan.GET("", middleware.CheckPermissions(constants.ProductionPlan, constants.Read), handlers.get)
+		plan.POST("/several", middleware.CheckPermissions(constants.ProductionPlan, constants.Write), handlers.create)
+		plan.PUT("/several", middleware.CheckPermissions(constants.ProductionPlan, constants.Write), handlers.update)
+		plan.DELETE("/:date", middleware.CheckPermissions(constants.ProductionPlan, constants.Write), handlers.delete)
 	}
 }
 

@@ -26,8 +26,8 @@ func NewCriterionsHandlers(service services.Criterions) *CriterionsHandlers {
 func Register(api *gin.RouterGroup, service services.Criterions, middleware *middleware.Middleware) {
 	handlers := NewCriterionsHandlers(service)
 
-	api.GET("/:date", handlers.getByDate)
-	api.GET("/all", handlers.getAll)
+	api.GET("/:date", middleware.CheckPermissions(constants.Criterion, constants.Read), handlers.getByDate)
+	api.GET("/all", middleware.CheckPermissions(constants.Criterion, constants.Read), handlers.getAll)
 }
 
 func (h *CriterionsHandlers) getAll(c *gin.Context) {
@@ -62,28 +62,28 @@ func (h *CriterionsHandlers) getByDate(c *gin.Context) {
 	c.JSON(http.StatusOK, response.DataResponse{Data: criterions})
 }
 
-func (h *CriterionsHandlers) getByDay(c *gin.Context) {
-	day := c.Param("day")
-	if day == "" {
-		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "день не задан")
-		return
-	}
+// func (h *CriterionsHandlers) getByDay(c *gin.Context) {
+// 	day := c.Param("day")
+// 	if day == "" {
+// 		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "день не задан")
+// 		return
+// 	}
 
-	// TODO критерии можно поделить на daily (ежедневно), in_weekdays (в рабочие дни), monthly (ежемесячно)
-	// можно передавать массив с нужными категориями. массив формировать в зависимости от передаваемого дня
-	// либо группировать daily и in_weekdays, а monthly получать всегда, просто разделять это все на группы
+// 	// TODO критерии можно поделить на daily (ежедневно), in_weekdays (в рабочие дни), monthly (ежемесячно)
+// 	// можно передавать массив с нужными категориями. массив формировать в зависимости от передаваемого дня
+// 	// либо группировать daily и in_weekdays, а monthly получать всегда, просто разделять это все на группы
 
-	user, exists := c.Get(constants.CtxUser)
-	if !exists {
-		response.NewErrorResponse(c, http.StatusUnauthorized, "empty user", "пользователь не найден")
-		return
-	}
+// 	user, exists := c.Get(constants.CtxUser)
+// 	if !exists {
+// 		response.NewErrorResponse(c, http.StatusUnauthorized, "empty user", "пользователь не найден")
+// 		return
+// 	}
 
-	criterions, err := h.service.GetByDay(c, user.(models.User), day)
-	if err != nil {
-		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
-		error_bot.Send(c, err.Error(), day)
-		return
-	}
-	c.JSON(http.StatusOK, response.DataResponse{Data: criterions})
-}
+// 	criterions, err := h.service.GetByDay(c, user.(models.User), day)
+// 	if err != nil {
+// 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
+// 		error_bot.Send(c, err.Error(), day)
+// 		return
+// 	}
+// 	c.JSON(http.StatusOK, response.DataResponse{Data: criterions})
+// }

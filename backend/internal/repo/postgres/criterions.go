@@ -58,6 +58,13 @@ func (r *CriterionsRepo) GetByDate(ctx context.Context, req *models.GetCriterion
 	)
 	data := []*models.CompleteCriterion{}
 
+	/*
+		SELECT c.id, key, label, type, COALESCE(cc.date, 0) date, to_timestamp(date) AT TIME ZONE 'Asia/Yekaterinburg', cc.id IS NOT NULL complete
+			FROM criterions AS c LEFT JOIN complete_criterion AS cc ON cc.criterion_id=c.id AND
+			(cc.date=1717268400 OR (type='monthly' AND date_part('month',to_timestamp(date))=date_part('month',to_timestamp(1717268400))))
+			WHERE type=ANY(array['daily', 'monthly']) ORDER BY c.type, priority
+	*/
+
 	if err := r.db.SelectContext(ctx, &data, query, req.Date, pq.Array(req.Types)); err != nil {
 		// , req.EnabledKeys
 		return nil, fmt.Errorf("failed to execute query. error: %w", err)
@@ -100,14 +107,3 @@ func (r *CriterionsRepo) GetByRole(ctx context.Context, role, day string) (crite
 	}
 	return criterions, nil
 }
-
-/*
-SELECT c.id, key, label, c.type
-	FROM public.criterions AS c LEFT JOIN menu as m ON name like key||':POST' OR name like key||':ALL' OR name='*:ALL'
-	WHERE m.type='APP' AND m.is_show=true AND role_id='7d110503-7af9-4ebd-aa36-9cf512ba3438'
-
-SELECT c.id, key, label, c.type
-	FROM public.criterions AS c LEFT JOIN menu as m ON name like key||':POST' OR name like key||':ALL' OR name='*:ALL'
-	INNER JOIN roles as r ON r.id=role_id
-	WHERE m.type='APP' AND m.is_show=true AND r.name='pdd'
-*/

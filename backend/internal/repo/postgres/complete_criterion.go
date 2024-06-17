@@ -21,44 +21,9 @@ func NewCompleteCriterionRepo(db *sqlx.DB) *CompleteCriterionRepo {
 }
 
 type CompleteCriterion interface {
-	Get(context.Context, *models.ReportFilter) ([]*models.Complete, error)
 	GetByDate(context.Context, *models.GetCompeteDTO) ([]*models.CompleteCount, error)
 	Create(context.Context, *models.CompleteCriterionDTO) error
 	DeleteOld(context.Context, string) error
-}
-
-/*
-	TODO Сейчас выполнение всех критериев отрабатывает некорректно (иногда)
-	Похоже надо как-то переписывать это все
-*/
-
-func (r *CompleteCriterionRepo) Get(ctx context.Context, req *models.ReportFilter) ([]*models.Complete, error) {
-	query := fmt.Sprintf(`SELECT date, CASE WHEN COUNT(criterion_id) = (SELECT COUNT(id) FROM %s AS m
-		WHERE method LIKE '%%(POST)|(PUT)|(DELETE)' AND m.type='API' AND m.role_id=c.role_id
-		) THEN true ELSE false END AS complete
-		FROM %s AS c
-		INNER JOIN %s AS r ON r.id=c.role_id
-		GROUP BY role_id, name, date, type 
-		HAVING type=$1 AND r.name=$2 AND date>=$3 LIMIT 7`,
-		MenuTable, CompleteCriterionTable, RoleTable,
-	)
-	complete := []*models.Complete{}
-
-	/*
-		SELECT COUNT(criterion_id)=? complete, date
-			FROM public.complete_criterion AS cc
-			INNER JOIN criterions AS c ON c.id=criterion_id
-			WHERE date>=?
-			AND key=ANY(ARRAY['output-volume','production-load','output-plan'])
-			GROUP BY date
-			ORDER BY date
-	*/
-
-	if err := r.db.SelectContext(ctx, &complete, query, req.Type, req.Role, req.LastDate); err != nil {
-		return nil, fmt.Errorf("failed to execute query. error: %w", err)
-	}
-
-	return complete, nil
 }
 
 func (r *CompleteCriterionRepo) GetByDate(ctx context.Context, req *models.GetCompeteDTO) ([]*models.CompleteCount, error) {
@@ -67,6 +32,15 @@ func (r *CompleteCriterionRepo) GetByDate(ctx context.Context, req *models.GetCo
 		CompleteCriterionTable, CriterionsTable,
 	)
 	comCount := []*models.CompleteCount{}
+
+	/*
+		Чтобы учитывать ежемесячные критерии приходится дополнительно выводить тип, а потом все считать (к тому надо сделать так чтобы ежемесячные параметры можно было заполнить только раз в месяц, иначе это все будет криво работать)
+
+		SELECT COUNT(criterion_id), type, date FROM complete_criterion AS cc INNER JOIN criterions AS c ON c.id=criterion_id
+			WHERE date>=1717441200
+			OR (type='monthly' AND date_part('month',to_timestamp(date))=date_part('month',to_timestamp(1717441200)))
+			GROUP BY date, type ORDER BY date
+	*/
 
 	if err := r.db.SelectContext(ctx, &comCount, query, req.Date, pq.Array(req.EnabledKeys)); err != nil {
 		return nil, fmt.Errorf("failed to execute complete count query. error: %w", err)
