@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Column, DataSheetGrid, intColumn, keyColumn, textColumn } from 'react-datasheet-grid'
+import { Column, DataSheetGrid, floatColumn, intColumn, keyColumn, textColumn } from 'react-datasheet-grid'
 import { Button, CircularProgress, Typography } from '@mui/material'
+
+import type { IResError } from '@/types/err'
+import type { IProductionLoad, IProductionLoadDTO } from '@/types/productionLoad'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import {
 	useGetProductionLoadByPeriodQuery,
@@ -8,16 +11,14 @@ import {
 	useUpdateProductionLoadMutation,
 } from '@/store/api/productionLoad'
 import { setComplete } from '@/store/criterions'
-import type { IProductionLoad, IProductionLoadDTO } from '@/types/productionLoad'
-import type { IResError } from '@/types/err'
 import { IToast, Toast } from '@/components/Toast/Toast'
 
 const emptyData: IProductionLoad[] = [
-	{ id: '', sector: 'СНП', days: null, quantity: null },
-	{ id: '', sector: 'Прокладки', days: null, quantity: null },
-	{ id: '', sector: 'Набивка', days: null, quantity: null },
-	{ id: '', sector: 'Кольца', days: null, quantity: null },
-	{ id: '', sector: 'Линия прокатки', days: null, quantity: null },
+	{ id: '', sector: 'СНП', days: null, quantity: null, money: null },
+	{ id: '', sector: 'Прокладки', days: null, quantity: null, money: null },
+	{ id: '', sector: 'Набивка', days: null, quantity: null, money: null },
+	{ id: '', sector: 'Кольца', days: null, quantity: null, money: null },
+	{ id: '', sector: 'Линия прокатки', days: null, quantity: null, money: null },
 ]
 
 export default function ProductionLoad() {
@@ -30,10 +31,19 @@ export default function ProductionLoad() {
 
 	const dispatch = useAppDispatch()
 
+	const moneyPaste = (values: string[]) => {
+		return values.map(v => v.replace(' ', '').replace(',', '.'))
+	}
+
 	const columns: Column<IProductionLoad>[] = [
 		{ ...keyColumn<IProductionLoad, 'sector'>('sector', textColumn), title: 'Участок', disabled: true },
 		{ ...keyColumn<IProductionLoad, 'days'>('days', intColumn), title: 'Загруженность (дней)' },
 		{ ...keyColumn<IProductionLoad, 'quantity'>('quantity', intColumn), title: 'Кол-во ед продукции' },
+		{
+			...keyColumn<IProductionLoad, 'money'>('money', floatColumn),
+			title: 'Стоимость',
+			prePasteValues: moneyPaste,
+		},
 	]
 
 	const { data: load } = useGetProductionLoadByPeriodQuery({ from: date }, { skip: !date })
@@ -47,7 +57,13 @@ export default function ProductionLoad() {
 				for (let i = 0; i < temp.length; i++) {
 					const d = load.data.find(s => s.sector == temp[i].sector)
 					if (!d) return temp
-					temp[i] = { ...temp[i], id: d.id, days: +(d.days || '0'), quantity: +(d.quantity || 0) }
+					temp[i] = {
+						...temp[i],
+						id: d.id,
+						days: +(d.days || '0'),
+						quantity: +(d.quantity || 0),
+						money: +(d.money || 0),
+					}
 				}
 				return temp
 			})
@@ -83,6 +99,7 @@ export default function ProductionLoad() {
 				sector: e.sector || '',
 				days: e.days || 0,
 				quantity: e.quantity || 0,
+				money: e.money || 0,
 			})
 		}
 

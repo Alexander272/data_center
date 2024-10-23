@@ -21,12 +21,13 @@ const Output = lazy(() => import('@/pages/Home/Output/Output'))
 const Orders = lazy(() => import('@/pages/Home/Orders/Orders'))
 const Load = lazy(() => import('@/pages/Home/Load/Load'))
 const ShippingPlan = lazy(() => import('@/pages/Home/ShippingPlan/ShippingPlan'))
-const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
 const SemiFinished = lazy(() => import('@/pages/Home/SemiFinished/SemiFinished'))
 const Tooling = lazy(() => import('@/pages/Home/Tooling/Tooling'))
+const Safety = lazy(() => import('@/pages/Home/Safety/Safety'))
+// const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
 
 const steps = [
-	{ id: '1', key: 'production-plan', label: 'Выполнение годового плана' },
+	{ id: '1', key: 'production-plan', label: 'Выполнение годового плана по отгрузке' },
 	{ id: '2', key: 'shipping-plan', label: 'План отгрузок' },
 	// { id: '2', key: 'shipment', label: 'Выполнение плана отгрузок' },
 	{ id: '3', key: 'output-volume', label: 'Объем выпуска продукции' },
@@ -34,6 +35,7 @@ const steps = [
 	{ id: '5', key: 'production-load', label: 'Загруженность производства' },
 	{ id: '6', key: 'semi-finished', label: 'Производство полуфабрикатов' },
 	{ id: '7', key: 'tooling', label: 'Производство оснастки' },
+	{ id: '8', key: 'safety', label: 'Безопасность' },
 	// { id: '6', key: 'sqdc', label: 'SQDC' },
 ]
 
@@ -55,8 +57,9 @@ const components = {
 	'production-load': <Load />,
 	'semi-finished': <SemiFinished />,
 	tooling: <Tooling />,
+	safety: <Safety />,
 
-	sqdc: <SQDC />,
+	// sqdc: <SQDC />,
 }
 
 export default function Home() {
@@ -120,10 +123,11 @@ export default function Home() {
 						name='month'
 						onClick={typeHandler}
 						variant={periodType == 'month' ? 'contained' : 'outlined'}
+						sx={{ borderRadius: '16px' }}
 					>
 						Месяц
 					</Button>
-					<Button
+					{/* <Button
 						disabled
 						name='quarter'
 						onClick={typeHandler}
@@ -147,7 +151,7 @@ export default function Home() {
 						sx={{ borderRadius: '16px' }}
 					>
 						Период
-					</Button>
+					</Button> */}
 				</ButtonGroup>
 			</Stack>
 

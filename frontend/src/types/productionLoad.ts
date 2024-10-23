@@ -4,6 +4,7 @@ export interface IProductionLoad {
 	sector: string | null
 	days: number | null
 	quantity: number | null
+	money: number | null
 }
 
 export interface IProductionLoadDTO {
@@ -12,4 +13,5 @@ export interface IProductionLoadDTO {
 	sector: string
 	days: number
 	quantity: number
+	money: number
 }

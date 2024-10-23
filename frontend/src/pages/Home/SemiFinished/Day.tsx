@@ -24,7 +24,7 @@ export default function Day({ data }: Props) {
 							<TableRow key={d.id}>
 								<TableCell>{d.product}</TableCell>
 								<TableCell align='right'>
-									{new Intl.NumberFormat('ru-Ru').format(+(data[0].count || 0))}
+									{new Intl.NumberFormat('ru-Ru').format(+(d.count || 0))}
 								</TableCell>
 							</TableRow>
 						))}

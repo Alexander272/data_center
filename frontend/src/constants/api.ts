@@ -15,5 +15,6 @@ export const API = {
 		ShippingPlan: 'criterions/shipping-plan',
 		SemiFinished: `criterions/semi-finished`,
 		Tooling: 'criterions/tooling',
+		Safety: 'criterions/safety',
 	},
 }
