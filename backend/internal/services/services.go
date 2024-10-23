@@ -19,6 +19,7 @@ type Services struct {
 	ShippingPlan
 	SemiFinished
 	Tooling
+	Safety
 
 	Role
 	MenuItem
@@ -54,6 +55,7 @@ func NewServices(deps Deps) *Services {
 	shippingPlan := NewShippingService(deps.Repos.ShippingPlan)
 	semiFinished := NewSemiFinishedService(deps.Repos.SemiFinished)
 	tooling := NewToolingService(deps.Repos.Tooling)
+	safety := NewSafetyService(deps.Repos.Safety)
 
 	criterions := NewCriterionsService(deps.Repos.Criterions, role)
 	completeCriterion := NewCompleteCriterionService(deps.Repos.CompleteCriterion, role, criterions)
@@ -67,6 +69,7 @@ func NewServices(deps Deps) *Services {
 		ShippingPlan:   shippingPlan,
 		SemiFinished:   semiFinished,
 		Tooling:        tooling,
+		Safety:         safety,
 
 		Criterions:        criterions,
 		CompleteCriterion: completeCriterion,

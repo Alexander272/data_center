@@ -34,7 +34,7 @@ func (r *ProductionLoadRepo) GetByPeriod(ctx context.Context, req *models.Period
 		args = append(args, req.To)
 	}
 
-	query := fmt.Sprintf(`SELECT id, date, sector, days, quantity FROM %s WHERE %s ORDER BY date, sector`, ProductionLoadTable, condition)
+	query := fmt.Sprintf(`SELECT id, date, sector, days, quantity, money FROM %s WHERE %s ORDER BY date, sector`, ProductionLoadTable, condition)
 	load := []*models.ProductionLoad{}
 
 	if err := r.db.SelectContext(ctx, &load, query, args...); err != nil {
@@ -45,16 +45,17 @@ func (r *ProductionLoadRepo) GetByPeriod(ctx context.Context, req *models.Period
 }
 
 func (r *ProductionLoadRepo) CreateSeveral(ctx context.Context, dto []*models.ProductionLoad) error {
-	query := fmt.Sprintf(`INSERT INTO %s(id, date, sector, days, quantity) VALUES `, ProductionLoadTable)
+	query := fmt.Sprintf(`INSERT INTO %s(id, date, sector, days, quantity, money) VALUES `, ProductionLoadTable)
 
 	args := make([]interface{}, 0)
 	values := make([]string, 0, len(dto))
 
-	c := 5
+	c := 6
 	for i, f := range dto {
 		id := uuid.New()
-		values = append(values, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d)", i*c+1, i*c+2, i*c+3, i*c+4, i*c+5))
-		args = append(args, id, f.Date, f.Sector, f.Days, f.Quantity)
+		values = append(values, fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d)", i*c+1, i*c+2, i*c+3, i*c+4, i*c+5, i*c+6))
+		args = append(args, id, f.Date, f.Sector, f.Days, f.Quantity, f.Money)
+
 	}
 	query += strings.Join(values, ", ")
 

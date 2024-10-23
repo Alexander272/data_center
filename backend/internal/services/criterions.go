@@ -48,7 +48,7 @@ func (s *CriterionsService) GetByDate(ctx context.Context, req *models.GetCriter
 
 	// req.EnabledKeys
 
-	types := []string{constants.DailyCriterion, constants.MonthlyCriterion}
+	types := []string{constants.DailyCriterion, constants.WeeklyCriterion, constants.MonthlyCriterion}
 	date := time.Unix(req.Date, 0)
 	if int(date.Weekday())%6 != 0 {
 		types = append(types, constants.InWeekdaysCriterion)

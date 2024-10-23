@@ -13,6 +13,7 @@ const (
 	ShippingPlan   = "shipping-plan"
 	SemiFinished   = "semi-finished"
 	Tooling        = "tooling"
+	Safety         = "safety"
 )
 
 const (

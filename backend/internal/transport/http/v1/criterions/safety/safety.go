@@ -1,4 +1,4 @@
-package tooling
+package safety
 
 import (
 	"net/http"
@@ -12,29 +12,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ToolingHandlers struct {
-	service services.Tooling
+type Handlers struct {
+	service services.Safety
 }
 
-func NewToolingHandlers(service services.Tooling) *ToolingHandlers {
-	return &ToolingHandlers{
+func NewHandlers(service services.Safety) *Handlers {
+	return &Handlers{
 		service: service,
 	}
 }
 
-func Register(api *gin.RouterGroup, service services.Tooling, middleware *middleware.Middleware) {
-	handlers := NewToolingHandlers(service)
+func Register(api *gin.RouterGroup, service services.Safety, middleware *middleware.Middleware) {
+	handlers := NewHandlers(service)
 
-	tooling := api.Group("tooling")
+	safety := api.Group("/safety")
 	{
-		tooling.GET("", middleware.CheckPermissions(constants.Tooling, constants.Read), handlers.getByPeriod)
-		tooling.POST("", middleware.CheckPermissions(constants.Tooling, constants.Write), handlers.create)
-		tooling.PUT("/:id", middleware.CheckPermissions(constants.Tooling, constants.Write), handlers.update)
-		tooling.DELETE("/:day", middleware.CheckPermissions(constants.Tooling, constants.Write), handlers.delete)
+		safety.GET("", middleware.CheckPermissions(constants.Safety, constants.Read), handlers.getByPeriod)
+		safety.POST("", middleware.CheckPermissions(constants.Safety, constants.Write), handlers.create)
+		safety.PUT("/:id", middleware.CheckPermissions(constants.Safety, constants.Write), handlers.update)
+		safety.DELETE("/:day", middleware.CheckPermissions(constants.Safety, constants.Write), handlers.delete)
 	}
 }
 
-func (h *ToolingHandlers) getByPeriod(c *gin.Context) {
+func (h *Handlers) getByPeriod(c *gin.Context) {
 	period := c.QueryMap("period")
 	if len(period) == 0 {
 		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "Период не задан")
@@ -55,8 +55,8 @@ func (h *ToolingHandlers) getByPeriod(c *gin.Context) {
 	c.JSON(http.StatusOK, response.DataResponse{Data: data})
 }
 
-func (h *ToolingHandlers) create(c *gin.Context) {
-	dto := &models.Tooling{}
+func (h *Handlers) create(c *gin.Context) {
+	dto := &models.Safety{}
 	if err := c.BindJSON(dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
@@ -70,14 +70,14 @@ func (h *ToolingHandlers) create(c *gin.Context) {
 	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные успешно добавлены"})
 }
 
-func (h *ToolingHandlers) update(c *gin.Context) {
+func (h *Handlers) update(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "Id не задан")
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "id не задан")
 		return
 	}
 
-	dto := &models.Tooling{}
+	dto := &models.Safety{}
 	if err := c.BindJSON(dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
@@ -92,14 +92,14 @@ func (h *ToolingHandlers) update(c *gin.Context) {
 	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные успешно обновлены"})
 }
 
-func (h *ToolingHandlers) updateByDay(c *gin.Context) {
-	dto := &models.Tooling{}
+func (h *Handlers) updateByDate(c *gin.Context) {
+	dto := &models.Safety{}
 	if err := c.BindJSON(dto); err != nil {
 		response.NewErrorResponse(c, http.StatusBadRequest, err.Error(), "Отправлены некорректные данные")
 		return
 	}
 
-	if err := h.service.UpdateByDay(c, dto); err != nil {
+	if err := h.service.UpdateByDate(c, dto); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		error_bot.Send(c, err.Error(), dto)
 		return
@@ -107,14 +107,14 @@ func (h *ToolingHandlers) updateByDay(c *gin.Context) {
 	c.JSON(http.StatusCreated, response.IdResponse{Message: "Данные успешно обновлены"})
 }
 
-func (h *ToolingHandlers) delete(c *gin.Context) {
+func (h *Handlers) delete(c *gin.Context) {
 	day := c.Param("day")
 	if day == "" {
-		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "День не задан")
+		response.NewErrorResponse(c, http.StatusBadRequest, "empty param", "день не задан")
 		return
 	}
 
-	if err := h.service.DeleteByDay(c, day); err != nil {
+	if err := h.service.DeleteByDate(c, day); err != nil {
 		response.NewErrorResponse(c, http.StatusInternalServerError, err.Error(), "Произошла ошибка: "+err.Error())
 		error_bot.Send(c, err.Error(), day)
 		return
