@@ -26,6 +26,7 @@ const OutputPlan = lazy(() => import('@/pages/CriterionsGroup/ProductionPlan/Out
 const SemiFinished = lazy(() => import('@/pages/CriterionsGroup/SemiFinished/SemiFinished'))
 const Tooling = lazy(() => import('@/pages/CriterionsGroup/Tooling/Tooling'))
 const Safety = lazy(() => import('@/pages/CriterionsGroup/Safety/Safety'))
+const Quality = lazy(() => import('@/pages/CriterionsGroup/Quality/Quality'))
 
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'))
 
@@ -66,6 +67,7 @@ export const AppRoutes = () => {
 							<Route path='semi-finished' element={<SemiFinished />} />
 							<Route path='tooling' element={<Tooling />} />
 							<Route path='safety' element={<Safety />} />
+							<Route path='quality' element={<Quality />} />
 						</Route>
 					</Route>
 

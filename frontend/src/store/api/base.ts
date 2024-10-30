@@ -80,6 +80,7 @@ export const api = createApi({
 		'SemiFinished',
 		'Tooling',
 		'Safety',
+		'Quality',
 	],
 	endpoints: () => ({}),
 })

@@ -24,6 +24,7 @@ const ShippingPlan = lazy(() => import('@/pages/Home/ShippingPlan/ShippingPlan')
 const SemiFinished = lazy(() => import('@/pages/Home/SemiFinished/SemiFinished'))
 const Tooling = lazy(() => import('@/pages/Home/Tooling/Tooling'))
 const Safety = lazy(() => import('@/pages/Home/Safety/Safety'))
+const Quality = lazy(() => import('@/pages/Home/Quality/Quality'))
 // const SQDC = lazy(() => import('@/pages/Home/components/SQDC/SQDC'))
 
 const steps = [
@@ -36,6 +37,7 @@ const steps = [
 	{ id: '6', key: 'semi-finished', label: 'Производство полуфабрикатов' },
 	{ id: '7', key: 'tooling', label: 'Производство оснастки' },
 	{ id: '8', key: 'safety', label: 'Безопасность' },
+	{ id: '9', key: 'quality', label: 'Качество' },
 	// { id: '6', key: 'sqdc', label: 'SQDC' },
 ]
 
@@ -58,6 +60,7 @@ const components = {
 	'semi-finished': <SemiFinished />,
 	tooling: <Tooling />,
 	safety: <Safety />,
+	quality: <Quality />,
 
 	// sqdc: <SQDC />,
 }

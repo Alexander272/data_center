@@ -41,7 +41,7 @@ export default function ProductionLoad() {
 		{ ...keyColumn<IProductionLoad, 'quantity'>('quantity', intColumn), title: 'Кол-во ед продукции' },
 		{
 			...keyColumn<IProductionLoad, 'money'>('money', floatColumn),
-			title: 'Стоимость',
+			title: 'Стоимость без НДС',
 			prePasteValues: moneyPaste,
 		},
 	]

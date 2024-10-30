@@ -20,7 +20,7 @@ export default function Day({ data }: Props) {
 								Кол-во ед продукции
 							</TableCell>
 							<TableCell align='right' sx={{ fontWeight: 'bold' }}>
-								Стоимость
+								Стоимость без НДС
 							</TableCell>
 						</TableRow>
 					</TableHead>
@@ -29,8 +29,12 @@ export default function Day({ data }: Props) {
 							<TableRow key={d.id}>
 								<TableCell>{d.sector}</TableCell>
 								<TableCell align='right'>{d.days}</TableCell>
-								<TableCell align='right'>{d.quantity}</TableCell>
-								<TableCell align='right'>{d.money}</TableCell>
+								<TableCell align='right'>
+									{new Intl.NumberFormat('ru-Ru').format(d.quantity || 0)}
+								</TableCell>
+								<TableCell align='right'>
+									{new Intl.NumberFormat('ru-Ru').format(d.money || 0)}
+								</TableCell>
 							</TableRow>
 						))}
 					</TableBody>

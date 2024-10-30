@@ -16,5 +16,6 @@ export const API = {
 		SemiFinished: `criterions/semi-finished`,
 		Tooling: 'criterions/tooling',
 		Safety: 'criterions/safety',
+		Quality: 'criterions/quality',
 	},
 }
