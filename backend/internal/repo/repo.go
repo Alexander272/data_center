@@ -38,6 +38,9 @@ type Tooling interface {
 type Safety interface {
 	postgres.Safety
 }
+type Quality interface {
+	postgres.Quality
+}
 
 type MenuItem interface {
 	postgres.MenuItem
@@ -65,6 +68,7 @@ type Repo struct {
 	SemiFinished
 	Tooling
 	Safety
+	Quality
 
 	MenuItem
 	Menu
@@ -85,6 +89,7 @@ func NewRepo(db *sqlx.DB) *Repo {
 		SemiFinished:      postgres.NewSemiFinishedRepo(db),
 		Tooling:           postgres.NewTooling(db),
 		Safety:            postgres.NewSafetyRepo(db),
+		Quality:           postgres.NewQualityRepo(db),
 
 		MenuItem: postgres.NewMenuItemRepo(db),
 		Menu:     postgres.NewMenuRepo(db),

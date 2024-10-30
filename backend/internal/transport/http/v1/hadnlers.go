@@ -11,6 +11,7 @@ import (
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/output_volume"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/production_load"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/production_plan"
+	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/quality"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/safety"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/semi_finished"
 	"github.com/Alexander272/data_center/backend/internal/transport/http/v1/criterions/shipment"
@@ -50,4 +51,5 @@ func (h *Handler) Init(group *gin.RouterGroup) {
 	semi_finished.Register(criterionsGroup, h.services.SemiFinished, h.middleware)
 	tooling.Register(criterionsGroup, h.services.Tooling, h.middleware)
 	safety.Register(criterionsGroup, h.services.Safety, h.middleware)
+	quality.Register(criterionsGroup, h.services.Quality, h.middleware)
 }

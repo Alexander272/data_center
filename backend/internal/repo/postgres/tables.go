@@ -13,6 +13,7 @@ const (
 	SemiFinishedTable   = "semi_finished"
 	ToolingTable        = "tooling"
 	SafetyTable         = "safety"
+	QualityTable        = "quality"
 
 	ProductsTable = "products"
 

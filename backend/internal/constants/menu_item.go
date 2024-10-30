@@ -14,6 +14,7 @@ const (
 	SemiFinished   = "semi-finished"
 	Tooling        = "tooling"
 	Safety         = "safety"
+	Quality        = "quality"
 )
 
 const (
