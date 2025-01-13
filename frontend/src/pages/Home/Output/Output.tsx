@@ -27,6 +27,8 @@ export default function Output() {
 		isError: isErrPlan,
 	} = useGetProductionPlanByPeriodQuery({ period, type: 'output' }, { skip: period.from == '' })
 
+	//TODO О.Ю. хочет диаграммы (пока не известно какие) с накопительным эффектом для данных за месяц и далее
+
 	useEffect(() => {
 		if (output?.data.length || plan?.data.length) {
 			const d = output?.data?.map(s => {

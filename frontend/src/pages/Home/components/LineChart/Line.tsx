@@ -5,12 +5,13 @@ import { LineChart } from 'echarts/charts'
 import { TooltipComponent, LegendComponent, GridComponent, MarkLineComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { ILineData } from '@/types/sheet'
+import { SeriesOption } from 'echarts/types/src/util/types.js'
 
 type Props = {
 	// name: string
 	// legend: string[]
 	data: ILineData
-	minYValue?: number
+	minYValue?: number | string
 }
 
 export const Line: FC<Props> = ({ data, minYValue }) => {
@@ -18,7 +19,7 @@ export const Line: FC<Props> = ({ data, minYValue }) => {
 
 	const legend: string[] = data.series.map(d => d.name)
 
-	const series = data.series.map(d => {
+	const series: SeriesOption[] = data.series.map(d => {
 		let markLine = {}
 		if (d.mark) {
 			markLine = {
@@ -28,6 +29,7 @@ export const Line: FC<Props> = ({ data, minYValue }) => {
 						yAxis: d.mark,
 						name: d.name,
 						label: {
+							position: 'insideEndTop',
 							formatter: (param: { name: string; value: number }) =>
 								`${param.name} (${new Intl.NumberFormat('ru', { notation: 'compact' }).format(
 									param.value
@@ -95,6 +97,7 @@ export const Line: FC<Props> = ({ data, minYValue }) => {
 		xAxis: {
 			type: 'category',
 			boundaryGap: false,
+			//TODO попробовать выделять красным выходные
 			data: data.axis,
 		},
 		yAxis: {

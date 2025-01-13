@@ -16,6 +16,7 @@ import { type IToast, Toast } from '@/components/Toast/Toast'
 const emptyData = [
 	{ id: '1', product: 'МГЛ', count: null },
 	{ id: '2', product: 'Фольга', count: null },
+	{ id: '3', product: 'Армированная фольга', count: null },
 ]
 
 export default function SemiFinished() {

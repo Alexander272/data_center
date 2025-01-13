@@ -19,6 +19,7 @@ const emptyData: IProductionLoad[] = [
 	{ id: '', sector: 'Набивка', days: null, quantity: null, money: null },
 	{ id: '', sector: 'Кольца', days: null, quantity: null, money: null },
 	{ id: '', sector: 'Линия прокатки', days: null, quantity: null, money: null },
+	{ id: '', sector: 'Спец. арматура', days: null, quantity: null, money: null },
 ]
 
 export default function ProductionLoad() {

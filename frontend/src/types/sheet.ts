@@ -1,3 +1,5 @@
+import { OrdinalRawValue, TextCommonOption } from 'echarts/types/src/util/types.js'
+
 export interface ICell {
 	value: string
 }
@@ -57,9 +59,11 @@ export interface IBarData {
 
 export interface ILineData {
 	series: ISeriesData[]
-	axis: string[]
+	axis: IAxisData[]
+	// axis: CategoryAxisBaseOption
 	visualMaps?: IVisualMap[]
 }
+export type IAxisData = OrdinalRawValue | { value: OrdinalRawValue; textStyle?: TextCommonOption }
 
 export interface IVisualMap {
 	mark: string
@@ -69,9 +73,11 @@ export interface IVisualMap {
 
 export interface ISeriesData {
 	name: string
+	stack?: string
 	data: number[]
 	mark?: number
 	color?: string
+	silent?: boolean
 }
 
 export interface ISQDCData {

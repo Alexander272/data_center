@@ -31,16 +31,16 @@ export default function Quality() {
 
 			{isFetching ? <TableFallBack /> : null}
 			<Suspense fallback={<TableFallBack />}>
-				{tab == 'rings' ? <Rings data={data?.data || []} /> : null}
+				{tab == 'rings' && data?.data.length ? <Rings data={data.data} /> : null}
 			</Suspense>
 
 			{!data?.data.length && !isError ? (
-				<Typography fontSize={'1.2rem'} textAlign={'center'}>
+				<Typography fontSize={'1.2rem'} textAlign={'center'} mt={2}>
 					Для выбранного периода данные не найдены
 				</Typography>
 			) : null}
 			{isError ? (
-				<Typography fontSize={'1.2rem'} textAlign={'center'}>
+				<Typography fontSize={'1.2rem'} textAlign={'center'} mt={2}>
 					Не удалось получить данные
 				</Typography>
 			) : null}

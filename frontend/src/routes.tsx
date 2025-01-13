@@ -5,6 +5,7 @@ import { useRefresh } from '@/hooks/refresh'
 import Main from '@/layout/Main/Main'
 import RequireAuth from './pages/Auth/RequireAuth'
 import { Fallback } from './components/Fallback/Fallback'
+import { SNP } from './pages/SNP/SNPLazy'
 
 const Auth = lazy(() => import('@/pages/Auth/Auth'))
 
@@ -69,6 +70,8 @@ export const AppRoutes = () => {
 							<Route path='safety' element={<Safety />} />
 							<Route path='quality' element={<Quality />} />
 						</Route>
+
+						<Route path='snp' element={<SNP />} />
 					</Route>
 
 					<Route path='*' element={<NotFound />} />

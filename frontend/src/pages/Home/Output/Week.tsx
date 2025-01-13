@@ -3,7 +3,7 @@ import { Box, Stack, Typography } from '@mui/material'
 import dayjs from 'dayjs'
 
 import type { IOutput } from '@/types/outputVolume'
-import type { ISeriesData } from '@/types/sheet'
+import type { IAxisData, ISeriesData } from '@/types/sheet'
 import { FormatDate } from '@/constants/format'
 import { Line } from '../components/LineChart/Line'
 
@@ -12,7 +12,7 @@ type Props = {
 }
 
 export default function Week({ data }: Props) {
-	const [axis, setAxis] = useState<string[]>([])
+	const [axis, setAxis] = useState<IAxisData[]>([])
 	const [seriesCountStock, setSeriesCountStock] = useState<ISeriesData[]>([])
 	const [seriesMoneyOrder, setSeriesMoneyOrder] = useState<ISeriesData[]>([])
 	const [seriesCountOrder, setSeriesCountOrder] = useState<ISeriesData[]>([])
@@ -28,7 +28,8 @@ export default function Week({ data }: Props) {
 		const stock = data.filter(d => d.forStock)
 		const orders = data.filter(d => !d.forStock)
 
-		const axisLine = new Set<string>()
+		// const axisLine = new Set<IAxisData>()
+		const axisLine = new Map<string, IAxisData>()
 		const countStockLines = new Map<string, number[]>()
 		const moneyOrderLines = new Map<string, number[]>()
 		const countOrderLines = new Map<string, number[]>()
@@ -41,8 +42,14 @@ export default function Week({ data }: Props) {
 		const planQuantity = new Map<string, number>()
 
 		stock.forEach(d => {
-			const date = dayjs(+(d.date || 0) * 1000).format(FormatDate) || ''
-			axisLine.add(date)
+			const dateObj = dayjs(+(d.date || 0) * 1000)
+			const date = dateObj.format(FormatDate) || ''
+
+			if (dateObj.day() == 0 || dateObj.day() == 6) {
+				axisLine.set(date, { value: date, textStyle: { color: '#b80505' } })
+			} else {
+				axisLine.set(date, date)
+			}
 
 			const data = countStockLines.get(d.product || '')
 			if (!data) {
@@ -87,12 +94,8 @@ export default function Week({ data }: Props) {
 			planQuantity.set(d.product, d.planQuantity)
 		})
 
-		setAxis(Array.from(axisLine))
-		setSeriesCountStock(
-			Array.from(countStockLines, entry => {
-				return { name: entry[0], data: entry[1] }
-			})
-		)
+		setAxis(Array.from(axisLine, entry => entry[1]))
+		setSeriesCountStock(Array.from(countStockLines, entry => ({ name: entry[0], data: entry[1] })))
 		setSeriesMoneyOrder(
 			Array.from(moneyOrderLines, entry => {
 				const p = planMoney.get(entry[0])
