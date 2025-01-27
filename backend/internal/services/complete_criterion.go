@@ -89,6 +89,13 @@ func (s *CompleteCriterionService) GetByDate(ctx context.Context, req *models.Ge
 }
 
 func (s *CompleteCriterionService) Create(ctx context.Context, dto *models.CompleteCriterionDTO) error {
+	candidate, err := s.repo.GetId(ctx, &models.GetOneCriterionDTO{CriterionId: dto.CriterionId, Date: dto.Date})
+	if err != nil {
+		return err
+	}
+	if candidate != "" {
+		return nil
+	}
 	if err := s.repo.Create(ctx, dto); err != nil {
 		return fmt.Errorf("failed to create complete criterion. error: %w", err)
 	}

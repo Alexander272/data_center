@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/Alexander272/data_center/backend/internal/models"
@@ -22,6 +23,7 @@ func NewCompleteCriterionRepo(db *sqlx.DB) *CompleteCriterionRepo {
 
 type CompleteCriterion interface {
 	GetByDate(context.Context, *models.GetCompeteDTO) ([]*models.CompleteCount, error)
+	GetId(ctx context.Context, req *models.GetOneCriterionDTO) (string, error)
 	Create(context.Context, *models.CompleteCriterionDTO) error
 	DeleteOld(context.Context, string) error
 }
@@ -94,6 +96,19 @@ func (r *CompleteCriterionRepo) GetByDate(ctx context.Context, req *models.GetCo
 	// }
 
 	// return complete, nil
+}
+
+func (r *CompleteCriterionRepo) GetId(ctx context.Context, req *models.GetOneCriterionDTO) (string, error) {
+	query := fmt.Sprintf(`SELECT id FROM %s WHERE criterion_id=$1 AND date=$2`, CompleteCriterionTable)
+
+	var id string
+	if err := r.db.GetContext(ctx, &id, query, req.CriterionId, req.Date); err != nil {
+		if err == sql.ErrNoRows {
+			return "", nil
+		}
+		return "", fmt.Errorf("failed to execute query. error: %w", err)
+	}
+	return id, nil
 }
 
 func (r *CompleteCriterionRepo) Create(ctx context.Context, dto *models.CompleteCriterionDTO) error {

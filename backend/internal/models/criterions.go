@@ -34,6 +34,11 @@ type CompleteCriterionDTO struct {
 	Date        int64  `json:"date" db:"date"`
 }
 
+type GetOneCriterionDTO struct {
+	CriterionId string `json:"criterionId" db:"criterion_id"`
+	Date        int64  `json:"date" db:"date"`
+}
+
 // type CompleteCriterionDTO struct {
 // 	Role        string
 // 	Type        string `json:"type"`
