@@ -1,27 +1,28 @@
 import { Box, Stack, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material'
 
 import type { IQuality } from '@/types/quality'
-import { Pie } from '../../components/PieChart/Pie'
+// import { Pie } from '../../components/PieChart/Pie'
 
-type Props = {
-	data: IQuality[]
-}
+// type Props = {
+// 	data: IQuality[]
+// }
 
-export default function Rings({ data }: Props) {
+// export default function Rings({ data }: Props) {
+export default function Rings() {
 	const table = new Map<string, IQuality>()
-	data.forEach(d => {
-		if (table.has(d.title)) {
-			const item: IQuality = table.get(d.title)!
-			table.set(d.title, {
-				...item,
-				amount: item.amount + d.amount,
-				percent: item.percent + d.percent,
-				cost: item.cost + d.cost,
-			})
-		} else {
-			table.set(d.title, d)
-		}
-	})
+	// data.forEach(d => {
+	// 	if (table.has(d.title)) {
+	// 		const item: IQuality = table.get(d.title)!
+	// 		table.set(d.title, {
+	// 			...item,
+	// 			amount: item.amount + d.amount,
+	// 			percent: item.percent + d.percent,
+	// 			cost: item.cost + d.cost,
+	// 		})
+	// 	} else {
+	// 		table.set(d.title, d)
+	// 	}
+	// })
 
 	return (
 		<Stack mt={2}>
@@ -41,7 +42,7 @@ export default function Rings({ data }: Props) {
 						{Array.from(table.keys()).map(key => (
 							<TableRow key={table.get(key)?.id}>
 								<TableCell>{table.get(key)?.title}</TableCell>
-								<TableCell align='right'>
+								{/* <TableCell align='right'>
 									{new Intl.NumberFormat('ru-Ru').format(+(table.get(key)?.amount || 0))}
 								</TableCell>
 								<TableCell align='right'>
@@ -51,14 +52,14 @@ export default function Rings({ data }: Props) {
 								</TableCell>
 								<TableCell align='right'>
 									{new Intl.NumberFormat('ru-Ru').format(+(table.get(key)?.cost || 0))}
-								</TableCell>
+								</TableCell> */}
 							</TableRow>
 						))}
 					</TableBody>
 				</Table>
 			</Box>
 
-			<Box>
+			{/* <Box>
 				<Pie
 					data={Array.from(table.keys()).map(key => ({
 						name: table.get(key)?.title || '',
@@ -66,7 +67,7 @@ export default function Rings({ data }: Props) {
 					}))}
 					name={'Количество брака, шт.'}
 				/>
-			</Box>
+			</Box> */}
 		</Stack>
 	)
 }

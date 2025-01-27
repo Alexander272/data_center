@@ -6,15 +6,17 @@ import { BarChart as Bar } from 'echarts/charts'
 import { TooltipComponent, LegendComponent, GridComponent, MarkLineComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { BarSeriesLabelOption } from 'echarts/types/src/chart/bar/BarSeries.js'
-import type { TooltipOption } from 'echarts/types/dist/shared.js'
+import type { TooltipOption, XAXisOption, YAXisOption } from 'echarts/types/dist/shared.js'
 
 import type { IAxisData } from '@/types/sheet'
 
 type Props = {
 	data: {
 		series: BarSeriesOption[]
-		axis: IAxisData[]
+		axis?: IAxisData[]
 		tooltip?: TooltipOption
+		xAxis?: XAXisOption
+		yAxis?: YAXisOption
 	}
 }
 
@@ -49,18 +51,27 @@ export const BarChart: FC<Props> = ({ data }) => {
 		}
 	})
 
+	const xAxis = {
+		type: 'category',
+		data: data.axis,
+	}
+	const yAxis = {
+		type: 'value',
+	}
+
 	const options = {
 		tooltip: data.tooltip,
 		legend: {
 			data: legend,
 		},
-		xAxis: {
-			type: 'category',
-			data: data.axis,
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '3%',
+			containLabel: true,
 		},
-		yAxis: {
-			type: 'value',
-		},
+		xAxis: data.xAxis || xAxis,
+		yAxis: data.yAxis || yAxis,
 		series: series,
 	}
 
