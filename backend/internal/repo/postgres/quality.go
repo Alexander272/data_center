@@ -104,7 +104,7 @@ func (r *QualityRepo) UpdateSeveral(ctx context.Context, dto []*models.Quality) 
 		for j := range tmp {
 			numbers = append(numbers, fmt.Sprintf("$%d", i*len(tmp)+j+1))
 		}
-		values = append(values, fmt.Sprintf("($%s)", strings.Join(numbers, ",")))
+		values = append(values, fmt.Sprintf("(%s)", strings.Join(numbers, ",")))
 	}
 
 	query := fmt.Sprintf(`UPDATE %s AS t SET date=s.date::integer, product=s.product, title=s.title, 
