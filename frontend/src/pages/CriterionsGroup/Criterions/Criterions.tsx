@@ -1,11 +1,12 @@
-import { Suspense, useCallback, useEffect, useState } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { Box, CircularProgress, Divider, Stack } from '@mui/material'
+import { Box, Button, CircularProgress, Divider, Menu, Stack } from '@mui/material'
+import CalendarIcon from '@mui/icons-material/CalendarMonthOutlined'
 import 'react-datasheet-grid/dist/style.css'
 
 import type { IResError } from '@/types/err'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
-import { setActive, setCriterions } from '@/store/criterions'
+import { setActive, setCriterions, setDate } from '@/store/criterions'
 import { getMenu } from '@/store/user'
 import { useCompleteCriterionMutation, useGetCriterionsQuery } from '@/store/api/criterions'
 import { TableFallBack } from '@/pages/Home/components/Fallback/FallBack'
@@ -15,6 +16,8 @@ import { StepButtons } from '@/components/Stepper/StepButtons'
 import { Week } from '@/components/Week/Week'
 import { IToast, Toast } from '@/components/Toast/Toast'
 import { Container } from './criterions.style'
+import { Calendar } from '@/components/Calendar/Calendar'
+import dayjs, { Dayjs } from 'dayjs'
 
 // const steps: IStep[] = [
 // 	{ id: '', key: 'injuries', label: 'Травматизм' },
@@ -34,6 +37,9 @@ export default function Criterions() {
 	const complete = useAppSelector(state => state.criterions.complete)
 	const date = useAppSelector(state => state.criterions.date)
 	const menu = useAppSelector(getMenu)
+
+	const anchor = useRef<HTMLButtonElement>(null)
+	const [open, setOpen] = useState(false)
 
 	const dispatch = useAppDispatch()
 	const navigate = useNavigate()
@@ -63,6 +69,18 @@ export default function Criterions() {
 
 	const closeHandler = () => {
 		setToast({ type: 'success', message: '', open: false })
+	}
+	const toggleCalendar = () => {
+		setOpen(prev => !prev)
+	}
+
+	const dateHandler = (date: [from: Dayjs, to?: Dayjs]) => {
+		toggleCalendar()
+		if (date[0].isAfter(dayjs())) {
+			setToast({ type: 'error', message: 'Нельзя выбрать будущую дату', open: true })
+			return
+		}
+		dispatch(setDate(date[0].unix().toString()))
 	}
 
 	const competeHandler = useCallback(async () => {
@@ -111,7 +129,72 @@ export default function Criterions() {
 		<Container>
 			<Toast data={toast} onClose={closeHandler} />
 			{/* вывод последних 7 дней с обозначением заполнены ли были критерии */}
-			<Week />
+			<Stack
+				width={'100%'}
+				direction={'row'}
+				spacing={1}
+				mb={2}
+				justifyContent={'center'}
+				alignItems={'flex-end'}
+			>
+				<Week />
+
+				<Button
+					onClick={toggleCalendar}
+					ref={anchor}
+					color='inherit'
+					variant='outlined'
+					// disabled={periodType != 'day'}
+					sx={{
+						borderRadius: '8px',
+						minWidth: 44,
+						width: 52,
+						height: 48,
+						background: '#fff',
+						borderWidth: 2,
+						borderColor: 'var(--gray-border)',
+					}}
+				>
+					<CalendarIcon />
+				</Button>
+			</Stack>
+
+			<Menu
+				open={open}
+				onClose={toggleCalendar}
+				anchorEl={anchor.current}
+				transformOrigin={{ horizontal: 'center', vertical: 'top' }}
+				anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+				MenuListProps={{
+					role: 'listbox',
+					disableListWrap: true,
+				}}
+				slotProps={{
+					paper: {
+						elevation: 0,
+						sx: {
+							overflow: 'visible',
+							padding: 0,
+							mt: 1.2,
+							filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+							'&:before': {
+								content: '""',
+								display: 'block',
+								position: 'absolute',
+								top: 0,
+								left: '50%',
+								width: 10,
+								height: 10,
+								bgcolor: 'background.paper',
+								transform: 'translate(-50%, -50%) rotate(45deg)',
+								zIndex: 0,
+							},
+						},
+					},
+				}}
+			>
+				<Calendar selected={dayjs(+date * 1000)} onSelect={dateHandler} />
+			</Menu>
 
 			<Stack spacing={2} direction={'row'} width={'100%'} height={'100%'}>
 				<Stepper active={active} data={criterions} onSelect={stepHandler} width='350px' />

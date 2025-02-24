@@ -69,7 +69,7 @@ export const Week = () => {
 	}
 
 	return (
-		<Stack width={'100%'} direction={'row'} spacing={1} mb={2} justifyContent={'center'}>
+		<Stack direction={'row'} spacing={1}>
 			{renderDays()}
 		</Stack>
 	)
