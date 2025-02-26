@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { Box, Button, CircularProgress, Divider, Menu, Stack } from '@mui/material'
+import { Box, CircularProgress, Divider, Menu, Stack, Typography } from '@mui/material'
 import CalendarIcon from '@mui/icons-material/CalendarMonthOutlined'
 import 'react-datasheet-grid/dist/style.css'
 
@@ -139,24 +139,38 @@ export default function Criterions() {
 			>
 				<Week />
 
-				<Button
+				<Box
 					onClick={toggleCalendar}
 					ref={anchor}
-					color='inherit'
-					variant='outlined'
-					// disabled={periodType != 'day'}
 					sx={{
 						borderRadius: '8px',
 						minWidth: 44,
-						width: 52,
+						width: 60,
 						height: 48,
 						background: '#fff',
-						borderWidth: 2,
-						borderColor: 'var(--gray-border)',
+						border: '2px solid var(--gray-border)',
+						position: 'relative',
+						cursor: 'pointer',
+						transition: 'all 0.3s ease-in-out',
+						'&:hover': {
+							backgroundColor: '#e1effe',
+						},
 					}}
 				>
-					<CalendarIcon />
-				</Button>
+					<Typography fontSize={'1.0rem'} pl={1} sx={{ pointerEvents: 'none' }}>
+						{dayjs(+date * 1000).format('DD.MM')}
+					</Typography>
+
+					<Box
+						position={'absolute'}
+						right={'50%'}
+						bottom={4}
+						height={'18px'}
+						sx={{ pointerEvents: 'none', transform: 'translateX(50%)' }}
+					>
+						<CalendarIcon fontSize={'small'} />
+					</Box>
+				</Box>
 			</Stack>
 
 			<Menu
